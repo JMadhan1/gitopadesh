@@ -15,20 +15,20 @@ function saveExchange(e){hist.unshift(e);hist=hist.slice(0,60);store.set(HK,hist
 function leafHTML(e){const L=T[e.lang]||T.en,order=ORDER[e.mode]||['SAY'];
  return `<div class="kr"><div class="who">॥ श्रीभगवानुवाच ॥</div>`+order.filter(k=>e.sec&&e.sec[k]).map(k=>{
   const v=k==='VERSE'&&e.vid&&byId[e.vid];
-  const vb=v?`<span class="cite">Bhagavad Gītā ${e.vid}</span><div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>`:'';
+  const vb=v?`<span class="cite">${tx('Bhagavad Gītā')} ${e.vid}</span><div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>`:'';
   return `<div class="step ${k==='ASK'?'ask':''}"><b>${L.h[k]}</b>${vb}<p>${esc(e.sec[k])}</p></div>`}).join('')+`</div>`}
-const modeLabel=m=>m==='ASK'?'Krishna asked':m==='TEACH'?'Teaching':'Dialogue';
+const modeLabel=m=>tx(m==='ASK'?'Krishna asked':m==='TEACH'?'Teaching':'Dialogue');
 function openHistory(){
  const box=$('#box');
- box.innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><h3>Your conversations</h3><p class="wm">Kept only in this browser. Nothing is stored on a server.</p>`+
-  (hist.length?`<div class="hlist">${hist.map((e,i)=>`<button class="hitem" data-i="${i}" type="button"><span class="hd">${new Date(e.t).toLocaleString([],{dateStyle:'medium',timeStyle:'short'})} · ${modeLabel(e.mode)}${e.vid?' · BG '+e.vid:''}</span><span class="hq">${esc(e.q.slice(0,140))}</span></button>`).join('')}</div><div class="actions"><button class="pill" id="hClear" type="button">Clear all history</button></div>`
-   :'<div class="empty">No conversations yet. Speak to Krishna and they will appear here.</div>');
+ box.innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><h3>${tx('Your conversations')}</h3><p class="wm">${tx('Kept only in this browser. Nothing is stored on a server.')}</p>`+
+  (hist.length?`<div class="hlist">${hist.map((e,i)=>`<button class="hitem" data-i="${i}" type="button"><span class="hd">${new Date(e.t).toLocaleString([],{dateStyle:'medium',timeStyle:'short'})} · ${modeLabel(e.mode)}${e.vid?' · BG '+e.vid:''}</span><span class="hq">${esc(e.q.slice(0,140))}</span></button>`).join('')}</div><div class="actions"><button class="pill" id="hClear" type="button">${tx('Clear all history')}</button></div>`
+   :'<div class="empty">'+tx('No conversations yet. Speak to Krishna and they will appear here.')+'</div>');
  $('#modal').classList.add('show');$('#xBtn').onclick=closeM;
  $$('.hitem').forEach(b=>b.onclick=()=>openHistItem(+b.dataset.i));
- const c=$('#hClear');if(c)c.onclick=()=>{if(c.dataset.sure){hist=[];store.set(HK,hist);updHist();openHistory();toast('History cleared')}else{c.dataset.sure=1;c.textContent='Tap again to confirm'}};
+ const c=$('#hClear');if(c)c.onclick=()=>{if(c.dataset.sure){hist=[];store.set(HK,hist);updHist();openHistory();toast('History cleared')}else{c.dataset.sure=1;c.textContent=tx('Tap again to confirm')}};
 }
 function openHistItem(i){const e=hist[i];if(!e)return;
- $('#box').innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><button class="pill" id="hBack" type="button">← All conversations</button><div class="me"><small>You</small><span>${esc(e.q)}</span></div>${leafHTML(e)}<div class="actions">${e.vid?'<button class="pill" id="hCard" type="button">🖼 Shloka card</button>':''}<button class="pill" id="hCopy" type="button">⧉ Copy</button><button class="pill" id="hDel" type="button">Delete</button></div>`;
+ $('#box').innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><button class="pill" id="hBack" type="button">${tx('← All conversations')}</button><div class="me"><small>${tx('You')}</small><span>${esc(e.q)}</span></div>${leafHTML(e)}<div class="actions">${e.vid?`<button class="pill" id="hCard" type="button">${tx('🖼 Shloka card')}</button>`:''}<button class="pill" id="hCopy" type="button">${tx('⧉ Copy')}</button><button class="pill" id="hDel" type="button">${tx('Delete')}</button></div>`;
  $('#xBtn').onclick=closeM;$('#hBack').onclick=openHistory;
  const h=$('#hCard');if(h)h.onclick=()=>openVerse(e.vid,true);
  $('#hCopy').onclick=()=>navigator.clipboard?.writeText(e.q+'\n\n'+Object.values(e.sec||{}).join('\n\n')).then(()=>toast('Copied'));
@@ -42,11 +42,12 @@ $('#newConvo').onclick=()=>{history=[];ss.set('ctx',[]);$('#thread').innerHTML='
 $$('#langs [data-l]').forEach(b=>b.addEventListener('click',()=>{lastSub='';if(!history.length)setSubtitle(T[b.dataset.l].greet)}));
 
 /* ================= Hero quote (real verses from the dataset) ================= */
+let heroQuoteRefresh=()=>{};
 (()=>{const IDS=['2.47','18.66','6.5','4.7','2.20','2.14'],box=$('#heroQuote');let k=0;
  const short=t=>{t=t.trim();if(t.length<=170)return t;const m=t.slice(0,170).match(/^.*[.;]/);return m?m[0]:t.slice(0,167)+'…'};
  function show(){const v=byId[IDS[k%IDS.length]];if(!v){k++;return}
-  box.classList.add('out');setTimeout(()=>{box.innerHTML=`<p class="sk">${esc(clean(v).split(/[।॥]/)[0].trim()+' ॥')}</p><p class="en">“${esc(short(v.translation))}”</p><cite>Krishna · Bhagavad Gītā ${id(v)}</cite>`;box.classList.remove('out');k++},k?500:0)}
- show();setInterval(show,10000)})();
+  box.classList.add('out');setTimeout(()=>{box.innerHTML=`<p class="sk">${esc(clean(v).split(/[।॥]/)[0].trim()+' ॥')}</p><p class="en">“${esc(short(v.translation))}”</p><cite>${lang==='en'?'Krishna':lang==='hi'?'कृष्ण':'కృష్ణుడు'} · ${tx('Bhagavad Gītā')} ${id(v)}</cite>`;box.classList.remove('out');k++},k?500:0)}
+ heroQuoteRefresh=()=>{k=Math.max(0,k-1);show()};show();setInterval(show,10000)})();
 
 /* ================= Stage effects over the portrait ================= */
 (()=>{

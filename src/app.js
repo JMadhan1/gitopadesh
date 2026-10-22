@@ -2,9 +2,10 @@ const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
 const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const id=v=>v.chapter+'.'+v.verse, byId=Object.fromEntries(VERSES.map(v=>[id(v),v]));
-const clean=v=>v.sanskrit.replace(/\s*[।॥]*\s*\d+\.\d+\s*[।॥]*\s*$/,'');
+const clean=v=>{const s=v.sanskrit.replace(/\s*[।॥]*\s*\d+\.\d+\s*[।॥]*\s*$/,'');return lang==='te'?toTelugu(s):s};
 const ss={get(k,d){try{return JSON.parse(sessionStorage.getItem(k))??d}catch{return d}},set(k,v){try{sessionStorage.setItem(k,JSON.stringify(v))}catch{}}};
 let lang=store.get('lang','en'), saved=new Set(store.get('saved',[])), cardTheme=0, hasLLM=false, speakOn=store.get('speak',true), history=ss.get('ctx',[]), busy=false;
+let i18nReady=false;
 
 /* ---------- Starry sky ---------- */
 (()=>{const c=$('#sky'),x=c.getContext('2d');let W,H,S=[],mx=0,my=0;
@@ -77,7 +78,7 @@ hi:{h:{SEE:'मैं तुम्हें देखता हूँ',FIELD:'�
   general:['मैं तुम्हें देखता हूँ और तुम्हारा बोझ जानता हूँ। इस रणभूमि में तुम अकेले नहीं — मैं सदा तुम्हारे जीवन का सारथी हूँ।','आज अपने कर्तव्य के अनुरूप एक ईमानदार कर्म करो, परिणाम की चिंता के बिना। हर सुबह मौन में बैठो, अगला कदम स्वयं प्रकट होगा।']
  },
  talk:'मैं सुन रहा हूँ, प्रिय। अगला उचित कर्म करो और शेष मुझ पर छोड़ दो। बताओ, सूर्यास्त से पहले तुम कौन-सा एक छोटा कदम उठा सकते हो?',
- expl:v=>`यह तुम्हारे लिए मेरा वचन है — (अंग्रेज़ी अनुवाद) “${v.translation.trim()}” इसे नियम नहीं, आज की तुम्हारी स्थिति के लिए दीपक समझो।`},
+ expl:v=>`यह तुम्हारे लिए मेरा वचन है — “${v.translation.trim()}” इसे नियम नहीं, आज की तुम्हारी स्थिति के लिए दीपक समझो।`},
 te:{h:{SEE:'నేను నిన్ను చూస్తున్నాను',FIELD:'కురుక్షేత్రం',VERSE:'నా శ్లోకం',PATH:'ముందుకు మార్గం',SELF:'నీవెవరో గుర్తుంచుకో',ASK:'నాకు చెప్పు',SAY:'కృష్ణుడు అంటున్నాడు'},
  bridge:'ప్రేమ మరియు కర్తవ్యం మధ్య అర్జునుడు వణుకుతూ నిలబడినట్లే, ఈ రోజు నీవు నీ స్వంత కురుక్షేత్రంలో నిలబడి ఉన్నావు. ఆ యుద్ధభూమి బయట లేదు; ధైర్యం కోరే ప్రతి నిర్ణయంలోనే ఉంది.',
  last:'నీవు ఈ శరీరం కాదు, ఈ క్షణికమైన ఆలోచనల తుఫాను కాదు. నీవు జన్మలేని, నాశనం లేని ఆత్మవు — గెలుపు ఓటముల స్పర్శ లేనివాడివి. లే.',
@@ -94,7 +95,7 @@ te:{h:{SEE:'నేను నిన్ను చూస్తున్నాను
   general:['నేను నిన్ను చూస్తున్నాను, నీ భారం తెలుసు. ఈ యుద్ధభూమిలో నీవు ఒంటరివి కావు — నేనెప్పుడూ నీ జీవిత సారథిని.','ఈ రోజు ఫలితం గురించిన ఆందోళన లేకుండా, నీ కర్తవ్యానికి అనుగుణంగా ఒక నిజాయితీ గల పని చెయ్యి.']
  },
  talk:'నేను వింటున్నాను, ప్రియా. తదుపరి సరైన పని చెయ్యి, మిగిలినది నాకు వదిలెయ్యి. సూర్యాస్తమయం లోపల నీవు వేయగల ఒక చిన్న అడుగు ఏది?',
- expl:v=>`ఇది నీ కోసం నా వాక్యం — (ఆంగ్ల అనువాదం) “${v.translation.trim()}” దీన్ని నియమంగా కాక, ఈ రోజు నీ పరిస్థితికి వెలుగుగా భావించు.`}
+ expl:v=>`ఇది నీ కోసం నా వాక్యం — “${v.translation.trim()}” దీన్ని నియమంగా కాక, ఈ రోజు నీ పరిస్థితికి వెలుగుగా భావించు.`}
 };
 function offlineParsed(text,cands,mood,isFirst){
  const L=T[lang];
@@ -130,7 +131,7 @@ function renderKrishna(el,p,candIds,streaming){
   if(t===undefined){return}
   st.style.display='';
   st.querySelector('p').textContent=t;
-  if(k==='VERSE'&&p.id!==undefined&&!st.dataset.v){const v=byId[vid];if(v){st.dataset.v=vid;st.querySelector('.vblock').innerHTML=`<span class="cite">Bhagavad Gītā ${vid}</span><div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>`}}
+  if(k==='VERSE'&&p.id!==undefined&&!st.dataset.v){const v=byId[vid];if(v){st.dataset.v=vid;st.querySelector('.vblock').innerHTML=`<span class="cite">${tx('Bhagavad Gītā')} ${vid}</span><div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>`}}
   body.querySelectorAll('p').forEach(x=>x.classList.remove('caret'));lastShown=st;
  });
  if(lastShown&&streaming)lastShown.querySelector('p').classList.add('caret');
@@ -138,7 +139,7 @@ function renderKrishna(el,p,candIds,streaming){
  if(!streaming&&!el.dataset.fin){el.dataset.fin=1;
   const verse=p.mode==='TEACH'?byId[vid]:null,text=order.map(k=>p.sec[k]).filter(Boolean).join('\n\n');
   const a=document.createElement('div');a.className='actions';
-  a.innerHTML=(verse?'<button class="pill" data-a="recite">🕉 Recite shloka</button><button class="pill" data-a="teach">📖 Teach me this shloka</button><button class="pill" data-a="card">🖼 Shloka card</button>':'')+'<button class="pill" data-a="copy">⧉ Copy</button>'+(verse?'<button class="pill" data-a="save">♡ Save verse</button>':'')+'<button class="pill" data-a="listen">🔊 Listen</button>';
+  a.innerHTML=(verse?'<button class="pill" data-a="recite">'+tx('🕉 Recite shloka')+'</button><button class="pill" data-a="teach">'+tx('📖 Teach me this shloka')+'</button><button class="pill" data-a="card">'+tx('🖼 Shloka card')+'</button>':'')+'<button class="pill" data-a="copy">'+tx('⧉ Copy')+'</button>'+(verse?'<button class="pill" data-a="save">'+tx('♡ Save verse')+'</button>':'')+'<button class="pill" data-a="listen">'+tx('🔊 Listen')+'</button>';
   a.onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;const k=b.dataset.a;
    if(k==='card')openVerse(vid,true);if(k==='recite')reciteShloka(verse);if(k==='teach')openTeach(vid);if(k==='copy')navigator.clipboard?.writeText(text+'\n— Gitopadesh').then(()=>toast('Copied'));
    if(k==='save')toggleSave(vid);if(k==='listen')speak(text)};
@@ -155,7 +156,7 @@ async function ask(text){
  text=(text||'').trim();if(!text){toast('Speak or type what is on your heart 🙏');return}
  audioInit();if(busy)return;{const dl=detectLang(text);if(dl&&dl!==lang){setLang(dl);toast(dl==='hi'?'Krishna will answer in हिंदी':'Krishna will answer in తెలుగు')}}busy=true;$('#goBtn').disabled=true;stopSpeak();
  $('#thread').innerHTML='';
- const me=document.createElement('div');me.className='me';const mk=document.createElement('small');mk.textContent='You';const mt=document.createElement('span');mt.textContent=text;me.append(mk,mt);$('#thread').appendChild(me);
+ const me=document.createElement('div');me.className='me';const mk=document.createElement('small');mk.textContent=tx('You');const mt=document.createElement('span');mt.textContent=text;me.append(mk,mt);$('#thread').appendChild(me);
  $('#chariot').classList.add('show');$('#readMore').classList.remove('show');
  if(speakOn)$('#readMore').classList.add('show');else setTimeout(()=>me.scrollIntoView({behavior:'smooth',block:'start'}),60);
  $('#q').value='';autosize();
@@ -212,12 +213,12 @@ function browserSpeak(text){
   speechSynthesis.speak(u)});
 }
 function stopSpeak(){try{speechSynthesis.cancel()}catch{}vtoken++;try{curSrc&&curSrc.stop()}catch{}ambStop();setState('idle')}
-const setSpeakBtn=()=>$('#voiceOut').textContent='🔊 Krishna speaks: '+(speakOn?'on':'off');
+const setSpeakBtn=()=>$('#voiceOut').textContent='🔊 '+SL().speaks+': '+(speakOn?SL().on:SL().off);
 $('#voiceOut').onclick=()=>{speakOn=!speakOn;store.set('speak',speakOn);setSpeakBtn();if(!speakOn)stopSpeak()};setSpeakBtn();
 
 /* ---------- Verse cards / explorer ---------- */
-function vcard(v){const i=id(v);return`<div class="vc" data-id="${i}"><button class="heart ${saved.has(i)?'on':''}" data-h="${i}" aria-label="save">${saved.has(i)?'♥':'♡'}</button><div class="t">BG ${i}</div><div class="s">${esc(clean(v).split('।')[0].replace(/^.*उवाच\s*/,'').slice(0,90))}…</div><div class="e">${esc(v.translation)}</div>${v.themes.slice(0,3).map(t=>`<span class="tag">${t}</span>`).join('')}</div>`}
-function renderCards(el,list){el.innerHTML=list.length?list.map(vcard).join(''):'<div class="empty">Nothing here yet.</div>'}
+function vcard(v){const i=id(v);return`<div class="vc" data-id="${i}"><button class="heart ${saved.has(i)?'on':''}" data-h="${i}" aria-label="save">${saved.has(i)?'♥':'♡'}</button><div class="t">BG ${i}</div><div class="s">${esc(clean(v).split('।')[0].replace(/^.*उवाच\s*/,'').slice(0,90))}…</div><div class="e">${esc(v.translation)}</div>${v.themes.slice(0,3).map(t=>`<span class="tag">${esc(themeName(t))}</span>`).join('')}</div>`}
+function renderCards(el,list){el.innerHTML=list.length?list.map(vcard).join(''):'<div class="empty">'+tx('Nothing here yet.')+'</div>'}
 document.addEventListener('click',e=>{
  const h=e.target.closest('.heart');if(h){e.stopPropagation();toggleSave(h.dataset.h);return}
  const c=e.target.closest('.vc');if(c)openVerse(c.dataset.id);
@@ -225,22 +226,22 @@ document.addEventListener('click',e=>{
 function toggleSave(i){saved.has(i)?saved.delete(i):saved.add(i);store.set('saved',[...saved]);toast(saved.has(i)?'Saved ♥':'Removed');refreshSaved()}
 function refreshSaved(){$('#savedCount').textContent=saved.size;renderCards($('#savedGrid'),[...saved].map(i=>byId[i]).filter(Boolean));
  $$('.heart').forEach(b=>{const on=saved.has(b.dataset.h);b.classList.toggle('on',on);b.textContent=on?'♥':'♡'});
- if(!saved.size)$('#savedGrid').innerHTML='<div class="empty">Tap ♡ on any verse to keep it here.</div>'}
+ if(!saved.size)$('#savedGrid').innerHTML='<div class="empty">'+tx('Tap ♡ on any verse to keep it here.')+'</div>'}
 function openVerse(i,focusCard){
  const v=byId[i];if(!v)return;
- $('#box').innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><span class="cite">Chapter ${v.chapter} · Verse ${v.verse}</span>
+ $('#box').innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><span class="cite">${tx('Chapter')} ${v.chapter} · ${tx('Verse')} ${v.verse}</span>
  <div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>
- <p style="font:500 20px/1.6 'Newsreader',serif">${esc(v.translation)}</p>
- <details><summary class="pill" style="display:inline-block">Word by word</summary><p class="wm">${esc(v.word_meanings||'').replace(/;/g,' · ')}</p></details>
- <h3 style="margin-top:18px;font:700 24px 'Newsreader',serif;color:var(--gold)">Shloka card</h3>
- <div class="actions">${['Midnight','Saffron','Lotus'].map((n,k)=>`<button class="pill ${k===cardTheme?'on':''}" data-ct="${k}">${n}</button>`).join('')}</div>
+ <p style="font:500 20px/1.6 'Newsreader','Tiro Devanagari Sanskrit','Noto Serif Telugu',serif">${esc(v.translation)}</p>${v.localized&&lang!=='en'?`<p class="wm">${tx('Translation prepared with AI from the Sanskrit. Please confirm with a teacher or a printed edition for study.')}</p>`:''}
+ <details><summary class="pill" style="display:inline-block">${tx('Word by word')}</summary><p class="wm">${esc(v.word_meanings||'').replace(/;/g,' · ')}</p></details>
+ <h3 style="margin-top:18px;font:700 24px 'Newsreader',serif;color:var(--gold)">${tx('Shloka card')}</h3>
+ <div class="actions">${['Midnight','Saffron','Lotus'].map((n,k)=>`<button class="pill ${k===cardTheme?'on':''}" data-ct="${k}">${tx(n)}</button>`).join('')}</div>
  <canvas id="cv" class="cardprev" width="1080" height="1080"></canvas>
- <div class="actions"><button class="pill" id="vRecite" type="button">🕉 Recite shloka</button><button class="pill" id="vTeach" type="button">📖 Teach me this shloka</button></div>
- <div class="actions"><button class="go" id="dl">⬇ Download 1080×1080</button><button class="pill" id="sv">${saved.has(i)?'♥ Saved':'♡ Save'}</button><button class="pill" id="cp">⧉ Copy verse</button><button class="pill" id="nx">Next verse ➜</button></div>`;
+ <div class="actions"><button class="pill" id="vRecite" type="button">${tx('🕉 Recite shloka')}</button><button class="pill" id="vTeach" type="button">${tx('📖 Teach me this shloka')}</button></div>
+ <div class="actions"><button class="go" id="dl">${tx('⬇ Download 1080×1080')}</button><button class="pill" id="sv">${tx(saved.has(i)?'♥ Saved':'♡ Save')}</button><button class="pill" id="cp">${tx('⧉ Copy verse')}</button><button class="pill" id="nx">${tx('Next verse ➜')}</button></div>`;
  $('#modal').classList.add('show');$('#xBtn').onclick=closeM;drawCard(v);$('#vRecite').onclick=()=>reciteShloka(v);$('#vTeach').onclick=()=>openTeach(i);
  $$('[data-ct]').forEach(b=>b.onclick=()=>{cardTheme=+b.dataset.ct;$$('[data-ct]').forEach(x=>x.classList.toggle('on',x===b));drawCard(v)});
  $('#dl').onclick=()=>{const a=document.createElement('a');a.download=`gitopadesh-${i}.png`;a.href=$('#cv').toDataURL('image/png');a.click()};
- $('#sv').onclick=()=>{toggleSave(i);$('#sv').textContent=saved.has(i)?'♥ Saved':'♡ Save'};
+ $('#sv').onclick=()=>{toggleSave(i);$('#sv').textContent=tx(saved.has(i)?'♥ Saved':'♡ Save')};
  $('#cp').onclick=()=>navigator.clipboard?.writeText(`${v.sanskrit}\n\n${v.translation}\n\n— Bhagavad Gita ${i}`).then(()=>toast('Copied'));
  $('#nx').onclick=()=>{const k=VERSES.indexOf(v);openVerse(id(VERSES[(k+1)%VERSES.length]))};
  if(focusCard)setTimeout(()=>$('#cv').scrollIntoView({behavior:'smooth'}),150);
@@ -259,14 +260,14 @@ async function drawCard(v){
  x.strokeStyle=T.g;x.globalAlpha=.16;x.lineWidth=2;for(let r=60;r<760;r+=48){x.beginPath();x.arc(W/2,W/2,r,0,7);x.stroke()}
  for(let k=0;k<16;k++){x.save();x.translate(W/2,W/2);x.rotate(k*Math.PI/8);x.beginPath();x.ellipse(0,-300,36,120,0,0,7);x.stroke();x.restore()}
  x.globalAlpha=1;x.strokeStyle=T.g;x.lineWidth=3;x.strokeRect(36,36,W-72,W-72);x.lineWidth=1;x.strokeRect(50,50,W-100,W-100);
- x.textAlign='center';x.fillStyle=T.g;x.font='400 76px "Tiro Devanagari Sanskrit",serif';x.fillText('ॐ',W/2,170);
- x.font='400 40px "Tiro Devanagari Sanskrit",serif';let y=250;
+ x.textAlign='center';x.fillStyle=T.g;x.font='400 76px "Tiro Devanagari Sanskrit","Noto Serif Telugu",serif';x.fillText('ॐ',W/2,170);
+ x.font='400 40px "Tiro Devanagari Sanskrit","Noto Serif Telugu",serif';let y=250;
  wrap(x,clean(v),W-220).slice(0,6).forEach(l=>{x.fillText(l,W/2,y);y+=66});
  y+=14;x.fillRect(W/2-60,y,120,3);y+=62;
  x.fillStyle=T.t;let fs=36,tl;
- do{x.font=`italic 500 ${fs}px "Newsreader",serif`;tl=wrap(x,v.translation.trim(),W-240);fs-=2}while(tl.length*(fs+22)>W-y-170&&fs>20);
+ do{x.font=`italic 500 ${fs}px "Newsreader","Tiro Devanagari Sanskrit","Noto Serif Telugu",serif`;tl=wrap(x,v.translation.trim(),W-240);fs-=2}while(tl.length*(fs+22)>W-y-170&&fs>20);
  tl.forEach(l=>{x.fillText(l,W/2,y);y+=fs+22});
- x.fillStyle=T.g;x.font='700 34px "Newsreader",serif';x.fillText(`Bhagavad Gita · Chapter ${v.chapter}, Verse ${v.verse}`,W/2,W-110);
+ x.fillStyle=T.g;x.font='700 34px "Newsreader","Tiro Devanagari Sanskrit","Noto Serif Telugu",serif';x.fillText(`Bhagavad Gita · Chapter ${v.chapter}, Verse ${v.verse}`,W/2,W-110);
  x.globalAlpha=.7;x.font='500 24px Inter,sans-serif';x.fillText('GITOPADESH',W/2,W-72);x.globalAlpha=1;
 }
 
@@ -277,12 +278,12 @@ $('#chips').onclick=e=>{const b=e.target.closest('.pill');if(b)ask(b.textContent
 $('#goBtn').onclick=()=>ask($('#q').value);
 $('#q').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ask($('#q').value)}});
 const autosize=()=>{const q=$('#q');q.style.height='auto';q.style.height=Math.min(160,q.scrollHeight)+'px'};$('#q').addEventListener('input',autosize);
-function setLang(l){lang=l;store.set('lang',l);$$('#langs .pill').forEach(x=>x.classList.toggle('on',x.dataset.l===l));chips();if(rec)rec.stop()}
+function setLang(l){lang=l;store.set('lang',l);$$('#langs .pill').forEach(x=>x.classList.toggle('on',x.dataset.l===l));chips();if(rec)rec.stop();if(i18nReady)applyLangAll()}
 $('#langs').onclick=e=>{const b=e.target.closest('[data-l]');if(b)setLang(b.dataset.l)};setLang(lang);
 fetch('/api/health').then(r=>r.json()).then(j=>{hasLLM=!!j.llm;ttsCfg=j.tts||false;sttCfg=!!j.stt}).catch(()=>{});
 
 
-function today(){const v=VERSES[Math.floor(Math.random()*VERSES.length)];$('#todayBox').innerHTML=`<h2 style="margin:0">Verse of the moment</h2><span class="cite">Bhagavad Gītā ${id(v)}</span><div class="shloka">${esc(clean(v))}</div><p class="tr">${esc(v.translation)}</p><div class="row"><button class="pill" id="tNew" type="button">🪷 Another verse</button><button class="pill" id="tOpen" type="button">Open shloka card</button></div>`;
+function today(){const v=VERSES[Math.floor(Math.random()*VERSES.length)];$('#todayBox').innerHTML=`<h2 style="margin:0">${tx('Verse of the moment')}</h2><span class="cite">${tx('Bhagavad Gītā')} ${id(v)}</span><div class="shloka">${esc(clean(v))}</div><p class="tr">${esc(v.translation)}</p><div class="row"><button class="pill" id="tNew" type="button">${tx('🪷 Another verse')}</button><button class="pill" id="tOpen" type="button">${tx('Open shloka card')}</button></div>`;
  $('#tNew').onclick=today;$('#tOpen').onclick=()=>openVerse(id(v))}
 today();
 
@@ -295,9 +296,9 @@ $('#search').oninput=e=>{fQ=e.target.value.trim().toLowerCase();shown=12;explore
 $('#more').onclick=()=>{shown+=12;explore()};
 function explore(){
  let l=VERSES.filter(v=>(!fCh||v.chapter===fCh)&&(!fTh||v.themes.includes(fTh)));
- if(fQ){l=/^\d+\.\d+$/.test(fQ)?l.filter(v=>id(v)===fQ):l.filter(v=>(v.translation+' '+v.transliteration+' '+v.themes.join(' ')).toLowerCase().includes(fQ))}
+ if(fQ){l=/^\d+\.\d+$/.test(fQ)?l.filter(v=>id(v)===fQ):l.filter(v=>(v.translation+' '+(v.translation_en||'')+' '+v.transliteration+' '+v.themes.join(' ')+' '+v.themes.map(themeName).join(' ')).toLowerCase().includes(fQ))}
  renderCards($('#results'),l.slice(0,shown));
- $('#more').style.display=l.length>shown?'inline-block':'none';$('#more').textContent=`Show more (${l.length-shown} left)`;
+ $('#more').style.display=l.length>shown?'inline-block':'none';$('#more').textContent=`${tx('Show more')} (${l.length-shown})`;
 }
 explore();refreshSaved();
-let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2200)}
+let tt;function toast(m){const t=$('#toast');t.textContent=tx(m);t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2200)}

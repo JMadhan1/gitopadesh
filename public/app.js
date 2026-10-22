@@ -1,11 +1,170 @@
 (async()=>{const VERSES=await (await fetch('/verses.json')).json();
+const TX={
+hi:{
+ 'Every Arjuna needs a charioteer':'हर अर्जुन को एक सारथी चाहिए',
+ 'Speak what weighs on your heart. He listens, asks, then shows the right path from the Bhagavad Gītā.':'अपने मन का बोझ कहिए। वे सुनते हैं, पूछते हैं, फिर भगवद्गीता से सही मार्ग दिखाते हैं।',
+ 'Tap the mic and speak to Krishna, or write here…':'माइक दबाकर कृष्ण से बोलिए, या यहाँ लिखिए…',
+ 'Ask Krishna':'कृष्ण से पूछें',
+ 'Not sure how to begin? Try one of these':'कैसे शुरू करें, समझ नहीं आ रहा? इनमें से कोई आज़माइए',
+ '↺ New conversation':'↺ नई बातचीत',
+ 'Speak':'बोलिए','Be understood':'समझे जाइए','Receive the verse':'श्लोक पाइए','Walk the path':'मार्ग पर चलिए',
+ 'History':'इतिहास','Library':'श्लोक संग्रह','Saved':'सहेजे गए',
+ 'The Gītā, verse by verse':'गीता, श्लोक दर श्लोक',
+ 'Eighteen chapters, 701 verses, each with its Sanskrit, transliteration and word-by-word meaning. Search by word, theme or number, like 2.47.':'अठारह अध्याय, 701 श्लोक: हर एक में संस्कृत पाठ, लिप्यंतरण और शब्दार्थ। शब्द, विषय या संख्या (जैसे 2.47) से खोजिए।',
+ 'Search: fear, 2.47, detachment, ‘fruit of action’…':'खोजें: भय, 2.47, वैराग्य, ‘कर्म का फल’…',
+ 'Verses you kept':'आपके सहेजे श्लोक',
+ 'Saved only in this browser.':'केवल इसी ब्राउज़र में सहेजे गए।',
+ 'Tap ♡ on any verse to keep it here.':'किसी भी श्लोक पर ♡ दबाइए, वह यहाँ सहेजा जाएगा।',
+ 'How Krishna guides you here':'यहाँ कृष्ण आपका मार्गदर्शन कैसे करते हैं',
+ 'The same way he guided Arjuna on the field of Kurukshetra: first he listened.':'जैसे उन्होंने कुरुक्षेत्र की रणभूमि में अर्जुन का मार्गदर्शन किया था: पहले उन्होंने सुना।',
+ 'He listens first':'वे पहले सुनते हैं',
+ 'Speak or type. If your words are brief, Krishna reflects what he heard and asks one gentle question before he teaches.':'बोलिए या लिखिए। यदि आपके शब्द कम हों, तो कृष्ण जो सुना उसे दोहराते हैं और सिखाने से पहले एक कोमल प्रश्न पूछते हैं।',
+ 'One verse, chosen for you':'आपके लिए चुना गया एक श्लोक',
+ 'Your words are matched against all 701 verses. The Sanskrit and transliteration come from the Gītā itself. The English, Hindi and Telugu meanings are translations; the Hindi and Telugu were prepared with AI and reviewed against the Sanskrit.':'आपके शब्दों का मिलान सभी 701 श्लोकों से किया जाता है। संस्कृत पाठ और लिप्यंतरण गीता से ही हैं। अंग्रेज़ी, हिंदी और तेलुगु अर्थ अनुवाद हैं; हिंदी और तेलुगु अनुवाद AI की सहायता से तैयार किए गए और संस्कृत से मिलान कर जाँचे गए हैं।',
+ 'Three languages':'तीन भाषाएँ',
+ 'English, हिंदी and తెలుగు. The shlokas are in Sanskrit, shown in Devanagari, or in Telugu script when Telugu is chosen.':'अंग्रेज़ी, हिंदी और तेलुगु। श्लोक संस्कृत में हैं, देवनागरी में दिखाए जाते हैं।',
+ 'Keep and share':'सहेजिए और साझा कीजिए',
+ 'Turn any verse into a 1080×1080 shloka card, save it, and return to it. Your saved verses stay on your device.':'किसी भी श्लोक को 1080×1080 श्लोक-कार्ड बनाइए, सहेजिए और फिर लौटिए। आपके सहेजे श्लोक आपके डिवाइस पर ही रहते हैं।',
+ 'Questions, answered':'प्रश्न और उत्तर',
+ 'What people ask before they begin.':'शुरू करने से पहले लोग क्या पूछते हैं।',
+ 'All eighteen chapters':'सभी अठारह अध्याय',
+ 'Read every verse with its meaning.':'हर श्लोक अर्थ सहित पढ़िए।',
+ 'About the maker':'निर्माता के बारे में',
+ 'Hi, I’m Madhan. I build Gitopadesh as a quiet place to bring a hard question and hear the Gītā answer it. See my other projects and say hello on my portfolio.':'नमस्ते, मैं Madhan हूँ। मैंने गीतोपदेश को एक शांत स्थान के रूप में बनाया है, जहाँ आप कोई कठिन प्रश्न ला सकें और गीता से उसका उत्तर सुन सकें। मेरे अन्य प्रोजेक्ट देखिए और मेरे पोर्टफ़ोलियो पर नमस्ते कहिए।',
+ 'Gitopadesh offers reflections drawn from the Bhagavad Gītā. It is not medical, legal or mental-health advice. If you are in crisis, contact a local helpline or someone you trust now.':'गीतोपदेश भगवद्गीता से ली गई अनुभूतियाँ प्रस्तुत करता है। यह चिकित्सा, कानूनी या मानसिक स्वास्थ्य सलाह नहीं है। यदि आप संकट में हैं, तो अभी किसी स्थानीय हेल्पलाइन या अपने किसी विश्वसनीय व्यक्ति से संपर्क कीजिए।',
+ 'Your words are sent to Amazon Bedrock to write Krishna’s reply, and each sentence he speaks is sent to Microsoft’s speech service. Gitopadesh does not store them; your conversation history stays only in your browser.':'आपके शब्द कृष्ण का उत्तर लिखने के लिए Amazon Bedrock को भेजे जाते हैं, और उनके बोले हर वाक्य को बोलने के लिए Microsoft की वाक् सेवा को भेजा जाता है। गीतोपदेश इन्हें संग्रहीत नहीं करता; आपकी बातचीत का इतिहास केवल आपके ब्राउज़र में रहता है।',
+ 'Gitopadesh needs JavaScript for the voice conversation. You can still read every verse from the chapter links above.':'वाणी-संवाद के लिए गीतोपदेश को JavaScript चाहिए। ऊपर के अध्याय-लिंक से आप हर श्लोक पढ़ सकते हैं।',
+ 'Read the full teaching ↓':'पूरा उपदेश पढ़िए ↓',
+ 'All':'सभी','Show more':'और दिखाइए','Nothing here yet.':'यहाँ अभी कुछ नहीं है।',
+ 'You':'आप','Chapter':'अध्याय','Verse':'श्लोक','Bhagavad Gītā':'भगवद्गीता','Word by word':'शब्दार्थ','Pronunciation':'उच्चारण',
+ 'Shloka card':'श्लोक कार्ड','Midnight':'मध्यरात्रि','Saffron':'केसरिया','Lotus':'कमल',
+ '⬇ Download 1080×1080':'⬇ 1080×1080 डाउनलोड करें','♡ Save':'♡ सहेजें','♥ Saved':'♥ सहेजा गया','⧉ Copy verse':'⧉ श्लोक कॉपी करें','Next verse ➜':'अगला श्लोक ➜',
+ '🕉 Recite shloka':'🕉 श्लोक पाठ सुनें','📖 Teach me this shloka':'📖 यह श्लोक समझाइए','🖼 Shloka card':'🖼 श्लोक कार्ड','⧉ Copy':'⧉ कॉपी','♡ Save verse':'♡ श्लोक सहेजें','🔊 Listen':'🔊 सुनें',
+ '🔊 Listen to the lesson':'🔊 पाठ सुनें','Delete':'हटाएँ',
+ 'Verse of the moment':'इस क्षण का श्लोक','🪷 Another verse':'🪷 दूसरा श्लोक','Open shloka card':'श्लोक कार्ड खोलें',
+ 'Your conversations':'आपकी बातचीत','Kept only in this browser. Nothing is stored on a server.':'केवल इसी ब्राउज़र में रखी गई है। सर्वर पर कुछ संग्रहीत नहीं होता।',
+ 'No conversations yet. Speak to Krishna and they will appear here.':'अभी कोई बातचीत नहीं है। कृष्ण से बोलिए, वे यहाँ दिखेंगी।',
+ 'Clear all history':'पूरा इतिहास मिटाएँ','Tap again to confirm':'पुष्टि के लिए फिर दबाइए','← All conversations':'← सभी बातचीत',
+ 'Krishna asked':'कृष्ण ने पूछा','Teaching':'उपदेश','Dialogue':'संवाद',
+ 'Copied':'कॉपी हो गया','Saved ♥':'सहेजा गया ♥','Removed':'हटा दिया गया','History cleared':'इतिहास मिटा दिया गया','A new conversation begins':'नई बातचीत शुरू हुई',
+ 'Speak or type what is on your heart 🙏':'अपने मन की बात बोलिए या लिखिए 🙏',
+ 'Krishna rests a moment. Please try again in a minute.':'कृष्ण क्षण भर विश्राम कर रहे हैं। कृपया एक मिनट बाद फिर प्रयास कीजिए।',
+ 'Many seekers are here today. Showing the offline guide.':'आज बहुत साधक आए हैं। ऑफ़लाइन मार्गदर्शन दिखाया जा रहा है।',
+ 'Krishna’s cloud voice is unreachable. Showing the offline guide.':'कृष्ण की क्लाउड वाणी अभी उपलब्ध नहीं है। ऑफ़लाइन मार्गदर्शन दिखाया जा रहा है।',
+ 'Reciting the shloka… ॐ':'श्लोक का पाठ हो रहा है… ॐ','The lesson is still being prepared':'पाठ अभी तैयार हो रहा है',
+ 'The full lesson is unavailable right now. Showing the meaning.':'पूरा पाठ अभी उपलब्ध नहीं है। अर्थ दिखाया जा रहा है।',
+ 'Sending to Krishna… tap the box to edit':'कृष्ण को भेजा जा रहा है… बदलने के लिए बॉक्स दबाइए',
+ 'Voice input needs Chrome, Edge or Safari. You can still type.':'वाणी इनपुट के लिए Chrome, Edge या Safari चाहिए। आप लिख सकते हैं।',
+ 'Hands-free paused. Tap the mic when ready.':'हैंड्स-फ़्री रुका है। तैयार होने पर माइक दबाइए।',
+ 'Listening… speak freely. I wait while you pause.':'सुन रहा हूँ… निःसंकोच बोलिए। आप रुकेंगे तो मैं प्रतीक्षा करूँगा।',
+ 'Krishna is listening to what you said…':'कृष्ण आपकी बात सुन रहे हैं…',
+ 'I could not hear that clearly. Please try again or type.':'मैं स्पष्ट सुन नहीं पाया। कृपया फिर कहिए या लिखिए।',
+ 'Hands-free on: Krishna will listen again after he speaks':'हैंड्स-फ़्री चालू: बोलने के बाद कृष्ण फिर सुनेंगे','Hands-free off':'हैंड्स-फ़्री बंद',
+ 'Allow the microphone so Krishna can hear you.':'माइक्रोफ़ोन की अनुमति दीजिए ताकि कृष्ण आपको सुन सकें।',
+ 'I heard nothing. Tap the mic and speak again.':'कुछ सुनाई नहीं दिया। माइक दबाकर फिर बोलिए।',
+ 'The speech service is unreachable. Please type instead.':'वाक् सेवा उपलब्ध नहीं है। कृपया लिखिए।','No microphone was found.':'कोई माइक्रोफ़ोन नहीं मिला।',
+ 'Krishna will answer in हिंदी':'कृष्ण हिंदी में उत्तर देंगे','Krishna will answer in తెలుగు':'कृष्ण तेलुगु में उत्तर देंगे',
+ 'Close':'बंद करें','Home':'मुख्य पृष्ठ',
+ 'Daily shloka':'आज का श्लोक','A new shloka card every day, with its short meaning, ready to save and share in English, Hindi or Telugu.':'हर दिन एक नया श्लोक कार्ड, संक्षिप्त अर्थ सहित, अंग्रेज़ी, हिंदी या तेलुगु में सहेजने और साझा करने के लिए तैयार।','⬇ Download card':'⬇ कार्ड डाउनलोड करें','Open card':'कार्ड खोलें',
+ 'Support Gitopadesh':'गीतोपदेश को सहयोग दें','This is a personal project, not a business. If it has helped you and you can contribute, a voluntary gift helps keep it reliable and useful for everyone.':'यह एक व्यक्तिगत प्रोजेक्ट है, कोई व्यवसाय नहीं। यदि इससे आपको लाभ हुआ है और आप सहयोग कर सकते हैं, तो एक स्वैच्छिक उपहार इसे सबके लिए भरोसेमंद और उपयोगी बनाए रखने में सहायक होता है।','Suggestions and ideas:':'सुझाव और विचार:','Donate now':'अभी सहयोग करें','♡ Support':'♡ सहयोग','Support':'सहयोग',
+ 'Translation prepared with AI from the Sanskrit. Please confirm with a teacher or a printed edition for study.':'यह अनुवाद संस्कृत से AI की सहायता से तैयार किया गया है। अध्ययन के लिए कृपया किसी गुरु या मुद्रित संस्करण से पुष्टि कीजिए।'
+},
+te:{
+ 'Every Arjuna needs a charioteer':'ప్రతి అర్జునుడికి ఒక సారథి కావాలి',
+ 'Speak what weighs on your heart. He listens, asks, then shows the right path from the Bhagavad Gītā.':'మీ మనసులోని భారాన్ని చెప్పండి. ఆయన వింటాడు, అడుగుతాడు, ఆపై భగవద్గీత నుండి సరైన మార్గాన్ని చూపిస్తాడు.',
+ 'Tap the mic and speak to Krishna, or write here…':'మైక్ నొక్కి కృష్ణుడితో మాట్లాడండి, లేదా ఇక్కడ రాయండి…',
+ 'Ask Krishna':'కృష్ణుడిని అడగండి',
+ 'Not sure how to begin? Try one of these':'ఎలా మొదలుపెట్టాలో తెలియదా? వీటిలో ఒకటి ప్రయత్నించండి',
+ '↺ New conversation':'↺ కొత్త సంభాషణ',
+ 'Speak':'చెప్పండి','Be understood':'అర్థం చేసుకోబడండి','Receive the verse':'శ్లోకం పొందండి','Walk the path':'మార్గంలో నడవండి',
+ 'History':'చరిత్ర','Library':'శ్లోకాలు','Saved':'సేవ్ చేసినవి',
+ 'The Gītā, verse by verse':'గీత, శ్లోకం శ్లోకంగా',
+ 'Eighteen chapters, 701 verses, each with its Sanskrit, transliteration and word-by-word meaning. Search by word, theme or number, like 2.47.':'పద్దెనిమిది అధ్యాయాలు, 701 శ్లోకాలు: ప్రతిదానికి సంస్కృత పాఠం, లిప్యంతరీకరణ, పదార్థాలు. పదం, అంశం లేదా సంఖ్య (ఉదా. 2.47) ద్వారా వెతకండి.',
+ 'Search: fear, 2.47, detachment, ‘fruit of action’…':'వెతకండి: భయం, 2.47, వైరాగ్యం, ‘కర్మఫలం’…',
+ 'Verses you kept':'మీరు సేవ్ చేసిన శ్లోకాలు',
+ 'Saved only in this browser.':'ఈ బ్రౌజర్‌లో మాత్రమే సేవ్ చేయబడ్డాయి.',
+ 'Tap ♡ on any verse to keep it here.':'ఏ శ్లోకం పైనైనా ♡ నొక్కండి, అది ఇక్కడ ఉంటుంది.',
+ 'How Krishna guides you here':'ఇక్కడ కృష్ణుడు మిమ్మల్ని ఎలా నడిపిస్తాడు',
+ 'The same way he guided Arjuna on the field of Kurukshetra: first he listened.':'కురుక్షేత్ర యుద్ధభూమిలో అర్జునుడిని నడిపించినట్లే: ముందు ఆయన విన్నాడు.',
+ 'He listens first':'ఆయన ముందు వింటాడు',
+ 'Speak or type. If your words are brief, Krishna reflects what he heard and asks one gentle question before he teaches.':'మాట్లాడండి లేదా రాయండి. మీ మాటలు తక్కువగా ఉంటే, కృష్ణుడు విన్నదాన్ని ప్రతిబింబించి, బోధించే ముందు ఒక సున్నితమైన ప్రశ్న అడుగుతాడు.',
+ 'One verse, chosen for you':'మీ కోసం ఎంచుకున్న ఒక శ్లోకం',
+ 'Your words are matched against all 701 verses. The Sanskrit and transliteration come from the Gītā itself. The English, Hindi and Telugu meanings are translations; the Hindi and Telugu were prepared with AI and reviewed against the Sanskrit.':'మీ మాటలను మొత్తం 701 శ్లోకాలతో పోల్చి చూస్తాం. సంస్కృత పాఠం, లిప్యంతరీకరణ గీత నుండే. ఆంగ్లం, హిందీ, తెలుగు అర్థాలు అనువాదాలు; హిందీ, తెలుగు అనువాదాలు AI సహాయంతో తయారుచేసి సంస్కృతంతో సరిచూశాం.',
+ 'Three languages':'మూడు భాషలు',
+ 'English, हिंदी and తెలుగు. The shlokas are in Sanskrit, shown in Devanagari, or in Telugu script when Telugu is chosen.':'ఆంగ్లం, హిందీ, తెలుగు. శ్లోకాలు సంస్కృతంలో ఉంటాయి; తెలుగు ఎంచుకుంటే తెలుగు లిపిలో కనిపిస్తాయి.',
+ 'Keep and share':'దాచుకోండి, పంచుకోండి',
+ 'Turn any verse into a 1080×1080 shloka card, save it, and return to it. Your saved verses stay on your device.':'ఏ శ్లోకాన్నైనా 1080×1080 శ్లోక కార్డుగా మార్చండి, సేవ్ చేయండి, మళ్లీ చూడండి. మీ సేవ్ చేసిన శ్లోకాలు మీ పరికరంలోనే ఉంటాయి.',
+ 'Questions, answered':'ప్రశ్నలు, సమాధానాలు',
+ 'What people ask before they begin.':'ప్రారంభించే ముందు ప్రజలు అడిగేవి.',
+ 'All eighteen chapters':'పద్దెనిమిది అధ్యాయాలు',
+ 'Read every verse with its meaning.':'ప్రతి శ్లోకాన్ని అర్థంతో చదవండి.',
+ 'About the maker':'తయారీదారు గురించి',
+ 'Hi, I’m Madhan. I build Gitopadesh as a quiet place to bring a hard question and hear the Gītā answer it. See my other projects and say hello on my portfolio.':'నమస్కారం, నేను Madhan ని. కఠినమైన ప్రశ్నను తీసుకువచ్చి గీత నుండి సమాధానం వినడానికి ఒక ప్రశాంత స్థలంగా గీతోపదేశ్‌ను నిర్మించాను. నా ఇతర ప్రాజెక్టులను చూడండి, నా పోర్ట్‌ఫోలియోలో హలో చెప్పండి.',
+ 'Gitopadesh offers reflections drawn from the Bhagavad Gītā. It is not medical, legal or mental-health advice. If you are in crisis, contact a local helpline or someone you trust now.':'గీతోపదేశ్ భగవద్గీత నుండి గ్రహించిన ఆలోచనలను అందిస్తుంది. ఇది వైద్య, న్యాయ లేదా మానసిక ఆరోగ్య సలహా కాదు. మీరు సంక్షోభంలో ఉంటే, వెంటనే స్థానిక హెల్ప్‌లైన్‌ను లేదా మీరు నమ్మే వ్యక్తిని సంప్రదించండి.',
+ 'Your words are sent to Amazon Bedrock to write Krishna’s reply, and each sentence he speaks is sent to Microsoft’s speech service. Gitopadesh does not store them; your conversation history stays only in your browser.':'కృష్ణుడి సమాధానం రాయడానికి మీ మాటలు Amazon Bedrock కు పంపబడతాయి, ఆయన మాట్లాడే ప్రతి వాక్యం మాటగా మార్చడానికి Microsoft స్పీచ్ సేవకు పంపబడుతుంది. గీతోపదేశ్ వాటిని నిల్వ చేయదు; మీ సంభాషణ చరిత్ర మీ బ్రౌజర్‌లో మాత్రమే ఉంటుంది.',
+ 'Gitopadesh needs JavaScript for the voice conversation. You can still read every verse from the chapter links above.':'స్వర సంభాషణకు గీతోపదేశ్‌కు JavaScript అవసరం. పై అధ్యాయ లింకుల నుండి మీరు ప్రతి శ్లోకాన్ని చదవవచ్చు.',
+ 'Read the full teaching ↓':'పూర్తి ఉపదేశం చదవండి ↓',
+ 'All':'అన్నీ','Show more':'మరిన్ని చూపండి','Nothing here yet.':'ఇక్కడ ఇంకా ఏమీ లేదు.',
+ 'You':'మీరు','Chapter':'అధ్యాయం','Verse':'శ్లోకం','Bhagavad Gītā':'భగవద్గీత','Word by word':'పదార్థాలు','Pronunciation':'ఉచ్చారణ',
+ 'Shloka card':'శ్లోక కార్డు','Midnight':'అర్ధరాత్రి','Saffron':'కాషాయం','Lotus':'కమలం',
+ '⬇ Download 1080×1080':'⬇ 1080×1080 డౌన్‌లోడ్','♡ Save':'♡ సేవ్','♥ Saved':'♥ సేవ్ అయింది','⧉ Copy verse':'⧉ శ్లోకం కాపీ','Next verse ➜':'తదుపరి శ్లోకం ➜',
+ '🕉 Recite shloka':'🕉 శ్లోకం వినండి','📖 Teach me this shloka':'📖 ఈ శ్లోకాన్ని బోధించండి','🖼 Shloka card':'🖼 శ్లోక కార్డు','⧉ Copy':'⧉ కాపీ','♡ Save verse':'♡ శ్లోకం సేవ్','🔊 Listen':'🔊 వినండి',
+ '🔊 Listen to the lesson':'🔊 పాఠం వినండి','Delete':'తొలగించు',
+ 'Verse of the moment':'ఈ క్షణపు శ్లోకం','🪷 Another verse':'🪷 మరో శ్లోకం','Open shloka card':'శ్లోక కార్డు తెరవండి',
+ 'Your conversations':'మీ సంభాషణలు','Kept only in this browser. Nothing is stored on a server.':'ఈ బ్రౌజర్‌లో మాత్రమే ఉంచబడతాయి. సర్వర్‌లో ఏదీ నిల్వ చేయబడదు.',
+ 'No conversations yet. Speak to Krishna and they will appear here.':'ఇంకా సంభాషణలు లేవు. కృష్ణుడితో మాట్లాడండి, అవి ఇక్కడ కనిపిస్తాయి.',
+ 'Clear all history':'చరిత్ర మొత్తం తొలగించు','Tap again to confirm':'నిర్ధారించడానికి మళ్లీ నొక్కండి','← All conversations':'← అన్ని సంభాషణలు',
+ 'Krishna asked':'కృష్ణుడు అడిగాడు','Teaching':'ఉపదేశం','Dialogue':'సంభాషణ',
+ 'Copied':'కాపీ అయింది','Saved ♥':'సేవ్ అయింది ♥','Removed':'తొలగించబడింది','History cleared':'చరిత్ర తొలగించబడింది','A new conversation begins':'కొత్త సంభాషణ ప్రారంభమైంది',
+ 'Speak or type what is on your heart 🙏':'మీ మనసులోని మాట చెప్పండి లేదా రాయండి 🙏',
+ 'Krishna rests a moment. Please try again in a minute.':'కృష్ణుడు కొద్దిసేపు విశ్రాంతి తీసుకుంటున్నాడు. దయచేసి ఒక నిమిషం తర్వాత మళ్లీ ప్రయత్నించండి.',
+ 'Many seekers are here today. Showing the offline guide.':'ఈరోజు చాలా మంది సాధకులు ఉన్నారు. ఆఫ్‌లైన్ మార్గదర్శనం చూపిస్తున్నాం.',
+ 'Krishna’s cloud voice is unreachable. Showing the offline guide.':'కృష్ణుడి క్లౌడ్ స్వరం ఇప్పుడు అందుబాటులో లేదు. ఆఫ్‌లైన్ మార్గదర్శనం చూపిస్తున్నాం.',
+ 'Reciting the shloka… ॐ':'శ్లోకం పఠిస్తున్నాం… ఓం','The lesson is still being prepared':'పాఠం ఇంకా సిద్ధమవుతోంది',
+ 'The full lesson is unavailable right now. Showing the meaning.':'పూర్తి పాఠం ఇప్పుడు అందుబాటులో లేదు. అర్థం చూపిస్తున్నాం.',
+ 'Sending to Krishna… tap the box to edit':'కృష్ణుడికి పంపుతున్నాం… మార్చడానికి పెట్టెను నొక్కండి',
+ 'Voice input needs Chrome, Edge or Safari. You can still type.':'స్వర ఇన్‌పుట్‌కు Chrome, Edge లేదా Safari కావాలి. మీరు రాయవచ్చు.',
+ 'Hands-free paused. Tap the mic when ready.':'హ్యాండ్స్-ఫ్రీ ఆగింది. సిద్ధమైనప్పుడు మైక్ నొక్కండి.',
+ 'Listening… speak freely. I wait while you pause.':'వింటున్నాను… స్వేచ్ఛగా మాట్లాడండి. మీరు ఆగితే నేను ఎదురుచూస్తాను.',
+ 'Krishna is listening to what you said…':'కృష్ణుడు మీ మాటలు వింటున్నాడు…',
+ 'I could not hear that clearly. Please try again or type.':'నాకు స్పష్టంగా వినిపించలేదు. దయచేసి మళ్లీ చెప్పండి లేదా రాయండి.',
+ 'Hands-free on: Krishna will listen again after he speaks':'హ్యాండ్స్-ఫ్రీ ఆన్: మాట్లాడిన తర్వాత కృష్ణుడు మళ్లీ వింటాడు','Hands-free off':'హ్యాండ్స్-ఫ్రీ ఆఫ్',
+ 'Allow the microphone so Krishna can hear you.':'కృష్ణుడు మీ మాట వినడానికి మైక్రోఫోన్‌ను అనుమతించండి.',
+ 'I heard nothing. Tap the mic and speak again.':'ఏమీ వినిపించలేదు. మైక్ నొక్కి మళ్లీ మాట్లాడండి.',
+ 'The speech service is unreachable. Please type instead.':'స్పీచ్ సేవ అందుబాటులో లేదు. దయచేసి రాయండి.','No microphone was found.':'మైక్రోఫోన్ కనిపించలేదు.',
+ 'Krishna will answer in हिंदी':'కృష్ణుడు హిందీలో సమాధానం ఇస్తాడు','Krishna will answer in తెలుగు':'కృష్ణుడు తెలుగులో సమాధానం ఇస్తాడు',
+ 'Close':'మూసివేయి','Home':'హోమ్',
+ 'Daily shloka':'నేటి శ్లోకం','A new shloka card every day, with its short meaning, ready to save and share in English, Hindi or Telugu.':'ప్రతిరోజూ ఒక కొత్త శ్లోక కార్డు, దాని సంక్షిప్త అర్థంతో, ఆంగ్లం, హిందీ లేదా తెలుగులో సేవ్ చేసి పంచుకోవడానికి సిద్ధం.','⬇ Download card':'⬇ కార్డు డౌన్‌లోడ్','Open card':'కార్డు తెరవండి',
+ 'Support Gitopadesh':'గీతోపదేశ్‌కు మద్దతు ఇవ్వండి','This is a personal project, not a business. If it has helped you and you can contribute, a voluntary gift helps keep it reliable and useful for everyone.':'ఇది ఒక వ్యక్తిగత ప్రాజెక్ట్, వ్యాపారం కాదు. ఇది మీకు సహాయపడి, మీరు సహకరించగలిగితే, స్వచ్ఛంద బహుమతి దీన్ని అందరికీ నమ్మదగినదిగా, ఉపయోగకరంగా ఉంచడానికి తోడ్పడుతుంది.','Suggestions and ideas:':'సూచనలు, ఆలోచనలు:','Donate now':'ఇప్పుడే విరాళం ఇవ్వండి','♡ Support':'♡ మద్దతు','Support':'మద్దతు',
+ 'Translation prepared with AI from the Sanskrit. Please confirm with a teacher or a printed edition for study.':'ఈ అనువాదం సంస్కృతం నుండి AI సహాయంతో తయారైంది. అధ్యయనానికి దయచేసి గురువు లేదా ముద్రిత గ్రంథంతో సరిచూసుకోండి.'
+}};
+const tx=s=>(TX[lang]&&TX[lang][s])||s;
+
+/* nav / button labels that carry state */
+const STATE_L={
+ en:{on:'on',off:'off',speaks:'Krishna speaks',flute:'Flute',convo:'Conversation',voice:'Voice',styles:{calm:'Calm',natural:'Natural',deep:'Deep',device:'Device'}},
+ hi:{on:'चालू',off:'बंद',speaks:'कृष्ण बोलते हैं',flute:'बाँसुरी',convo:'संवाद',voice:'स्वर',styles:{calm:'शांत',natural:'स्वाभाविक',deep:'गहरा',device:'डिवाइस'}},
+ te:{on:'ఆన్',off:'ఆఫ్',speaks:'కృష్ణుడు మాట్లాడతాడు',flute:'వేణువు',convo:'సంభాషణ',voice:'స్వరం',styles:{calm:'ప్రశాంతం',natural:'సహజం',deep:'గంభీరం',device:'పరికరం'}}};
+function SL(){return STATE_L[lang]||STATE_L.en}
+
+/* chapters and themes */
+const CH_NAMES={
+ hi:['अर्जुनविषादयोग','सांख्ययोग','कर्मयोग','ज्ञानकर्मसंन्यासयोग','कर्मसंन्यासयोग','ध्यानयोग','ज्ञानविज्ञानयोग','अक्षरब्रह्मयोग','राजविद्याराजगुह्ययोग','विभूतियोग','विश्वरूपदर्शनयोग','भक्तियोग','क्षेत्रक्षेत्रज्ञविभागयोग','गुणत्रयविभागयोग','पुरुषोत्तमयोग','दैवासुरसम्पद्विभागयोग','श्रद्धात्रयविभागयोग','मोक्षसंन्यासयोग'],
+ te:['అర్జునవిషాదయోగం','సాంఖ్యయోగం','కర్మయోగం','జ్ఞానకర్మసన్యాసయోగం','కర్మసన్యాసయోగం','ధ్యానయోగం','జ్ఞానవిజ్ఞానయోగం','అక్షరబ్రహ్మయోగం','రాజవిద్యారాజగుహ్యయోగం','విభూతియోగం','విశ్వరూపసందర్శనయోగం','భక్తియోగం','క్షేత్రక్షేత్రజ్ఞవిభాగయోగం','గుణత్రయవిభాగయోగం','పురుషోత్తమయోగం','దైవాసురసంపద్విభాగయోగం','శ్రద్ధాత్రయవిభాగయోగం','మోక్షసన్యాసయోగం']};
+const THEME_NAMES={
+ hi:{soul:'आत्मा',action:'क्रिया',god:'ईश्वर',duty:'कर्तव्य',mind:'मन',body:'शरीर',time:'काल',pleasure:'सुख',death:'मृत्यु',wisdom:'ज्ञान',detachment:'वैराग्य',nature:'प्रकृति',world:'संसार',sacrifice:'यज्ञ',devotion:'भक्ति',karma:'कर्म',strength:'शक्ति',war:'युद्ध',renunciation:'संन्यास',desire:'कामना',anger:'क्रोध',control:'संयम',meditation:'ध्यान',confusion:'भ्रम',ignorance:'अज्ञान',compassion:'करुणा',equality:'समता',peace:'शांति',grief:'शोक',suffering:'दुःख',fear:'भय',liberation:'मोक्ष'},
+ te:{soul:'ఆత్మ',action:'క్రియ',god:'దేవుడు',duty:'కర్తవ్యం',mind:'మనస్సు',body:'శరీరం',time:'కాలం',pleasure:'సుఖం',death:'మృత్యువు',wisdom:'జ్ఞానం',detachment:'వైరాగ్యం',nature:'ప్రకృతి',world:'లోకం',sacrifice:'యజ్ఞం',devotion:'భక్తి',karma:'కర్మ',strength:'శక్తి',war:'యుద్ధం',renunciation:'సన్యాసం',desire:'కోరిక',anger:'క్రోధం',control:'నిగ్రహం',meditation:'ధ్యానం',confusion:'భ్రమ',ignorance:'అజ్ఞానం',compassion:'కరుణ',equality:'సమత్వం',peace:'శాంతి',grief:'శోకం',suffering:'దుఃఖం',fear:'భయం',liberation:'మోక్షం'}};
+function themeName(t){return (THEME_NAMES[lang]&&THEME_NAMES[lang][t])||t}
+
+
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
 const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const id=v=>v.chapter+'.'+v.verse, byId=Object.fromEntries(VERSES.map(v=>[id(v),v]));
-const clean=v=>v.sanskrit.replace(/\s*[।॥]*\s*\d+\.\d+\s*[।॥]*\s*$/,'');
+const clean=v=>{const s=v.sanskrit.replace(/\s*[।॥]*\s*\d+\.\d+\s*[।॥]*\s*$/,'');return lang==='te'?toTelugu(s):s};
 const ss={get(k,d){try{return JSON.parse(sessionStorage.getItem(k))??d}catch{return d}},set(k,v){try{sessionStorage.setItem(k,JSON.stringify(v))}catch{}}};
 let lang=store.get('lang','en'), saved=new Set(store.get('saved',[])), cardTheme=0, hasLLM=false, speakOn=store.get('speak',true), history=ss.get('ctx',[]), busy=false;
+let i18nReady=false;
 
 /* ---------- Starry sky ---------- */
 (()=>{const c=$('#sky'),x=c.getContext('2d');let W,H,S=[],mx=0,my=0;
@@ -78,7 +237,7 @@ hi:{h:{SEE:'मैं तुम्हें देखता हूँ',FIELD:'�
   general:['मैं तुम्हें देखता हूँ और तुम्हारा बोझ जानता हूँ। इस रणभूमि में तुम अकेले नहीं — मैं सदा तुम्हारे जीवन का सारथी हूँ।','आज अपने कर्तव्य के अनुरूप एक ईमानदार कर्म करो, परिणाम की चिंता के बिना। हर सुबह मौन में बैठो, अगला कदम स्वयं प्रकट होगा।']
  },
  talk:'मैं सुन रहा हूँ, प्रिय। अगला उचित कर्म करो और शेष मुझ पर छोड़ दो। बताओ, सूर्यास्त से पहले तुम कौन-सा एक छोटा कदम उठा सकते हो?',
- expl:v=>`यह तुम्हारे लिए मेरा वचन है — (अंग्रेज़ी अनुवाद) “${v.translation.trim()}” इसे नियम नहीं, आज की तुम्हारी स्थिति के लिए दीपक समझो।`},
+ expl:v=>`यह तुम्हारे लिए मेरा वचन है — “${v.translation.trim()}” इसे नियम नहीं, आज की तुम्हारी स्थिति के लिए दीपक समझो।`},
 te:{h:{SEE:'నేను నిన్ను చూస్తున్నాను',FIELD:'కురుక్షేత్రం',VERSE:'నా శ్లోకం',PATH:'ముందుకు మార్గం',SELF:'నీవెవరో గుర్తుంచుకో',ASK:'నాకు చెప్పు',SAY:'కృష్ణుడు అంటున్నాడు'},
  bridge:'ప్రేమ మరియు కర్తవ్యం మధ్య అర్జునుడు వణుకుతూ నిలబడినట్లే, ఈ రోజు నీవు నీ స్వంత కురుక్షేత్రంలో నిలబడి ఉన్నావు. ఆ యుద్ధభూమి బయట లేదు; ధైర్యం కోరే ప్రతి నిర్ణయంలోనే ఉంది.',
  last:'నీవు ఈ శరీరం కాదు, ఈ క్షణికమైన ఆలోచనల తుఫాను కాదు. నీవు జన్మలేని, నాశనం లేని ఆత్మవు — గెలుపు ఓటముల స్పర్శ లేనివాడివి. లే.',
@@ -95,7 +254,7 @@ te:{h:{SEE:'నేను నిన్ను చూస్తున్నాను
   general:['నేను నిన్ను చూస్తున్నాను, నీ భారం తెలుసు. ఈ యుద్ధభూమిలో నీవు ఒంటరివి కావు — నేనెప్పుడూ నీ జీవిత సారథిని.','ఈ రోజు ఫలితం గురించిన ఆందోళన లేకుండా, నీ కర్తవ్యానికి అనుగుణంగా ఒక నిజాయితీ గల పని చెయ్యి.']
  },
  talk:'నేను వింటున్నాను, ప్రియా. తదుపరి సరైన పని చెయ్యి, మిగిలినది నాకు వదిలెయ్యి. సూర్యాస్తమయం లోపల నీవు వేయగల ఒక చిన్న అడుగు ఏది?',
- expl:v=>`ఇది నీ కోసం నా వాక్యం — (ఆంగ్ల అనువాదం) “${v.translation.trim()}” దీన్ని నియమంగా కాక, ఈ రోజు నీ పరిస్థితికి వెలుగుగా భావించు.`}
+ expl:v=>`ఇది నీ కోసం నా వాక్యం — “${v.translation.trim()}” దీన్ని నియమంగా కాక, ఈ రోజు నీ పరిస్థితికి వెలుగుగా భావించు.`}
 };
 function offlineParsed(text,cands,mood,isFirst){
  const L=T[lang];
@@ -131,7 +290,7 @@ function renderKrishna(el,p,candIds,streaming){
   if(t===undefined){return}
   st.style.display='';
   st.querySelector('p').textContent=t;
-  if(k==='VERSE'&&p.id!==undefined&&!st.dataset.v){const v=byId[vid];if(v){st.dataset.v=vid;st.querySelector('.vblock').innerHTML=`<span class="cite">Bhagavad Gītā ${vid}</span><div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>`}}
+  if(k==='VERSE'&&p.id!==undefined&&!st.dataset.v){const v=byId[vid];if(v){st.dataset.v=vid;st.querySelector('.vblock').innerHTML=`<span class="cite">${tx('Bhagavad Gītā')} ${vid}</span><div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>`}}
   body.querySelectorAll('p').forEach(x=>x.classList.remove('caret'));lastShown=st;
  });
  if(lastShown&&streaming)lastShown.querySelector('p').classList.add('caret');
@@ -139,7 +298,7 @@ function renderKrishna(el,p,candIds,streaming){
  if(!streaming&&!el.dataset.fin){el.dataset.fin=1;
   const verse=p.mode==='TEACH'?byId[vid]:null,text=order.map(k=>p.sec[k]).filter(Boolean).join('\n\n');
   const a=document.createElement('div');a.className='actions';
-  a.innerHTML=(verse?'<button class="pill" data-a="recite">🕉 Recite shloka</button><button class="pill" data-a="teach">📖 Teach me this shloka</button><button class="pill" data-a="card">🖼 Shloka card</button>':'')+'<button class="pill" data-a="copy">⧉ Copy</button>'+(verse?'<button class="pill" data-a="save">♡ Save verse</button>':'')+'<button class="pill" data-a="listen">🔊 Listen</button>';
+  a.innerHTML=(verse?'<button class="pill" data-a="recite">'+tx('🕉 Recite shloka')+'</button><button class="pill" data-a="teach">'+tx('📖 Teach me this shloka')+'</button><button class="pill" data-a="card">'+tx('🖼 Shloka card')+'</button>':'')+'<button class="pill" data-a="copy">'+tx('⧉ Copy')+'</button>'+(verse?'<button class="pill" data-a="save">'+tx('♡ Save verse')+'</button>':'')+'<button class="pill" data-a="listen">'+tx('🔊 Listen')+'</button>';
   a.onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;const k=b.dataset.a;
    if(k==='card')openVerse(vid,true);if(k==='recite')reciteShloka(verse);if(k==='teach')openTeach(vid);if(k==='copy')navigator.clipboard?.writeText(text+'\n— Gitopadesh').then(()=>toast('Copied'));
    if(k==='save')toggleSave(vid);if(k==='listen')speak(text)};
@@ -156,7 +315,7 @@ async function ask(text){
  text=(text||'').trim();if(!text){toast('Speak or type what is on your heart 🙏');return}
  audioInit();if(busy)return;{const dl=detectLang(text);if(dl&&dl!==lang){setLang(dl);toast(dl==='hi'?'Krishna will answer in हिंदी':'Krishna will answer in తెలుగు')}}busy=true;$('#goBtn').disabled=true;stopSpeak();
  $('#thread').innerHTML='';
- const me=document.createElement('div');me.className='me';const mk=document.createElement('small');mk.textContent='You';const mt=document.createElement('span');mt.textContent=text;me.append(mk,mt);$('#thread').appendChild(me);
+ const me=document.createElement('div');me.className='me';const mk=document.createElement('small');mk.textContent=tx('You');const mt=document.createElement('span');mt.textContent=text;me.append(mk,mt);$('#thread').appendChild(me);
  $('#chariot').classList.add('show');$('#readMore').classList.remove('show');
  if(speakOn)$('#readMore').classList.add('show');else setTimeout(()=>me.scrollIntoView({behavior:'smooth',block:'start'}),60);
  $('#q').value='';autosize();
@@ -213,12 +372,12 @@ function browserSpeak(text){
   speechSynthesis.speak(u)});
 }
 function stopSpeak(){try{speechSynthesis.cancel()}catch{}vtoken++;try{curSrc&&curSrc.stop()}catch{}ambStop();setState('idle')}
-const setSpeakBtn=()=>$('#voiceOut').textContent='🔊 Krishna speaks: '+(speakOn?'on':'off');
+const setSpeakBtn=()=>$('#voiceOut').textContent='🔊 '+SL().speaks+': '+(speakOn?SL().on:SL().off);
 $('#voiceOut').onclick=()=>{speakOn=!speakOn;store.set('speak',speakOn);setSpeakBtn();if(!speakOn)stopSpeak()};setSpeakBtn();
 
 /* ---------- Verse cards / explorer ---------- */
-function vcard(v){const i=id(v);return`<div class="vc" data-id="${i}"><button class="heart ${saved.has(i)?'on':''}" data-h="${i}" aria-label="save">${saved.has(i)?'♥':'♡'}</button><div class="t">BG ${i}</div><div class="s">${esc(clean(v).split('।')[0].replace(/^.*उवाच\s*/,'').slice(0,90))}…</div><div class="e">${esc(v.translation)}</div>${v.themes.slice(0,3).map(t=>`<span class="tag">${t}</span>`).join('')}</div>`}
-function renderCards(el,list){el.innerHTML=list.length?list.map(vcard).join(''):'<div class="empty">Nothing here yet.</div>'}
+function vcard(v){const i=id(v);return`<div class="vc" data-id="${i}"><button class="heart ${saved.has(i)?'on':''}" data-h="${i}" aria-label="save">${saved.has(i)?'♥':'♡'}</button><div class="t">BG ${i}</div><div class="s">${esc(clean(v).split('।')[0].replace(/^.*उवाच\s*/,'').slice(0,90))}…</div><div class="e">${esc(v.translation)}</div>${v.themes.slice(0,3).map(t=>`<span class="tag">${esc(themeName(t))}</span>`).join('')}</div>`}
+function renderCards(el,list){el.innerHTML=list.length?list.map(vcard).join(''):'<div class="empty">'+tx('Nothing here yet.')+'</div>'}
 document.addEventListener('click',e=>{
  const h=e.target.closest('.heart');if(h){e.stopPropagation();toggleSave(h.dataset.h);return}
  const c=e.target.closest('.vc');if(c)openVerse(c.dataset.id);
@@ -226,22 +385,22 @@ document.addEventListener('click',e=>{
 function toggleSave(i){saved.has(i)?saved.delete(i):saved.add(i);store.set('saved',[...saved]);toast(saved.has(i)?'Saved ♥':'Removed');refreshSaved()}
 function refreshSaved(){$('#savedCount').textContent=saved.size;renderCards($('#savedGrid'),[...saved].map(i=>byId[i]).filter(Boolean));
  $$('.heart').forEach(b=>{const on=saved.has(b.dataset.h);b.classList.toggle('on',on);b.textContent=on?'♥':'♡'});
- if(!saved.size)$('#savedGrid').innerHTML='<div class="empty">Tap ♡ on any verse to keep it here.</div>'}
+ if(!saved.size)$('#savedGrid').innerHTML='<div class="empty">'+tx('Tap ♡ on any verse to keep it here.')+'</div>'}
 function openVerse(i,focusCard){
  const v=byId[i];if(!v)return;
- $('#box').innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><span class="cite">Chapter ${v.chapter} · Verse ${v.verse}</span>
+ $('#box').innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><span class="cite">${tx('Chapter')} ${v.chapter} · ${tx('Verse')} ${v.verse}</span>
  <div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>
- <p style="font:500 20px/1.6 'Newsreader',serif">${esc(v.translation)}</p>
- <details><summary class="pill" style="display:inline-block">Word by word</summary><p class="wm">${esc(v.word_meanings||'').replace(/;/g,' · ')}</p></details>
- <h3 style="margin-top:18px;font:700 24px 'Newsreader',serif;color:var(--gold)">Shloka card</h3>
- <div class="actions">${['Midnight','Saffron','Lotus'].map((n,k)=>`<button class="pill ${k===cardTheme?'on':''}" data-ct="${k}">${n}</button>`).join('')}</div>
+ <p style="font:500 20px/1.6 'Newsreader','Tiro Devanagari Sanskrit','Noto Serif Telugu',serif">${esc(v.translation)}</p>${v.localized&&lang!=='en'?`<p class="wm">${tx('Translation prepared with AI from the Sanskrit. Please confirm with a teacher or a printed edition for study.')}</p>`:''}
+ <details><summary class="pill" style="display:inline-block">${tx('Word by word')}</summary><p class="wm">${esc(v.word_meanings||'').replace(/;/g,' · ')}</p></details>
+ <h3 style="margin-top:18px;font:700 24px 'Newsreader',serif;color:var(--gold)">${tx('Shloka card')}</h3>
+ <div class="actions">${['Midnight','Saffron','Lotus'].map((n,k)=>`<button class="pill ${k===cardTheme?'on':''}" data-ct="${k}">${tx(n)}</button>`).join('')}</div>
  <canvas id="cv" class="cardprev" width="1080" height="1080"></canvas>
- <div class="actions"><button class="pill" id="vRecite" type="button">🕉 Recite shloka</button><button class="pill" id="vTeach" type="button">📖 Teach me this shloka</button></div>
- <div class="actions"><button class="go" id="dl">⬇ Download 1080×1080</button><button class="pill" id="sv">${saved.has(i)?'♥ Saved':'♡ Save'}</button><button class="pill" id="cp">⧉ Copy verse</button><button class="pill" id="nx">Next verse ➜</button></div>`;
+ <div class="actions"><button class="pill" id="vRecite" type="button">${tx('🕉 Recite shloka')}</button><button class="pill" id="vTeach" type="button">${tx('📖 Teach me this shloka')}</button></div>
+ <div class="actions"><button class="go" id="dl">${tx('⬇ Download 1080×1080')}</button><button class="pill" id="sv">${tx(saved.has(i)?'♥ Saved':'♡ Save')}</button><button class="pill" id="cp">${tx('⧉ Copy verse')}</button><button class="pill" id="nx">${tx('Next verse ➜')}</button></div>`;
  $('#modal').classList.add('show');$('#xBtn').onclick=closeM;drawCard(v);$('#vRecite').onclick=()=>reciteShloka(v);$('#vTeach').onclick=()=>openTeach(i);
  $$('[data-ct]').forEach(b=>b.onclick=()=>{cardTheme=+b.dataset.ct;$$('[data-ct]').forEach(x=>x.classList.toggle('on',x===b));drawCard(v)});
  $('#dl').onclick=()=>{const a=document.createElement('a');a.download=`gitopadesh-${i}.png`;a.href=$('#cv').toDataURL('image/png');a.click()};
- $('#sv').onclick=()=>{toggleSave(i);$('#sv').textContent=saved.has(i)?'♥ Saved':'♡ Save'};
+ $('#sv').onclick=()=>{toggleSave(i);$('#sv').textContent=tx(saved.has(i)?'♥ Saved':'♡ Save')};
  $('#cp').onclick=()=>navigator.clipboard?.writeText(`${v.sanskrit}\n\n${v.translation}\n\n— Bhagavad Gita ${i}`).then(()=>toast('Copied'));
  $('#nx').onclick=()=>{const k=VERSES.indexOf(v);openVerse(id(VERSES[(k+1)%VERSES.length]))};
  if(focusCard)setTimeout(()=>$('#cv').scrollIntoView({behavior:'smooth'}),150);
@@ -260,14 +419,14 @@ async function drawCard(v){
  x.strokeStyle=T.g;x.globalAlpha=.16;x.lineWidth=2;for(let r=60;r<760;r+=48){x.beginPath();x.arc(W/2,W/2,r,0,7);x.stroke()}
  for(let k=0;k<16;k++){x.save();x.translate(W/2,W/2);x.rotate(k*Math.PI/8);x.beginPath();x.ellipse(0,-300,36,120,0,0,7);x.stroke();x.restore()}
  x.globalAlpha=1;x.strokeStyle=T.g;x.lineWidth=3;x.strokeRect(36,36,W-72,W-72);x.lineWidth=1;x.strokeRect(50,50,W-100,W-100);
- x.textAlign='center';x.fillStyle=T.g;x.font='400 76px "Tiro Devanagari Sanskrit",serif';x.fillText('ॐ',W/2,170);
- x.font='400 40px "Tiro Devanagari Sanskrit",serif';let y=250;
+ x.textAlign='center';x.fillStyle=T.g;x.font='400 76px "Tiro Devanagari Sanskrit","Noto Serif Telugu",serif';x.fillText('ॐ',W/2,170);
+ x.font='400 40px "Tiro Devanagari Sanskrit","Noto Serif Telugu",serif';let y=250;
  wrap(x,clean(v),W-220).slice(0,6).forEach(l=>{x.fillText(l,W/2,y);y+=66});
  y+=14;x.fillRect(W/2-60,y,120,3);y+=62;
  x.fillStyle=T.t;let fs=36,tl;
- do{x.font=`italic 500 ${fs}px "Newsreader",serif`;tl=wrap(x,v.translation.trim(),W-240);fs-=2}while(tl.length*(fs+22)>W-y-170&&fs>20);
+ do{x.font=`italic 500 ${fs}px "Newsreader","Tiro Devanagari Sanskrit","Noto Serif Telugu",serif`;tl=wrap(x,v.translation.trim(),W-240);fs-=2}while(tl.length*(fs+22)>W-y-170&&fs>20);
  tl.forEach(l=>{x.fillText(l,W/2,y);y+=fs+22});
- x.fillStyle=T.g;x.font='700 34px "Newsreader",serif';x.fillText(`Bhagavad Gita · Chapter ${v.chapter}, Verse ${v.verse}`,W/2,W-110);
+ x.fillStyle=T.g;x.font='700 34px "Newsreader","Tiro Devanagari Sanskrit","Noto Serif Telugu",serif';x.fillText(`Bhagavad Gita · Chapter ${v.chapter}, Verse ${v.verse}`,W/2,W-110);
  x.globalAlpha=.7;x.font='500 24px Inter,sans-serif';x.fillText('GITOPADESH',W/2,W-72);x.globalAlpha=1;
 }
 
@@ -278,12 +437,12 @@ $('#chips').onclick=e=>{const b=e.target.closest('.pill');if(b)ask(b.textContent
 $('#goBtn').onclick=()=>ask($('#q').value);
 $('#q').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ask($('#q').value)}});
 const autosize=()=>{const q=$('#q');q.style.height='auto';q.style.height=Math.min(160,q.scrollHeight)+'px'};$('#q').addEventListener('input',autosize);
-function setLang(l){lang=l;store.set('lang',l);$$('#langs .pill').forEach(x=>x.classList.toggle('on',x.dataset.l===l));chips();if(rec)rec.stop()}
+function setLang(l){lang=l;store.set('lang',l);$$('#langs .pill').forEach(x=>x.classList.toggle('on',x.dataset.l===l));chips();if(rec)rec.stop();if(i18nReady)applyLangAll()}
 $('#langs').onclick=e=>{const b=e.target.closest('[data-l]');if(b)setLang(b.dataset.l)};setLang(lang);
 fetch('/api/health').then(r=>r.json()).then(j=>{hasLLM=!!j.llm;ttsCfg=j.tts||false;sttCfg=!!j.stt}).catch(()=>{});
 
 
-function today(){const v=VERSES[Math.floor(Math.random()*VERSES.length)];$('#todayBox').innerHTML=`<h2 style="margin:0">Verse of the moment</h2><span class="cite">Bhagavad Gītā ${id(v)}</span><div class="shloka">${esc(clean(v))}</div><p class="tr">${esc(v.translation)}</p><div class="row"><button class="pill" id="tNew" type="button">🪷 Another verse</button><button class="pill" id="tOpen" type="button">Open shloka card</button></div>`;
+function today(){const v=VERSES[Math.floor(Math.random()*VERSES.length)];$('#todayBox').innerHTML=`<h2 style="margin:0">${tx('Verse of the moment')}</h2><span class="cite">${tx('Bhagavad Gītā')} ${id(v)}</span><div class="shloka">${esc(clean(v))}</div><p class="tr">${esc(v.translation)}</p><div class="row"><button class="pill" id="tNew" type="button">${tx('🪷 Another verse')}</button><button class="pill" id="tOpen" type="button">${tx('Open shloka card')}</button></div>`;
  $('#tNew').onclick=today;$('#tOpen').onclick=()=>openVerse(id(v))}
 today();
 
@@ -296,12 +455,12 @@ $('#search').oninput=e=>{fQ=e.target.value.trim().toLowerCase();shown=12;explore
 $('#more').onclick=()=>{shown+=12;explore()};
 function explore(){
  let l=VERSES.filter(v=>(!fCh||v.chapter===fCh)&&(!fTh||v.themes.includes(fTh)));
- if(fQ){l=/^\d+\.\d+$/.test(fQ)?l.filter(v=>id(v)===fQ):l.filter(v=>(v.translation+' '+v.transliteration+' '+v.themes.join(' ')).toLowerCase().includes(fQ))}
+ if(fQ){l=/^\d+\.\d+$/.test(fQ)?l.filter(v=>id(v)===fQ):l.filter(v=>(v.translation+' '+(v.translation_en||'')+' '+v.transliteration+' '+v.themes.join(' ')+' '+v.themes.map(themeName).join(' ')).toLowerCase().includes(fQ))}
  renderCards($('#results'),l.slice(0,shown));
- $('#more').style.display=l.length>shown?'inline-block':'none';$('#more').textContent=`Show more (${l.length-shown} left)`;
+ $('#more').style.display=l.length>shown?'inline-block':'none';$('#more').textContent=`${tx('Show more')} (${l.length-shown})`;
 }
 explore();refreshSaved();
-let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2200)}
+let tt;function toast(m){const t=$('#toast');t.textContent=tx(m);t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2200)}
 
 /* ================= Presence: state, stage, subtitles ================= */
 const setState=s=>{document.body.dataset.state=s};
@@ -319,20 +478,20 @@ function saveExchange(e){hist.unshift(e);hist=hist.slice(0,60);store.set(HK,hist
 function leafHTML(e){const L=T[e.lang]||T.en,order=ORDER[e.mode]||['SAY'];
  return `<div class="kr"><div class="who">॥ श्रीभगवानुवाच ॥</div>`+order.filter(k=>e.sec&&e.sec[k]).map(k=>{
   const v=k==='VERSE'&&e.vid&&byId[e.vid];
-  const vb=v?`<span class="cite">Bhagavad Gītā ${e.vid}</span><div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>`:'';
+  const vb=v?`<span class="cite">${tx('Bhagavad Gītā')} ${e.vid}</span><div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>`:'';
   return `<div class="step ${k==='ASK'?'ask':''}"><b>${L.h[k]}</b>${vb}<p>${esc(e.sec[k])}</p></div>`}).join('')+`</div>`}
-const modeLabel=m=>m==='ASK'?'Krishna asked':m==='TEACH'?'Teaching':'Dialogue';
+const modeLabel=m=>tx(m==='ASK'?'Krishna asked':m==='TEACH'?'Teaching':'Dialogue');
 function openHistory(){
  const box=$('#box');
- box.innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><h3>Your conversations</h3><p class="wm">Kept only in this browser. Nothing is stored on a server.</p>`+
-  (hist.length?`<div class="hlist">${hist.map((e,i)=>`<button class="hitem" data-i="${i}" type="button"><span class="hd">${new Date(e.t).toLocaleString([],{dateStyle:'medium',timeStyle:'short'})} · ${modeLabel(e.mode)}${e.vid?' · BG '+e.vid:''}</span><span class="hq">${esc(e.q.slice(0,140))}</span></button>`).join('')}</div><div class="actions"><button class="pill" id="hClear" type="button">Clear all history</button></div>`
-   :'<div class="empty">No conversations yet. Speak to Krishna and they will appear here.</div>');
+ box.innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><h3>${tx('Your conversations')}</h3><p class="wm">${tx('Kept only in this browser. Nothing is stored on a server.')}</p>`+
+  (hist.length?`<div class="hlist">${hist.map((e,i)=>`<button class="hitem" data-i="${i}" type="button"><span class="hd">${new Date(e.t).toLocaleString([],{dateStyle:'medium',timeStyle:'short'})} · ${modeLabel(e.mode)}${e.vid?' · BG '+e.vid:''}</span><span class="hq">${esc(e.q.slice(0,140))}</span></button>`).join('')}</div><div class="actions"><button class="pill" id="hClear" type="button">${tx('Clear all history')}</button></div>`
+   :'<div class="empty">'+tx('No conversations yet. Speak to Krishna and they will appear here.')+'</div>');
  $('#modal').classList.add('show');$('#xBtn').onclick=closeM;
  $$('.hitem').forEach(b=>b.onclick=()=>openHistItem(+b.dataset.i));
- const c=$('#hClear');if(c)c.onclick=()=>{if(c.dataset.sure){hist=[];store.set(HK,hist);updHist();openHistory();toast('History cleared')}else{c.dataset.sure=1;c.textContent='Tap again to confirm'}};
+ const c=$('#hClear');if(c)c.onclick=()=>{if(c.dataset.sure){hist=[];store.set(HK,hist);updHist();openHistory();toast('History cleared')}else{c.dataset.sure=1;c.textContent=tx('Tap again to confirm')}};
 }
 function openHistItem(i){const e=hist[i];if(!e)return;
- $('#box').innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><button class="pill" id="hBack" type="button">← All conversations</button><div class="me"><small>You</small><span>${esc(e.q)}</span></div>${leafHTML(e)}<div class="actions">${e.vid?'<button class="pill" id="hCard" type="button">🖼 Shloka card</button>':''}<button class="pill" id="hCopy" type="button">⧉ Copy</button><button class="pill" id="hDel" type="button">Delete</button></div>`;
+ $('#box').innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><button class="pill" id="hBack" type="button">${tx('← All conversations')}</button><div class="me"><small>${tx('You')}</small><span>${esc(e.q)}</span></div>${leafHTML(e)}<div class="actions">${e.vid?`<button class="pill" id="hCard" type="button">${tx('🖼 Shloka card')}</button>`:''}<button class="pill" id="hCopy" type="button">${tx('⧉ Copy')}</button><button class="pill" id="hDel" type="button">${tx('Delete')}</button></div>`;
  $('#xBtn').onclick=closeM;$('#hBack').onclick=openHistory;
  const h=$('#hCard');if(h)h.onclick=()=>openVerse(e.vid,true);
  $('#hCopy').onclick=()=>navigator.clipboard?.writeText(e.q+'\n\n'+Object.values(e.sec||{}).join('\n\n')).then(()=>toast('Copied'));
@@ -346,11 +505,12 @@ $('#newConvo').onclick=()=>{history=[];ss.set('ctx',[]);$('#thread').innerHTML='
 $$('#langs [data-l]').forEach(b=>b.addEventListener('click',()=>{lastSub='';if(!history.length)setSubtitle(T[b.dataset.l].greet)}));
 
 /* ================= Hero quote (real verses from the dataset) ================= */
+let heroQuoteRefresh=()=>{};
 (()=>{const IDS=['2.47','18.66','6.5','4.7','2.20','2.14'],box=$('#heroQuote');let k=0;
  const short=t=>{t=t.trim();if(t.length<=170)return t;const m=t.slice(0,170).match(/^.*[.;]/);return m?m[0]:t.slice(0,167)+'…'};
  function show(){const v=byId[IDS[k%IDS.length]];if(!v){k++;return}
-  box.classList.add('out');setTimeout(()=>{box.innerHTML=`<p class="sk">${esc(clean(v).split(/[।॥]/)[0].trim()+' ॥')}</p><p class="en">“${esc(short(v.translation))}”</p><cite>Krishna · Bhagavad Gītā ${id(v)}</cite>`;box.classList.remove('out');k++},k?500:0)}
- show();setInterval(show,10000)})();
+  box.classList.add('out');setTimeout(()=>{box.innerHTML=`<p class="sk">${esc(clean(v).split(/[।॥]/)[0].trim()+' ॥')}</p><p class="en">“${esc(short(v.translation))}”</p><cite>${lang==='en'?'Krishna':lang==='hi'?'कृष्ण':'కృష్ణుడు'} · ${tx('Bhagavad Gītā')} ${id(v)}</cite>`;box.classList.remove('out');k++},k?500:0)}
+ heroQuoteRefresh=()=>{k=Math.max(0,k-1);show()};show();setInterval(show,10000)})();
 
 /* ================= Stage effects over the portrait ================= */
 (()=>{
@@ -454,7 +614,7 @@ function ambStop(){
  setTimeout(()=>a.nodes.forEach(n=>{try{n.stop()}catch{}}),3200);
 }
 
-const setFluteBtn=()=>$('#fluteBtn').textContent='🪈 Flute: '+(ambOn?'on':'off');
+const setFluteBtn=()=>$('#fluteBtn').textContent='🪈 '+SL().flute+': '+(ambOn?SL().on:SL().off);
 $('#fluteBtn').onclick=()=>{ambOn=!ambOn;store.set('amb',ambOn);setFluteBtn();if(!ambOn)ambStop();else if(AC&&document.body.dataset.state==='speaking')ambStart()};setFluteBtn();
 /* ---- speech: starts on the FIRST finished sentence while the rest is still being written ---- */
 const TERM=/(?<=[.!?।॥])\s+/;
@@ -516,7 +676,7 @@ function speak(text){const sp=startSpeaker();sp.say(speechParts(text));sp.end()}
 const RE_DEV=/[ऀ-ॿ]/g,RE_TEL=/[ఀ-౿]/g;
 function detectLang(t){const n=String(t).replace(/\s/g,'').length||1,d=(String(t).match(RE_DEV)||[]).length/n,e=(String(t).match(RE_TEL)||[]).length/n;return d>.3?'hi':e>.3?'te':null}
 let convo=store.get('convo',false),sendTimer=null,silenceTimer=null,sttCfg=false,convoMiss=0;
-const setConvoBtn=()=>$('#convoBtn').textContent='🎧 Conversation: '+(convo?'on':'off');
+const setConvoBtn=()=>$('#convoBtn').textContent='🎧 '+SL().convo+': '+(convo?SL().on:SL().off);
 $('#convoBtn').onclick=()=>{convo=!convo;convoMiss=0;store.set('convo',convo);setConvoBtn();
  toast(convo?'Hands-free on: Krishna will listen again after he speaks':'Hands-free off');
  if(convo&&!busy&&!rec&&document.body.dataset.state==='idle')startListening()};setConvoBtn();
@@ -591,7 +751,7 @@ $('#mic').onclick=()=>{if(rec){rec.stop();return}startListening()};
 /* ================= Voice style: Calm / Natural / Deep / Device ================= */
 const VSTYLES=[['calm','Calm'],['natural','Natural'],['deep','Deep'],['device','Device']];
 const SAMPLE={en:'O seeker, you have come to the field. Tell me what weighs upon your heart.',hi:'हे साधक, तुम रणभूमि में आए हो। बोलो, तुम्हारे हृदय पर क्या बोझ है?',te:'ఓ సాధకా, నీవు యుద్ధభూమికి వచ్చావు. చెప్పు, నీ హృదయంపై ఏ భారం ఉంది?'};
-const setVstyleBtn=()=>$('#vstyleBtn').textContent='🎙 Voice: '+(VSTYLES.find(v=>v[0]===vstyle)||VSTYLES[0])[1];
+const setVstyleBtn=()=>$('#vstyleBtn').textContent='🎙 '+SL().voice+': '+SL().styles[vstyle];
 $('#vstyleBtn').onclick=()=>{const i=VSTYLES.findIndex(v=>v[0]===vstyle);vstyle=VSTYLES[(i+1)%VSTYLES.length][0];store.set('vstyle',vstyle);setVstyleBtn();applyStyleFX();
  const sp=startSpeaker();sp.say([SAMPLE[lang]]);sp.end()};setVstyleBtn();
 
@@ -616,7 +776,7 @@ function sanskritSpeech(t){let s=String(t);for(const[re,r]of SK_MAP)s=s.replace(
 /* Chant the shloka itself: Devanagari read line by line by the Hindi voice, slowly, with the hall's resonance. */
 function reciteShloka(v){
  const lines=clean(v).split(/[।॥|]+/).map(s=>s.trim()).filter(Boolean);if(!lines.length)return;
- const sp=startSpeaker('hi','chant');sp.say(lines.map(l=>l+' ।'));sp.end();toast('Reciting the shloka… ॐ');
+ const sp=startSpeaker(lang==='te'?'te':'hi','chant');sp.say(lines.map(l=>l+' ।'));sp.end();toast('Reciting the shloka… ॐ');
 }
 
 /* The lesson: bhava, key words, meaning, a Mahabharata episode, and today's life. Cached on this device. */
@@ -624,8 +784,8 @@ const TCK='gp_teach_v1:';
 function openTeach(vid){
  const v=byId[vid];if(!v)return;stopSpeak();
  const key=TCK+vid+':'+lang,H=LEARN_H[lang]||LEARN_H.en;let sec=null;
- $('#box').innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><span class="cite">Bhagavad Gītā ${vid}</span><div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>
- <div class="actions"><button class="pill" id="tRecite" type="button">🕉 Recite shloka</button><button class="pill" id="tListen" type="button">🔊 Listen to the lesson</button><button class="pill" id="tCard" type="button">🖼 Shloka card</button></div>
+ $('#box').innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><span class="cite">${tx('Bhagavad Gītā')} ${vid}</span><div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>
+ <div class="actions"><button class="pill" id="tRecite" type="button">${tx('🕉 Recite shloka')}</button><button class="pill" id="tListen" type="button">${tx('🔊 Listen to the lesson')}</button><button class="pill" id="tCard" type="button">${tx('🖼 Shloka card')}</button></div>
  <div class="kr" id="tBody"><div class="who">॥ श्रीभगवानुवाच ॥</div><div class="body"><div class="dots"><span></span><span></span><span></span></div></div></div>`;
  $('#modal').classList.add('show');
  $('#xBtn').onclick=()=>{stopSpeak();closeM()};
@@ -649,5 +809,202 @@ function openTeach(vid){
   }catch(e){toast(/429/.test(e.message)?'Krishna rests a moment. Please try again in a minute.':'The full lesson is unavailable right now. Showing the meaning.');offline()}
  })();
 }
+
+/* ================= Shloka cards: any language, a short meaning, the site link at the bottom ================= */
+const SITE_HOST='gitopadesh.jmadhan.me';
+const CARD_T=[{a:'#0a0820',b:'#2a1b6e',g:'#f5c76a',t:'#f3eee0',m:'#b9bfe0'},{a:'#7a2e0a',b:'#f08a24',g:'#fff1c2',t:'#fffaf0',m:'#ffe3b8'},{a:'#fdf0f3',b:'#f6c1d1',g:'#8a2a4d',t:'#3a1020',m:'#7a4a5a'}];
+const CARD_L={
+ en:{meaning:'MEANING',ref:(c,v)=>`Bhagavad Gita · Chapter ${c}, Verse ${v}`,om:'ॐ',tag:'Ask Krishna · Bhagavad Gita guidance'},
+ hi:{meaning:'अर्थ',ref:(c,v)=>`श्रीमद्भगवद्गीता · अध्याय ${c}, श्लोक ${v}`,om:'ॐ',tag:'कृष्ण से पूछिए · भगवद्गीता मार्गदर्शन'},
+ te:{meaning:'అర్థం',ref:(c,v)=>`భగవద్గీత · అధ్యాయం ${c}, శ్లోకం ${v}`,om:'ఓం',tag:'కృష్ణుడిని అడగండి · భగవద్గీత మార్గదర్శనం'}};
+const LANG_LABEL={en:'English',hi:'हिंदी',te:'తెలుగు'};
+let cardLang=null;
+
+function trFor(v,L){if(L==='en')return v.translation_en||v.translation;const e=VT[L]&&VT[L][id(v)];return (e&&e.t)||v.translation_en||v.translation}
+function shlokaFor(v,L){const s=v.sanskrit.replace(/\s*[।॥]*\s*\d+\.\d+\s*[।॥]*\s*$/,'');return L==='te'?toTelugu(s):s}
+function shortMeaning(t,max=190){
+ t=String(t).replace(/\s+/g,' ').trim();if(t.length<=max)return t;
+ let out='';for(const s of t.split(/(?<=[.!?।])\s+/)){const n=(out+' '+s).trim();if(n.length>max)break;out=n}
+ if(out)return out;const c=t.slice(0,max);return c.replace(/[,;:\-—]?\s+\S*$/,'')+'…';
+}
+function rrect(x,X,y,w,h,r){x.beginPath();x.moveTo(X+r,y);x.arcTo(X+w,y,X+w,y+h,r);x.arcTo(X+w,y+h,X,y+h,r);x.arcTo(X,y+h,X,y,r);x.arcTo(X,y,X+w,y,r);x.closePath()}
+
+async function paintCard(cv,v,L,themeIdx){
+ if(!cv||!v)return;
+ await loadVT(L);
+ try{await Promise.all([document.fonts.load('400 40px "Tiro Devanagari Sanskrit"'),document.fonts.load('400 40px "Noto Serif Telugu"'),document.fonts.load('italic 500 30px "Newsreader"'),document.fonts.load('700 30px "Hanken Grotesk"'),document.fonts.load('400 30px "Yatra One"')])}catch{}
+ const x=cv.getContext('2d'),T=CARD_T[themeIdx]||CARD_T[0],W=1080,Lb=CARD_L[L]||CARD_L.en;
+ const g=x.createLinearGradient(0,0,W,W);g.addColorStop(0,T.a);g.addColorStop(1,T.b);x.fillStyle=g;x.fillRect(0,0,W,W);
+ x.strokeStyle=T.g;x.globalAlpha=.14;x.lineWidth=2;for(let r=60;r<780;r+=48){x.beginPath();x.arc(W/2,W/2,r,0,7);x.stroke()}
+ for(let k=0;k<16;k++){x.save();x.translate(W/2,W/2);x.rotate(k*Math.PI/8);x.beginPath();x.ellipse(0,-310,36,124,0,0,7);x.stroke();x.restore()}
+ x.globalAlpha=1;x.strokeStyle=T.g;x.lineWidth=3;x.strokeRect(36,36,W-72,W-72);x.lineWidth=1;x.strokeRect(50,50,W-100,W-100);
+ x.textAlign='center';x.textBaseline='alphabetic';
+ // OM
+ x.fillStyle=T.g;x.font='400 66px "Tiro Devanagari Sanskrit","Noto Serif Telugu",serif';x.fillText(Lb.om,W/2,150);
+ // shloka: break at the danda, shrink to fit
+ const sk=shlokaFor(v,L),parts=sk.split(/(?<=[।॥])\s*/).map(s=>s.trim()).filter(Boolean);
+ let fs=46,lines,lh;
+ for(;fs>=26;fs-=2){x.font=`400 ${fs}px "Tiro Devanagari Sanskrit","Noto Serif Telugu",serif`;lines=parts.flatMap(p=>wrap(x,p,W-220));lh=fs*1.62;if(lines.length*lh<=300)break}
+ x.fillStyle=T.g;let y=232;lines.forEach(l=>{x.fillText(l,W/2,y);y+=lh});
+ y+=6;x.globalAlpha=.8;x.fillRect(W/2-60,y,120,3);x.globalAlpha=1;
+ // short meaning, in the card language
+ y+=50;x.fillStyle=T.m;x.font=L==='en'?'600 22px "Hanken Grotesk",sans-serif':'500 28px "Tiro Devanagari Sanskrit","Noto Serif Telugu",serif';
+ if('letterSpacing'in x)x.letterSpacing=L==='en'?'4px':'0px';x.fillText(Lb.meaning,W/2,y);if('letterSpacing'in x)x.letterSpacing='0px';
+ y+=26;const limit=W-300,mean=shortMeaning(trFor(v,L));let mfs=38,ml;
+ x.fillStyle=T.t;
+ for(;mfs>=24;mfs-=2){x.font=`${L==='en'?'italic ':''}500 ${mfs}px "Newsreader","Tiro Devanagari Sanskrit","Noto Serif Telugu",serif`;ml=wrap(x,mean,W-220);if(y+ml.length*(mfs*1.5)<=limit)break}
+ ml.forEach(l=>{y+=mfs*1.5;x.fillText(l,W/2,y)});
+ // reference
+ x.fillStyle=T.g;x.font='400 30px "Yatra One","Tiro Devanagari Sanskrit","Noto Serif Telugu",serif';x.fillText(Lb.ref(v.chapter,v.verse),W/2,W-218);
+ // site link, on every card
+ const pw=560,ph=70,px=(W-pw)/2,py=W-190;
+ rrect(x,px,py,pw,ph,35);x.fillStyle='rgba(0,0,0,.22)';x.fill();x.strokeStyle=T.g;x.lineWidth=2;x.stroke();
+ x.fillStyle=T.t;x.font='700 36px "Hanken Grotesk",sans-serif';x.fillText(SITE_HOST,W/2,py+47);
+ x.fillStyle=T.m;x.font='500 22px "Hanken Grotesk","Tiro Devanagari Sanskrit","Noto Serif Telugu",sans-serif';x.fillText(Lb.tag,W/2,W-86);
+}
+
+/* the modal canvas */
+async function drawCard(v){await paintCard($('#cv'),v,cardLang||lang,cardTheme)}
+function cardDownload(cv,v,L,suffix){const a=document.createElement('a');a.download=`gitopadesh-${id(v)}-${L}${suffix||''}.png`;a.href=cv.toDataURL('image/png');a.click()}
+
+const _openVerse=openVerse;
+openVerse=function(i,focusCard){
+ cardLang=lang;_openVerse(i,focusCard);
+ const v=byId[i],cv=$('#cv');if(!v||!cv)return;
+ const bar=document.createElement('div');bar.className='actions';bar.id='cardLangs';
+ bar.innerHTML=Object.keys(LANG_LABEL).map(l=>`<button class="pill ${l===cardLang?'on':''}" type="button" data-cl="${l}">${LANG_LABEL[l]}</button>`).join('');
+ cv.parentNode.insertBefore(bar,cv);
+ bar.onclick=e=>{const b=e.target.closest('[data-cl]');if(!b)return;cardLang=b.dataset.cl;$$('#cardLangs .pill').forEach(x=>x.classList.toggle('on',x===b));drawCard(v)};
+ const dl=$('#dl');if(dl)dl.onclick=()=>cardDownload(cv,v,cardLang||lang);
+};
+
+/* ================= Daily shloka ================= */
+function dailyVerse(){
+ const n=new Date(),day=Math.floor(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())/864e5);
+ const pool=VERSES.filter(v=>(v.translation_en||v.translation).length<=240);
+ return pool[(day*7919)%pool.length];
+}
+let dLang=null,dTheme=0;
+async function renderDaily(){
+ const cv=$('#dailyCv');if(!cv)return;
+ const v=dailyVerse();dLang=dLang||lang;
+ await paintCard(cv,v,dLang,dTheme);
+ const n=new Date();
+ $('#dailyCite').textContent=`${n.toLocaleDateString(dLang==='en'?'en-IN':dLang==='hi'?'hi-IN':'te-IN',{day:'numeric',month:'long',year:'numeric'})} · ${({en:'Bhagavad Gītā',hi:'भगवद्गीता',te:'భగవద్గీత'})[dLang]} ${id(v)}`;
+ $('#dailyLangs').innerHTML=Object.keys(LANG_LABEL).map(l=>`<button class="pill ${l===dLang?'on':''}" type="button" data-dl="${l}">${LANG_LABEL[l]}</button>`).join('');
+ $('#dailyDl').textContent=tx('⬇ Download card');$('#dailyOpen').textContent=tx('Open card');
+}
+if($('#dailyCv')){
+ $('#dailyLangs').onclick=e=>{const b=e.target.closest('[data-dl]');if(!b)return;dLang=b.dataset.dl;renderDaily()};
+ $('#dailyDl').onclick=()=>cardDownload($('#dailyCv'),dailyVerse(),dLang||lang,'-daily');
+ $('#dailyOpen').onclick=()=>{cardLang=dLang||lang;openVerse(id(dailyVerse()),true)};
+}
+
+/* ================= Gentle reveal as sections scroll into view (never hides anything without JS) ================= */
+(()=>{
+ if(!('IntersectionObserver'in window)||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.06,rootMargin:'0px 0px -4% 0px'});
+ $$('main section.s, main .strip').forEach(el=>{if(el.getBoundingClientRect().top>innerHeight*.92){el.classList.add('rv');io.observe(el)}});
+})();
+
+/* ================= Whole-site language: English / हिंदी / తెలుగు ================= */
+const FAQ_I18N={
+ hi:[
+  ['गीतोपदेश क्या है?','गीतोपदेश एक निःशुल्क, वाणी-आधारित मार्गदर्शक है जहाँ आप कृष्ण को अपनी समस्या बताते हैं और भगवद्गीता से उत्तर पाते हैं। वे पहले सुनते हैं और एक प्रश्न पूछ सकते हैं, फिर एक श्लोक और व्यावहारिक मार्गदर्शन देते हैं, अंग्रेज़ी, हिंदी या तेलुगु में।'],
+  ['क्या उत्तर देने वाले कृष्ण वास्तविक हैं?','उत्तर एक AI द्वारा बनाए जाते हैं जो कृष्ण की वाणी में बोलता है और भगवद्गीता पर आधारित है। दिखाए गए संस्कृत श्लोक, लिप्यंतरण और अर्थ गीता से ही हैं। यह एक चिंतनशील मार्गदर्शक है, किसी गुरु, चिकित्सक या मनोचिकित्सक का विकल्प नहीं।'],
+  ['क्या गीतोपदेश निःशुल्क और निजी है?','हाँ, यह निःशुल्क है और साइन-अप नहीं चाहिए। आपकी बातचीत का इतिहास केवल आपके ब्राउज़र में रहता है और आप उसे कभी भी इतिहास से मिटा सकते हैं। उत्तर देने के लिए आपके शब्द Amazon Bedrock को भेजे जाते हैं, और कृष्ण के बोले हर वाक्य को Microsoft की वाक् सेवा को भेजा जाता है। गीतोपदेश स्वयं इन्हें संग्रहीत नहीं करता।'],
+  ['कृष्ण मेरे लिए श्लोक कैसे चुनते हैं?','आपके शब्दों का अर्थ और विषय (जैसे भय, क्रोध, शोक, कर्तव्य और अशांत मन) के आधार पर भगवद्गीता के सभी 701 श्लोकों से मिलान किया जाता है। सबसे अच्छे मिलान कृष्ण को दिए जाते हैं, जो आपकी स्थिति के अनुकूल श्लोक चुनते हैं।'],
+  ['फल की चिंता के बारे में भगवद्गीता क्या कहती है?','अध्याय 2, श्लोक 47 कहता है कि आपका अधिकार कर्म पर है, उसके फल पर नहीं। सामने के कार्य में पूरा प्रयास दीजिए और परिणाम की आसक्ति छोड़िए। यही निष्काम कर्म का सार है।'],
+  ['क्रोध के बारे में भगवद्गीता क्या कहती है?','अध्याय 2, श्लोक 62 और 63 बताते हैं कि विषयों का चिंतन करने से आसक्ति, फिर कामना, क्रोध, मोह, स्मृति-भ्रंश और विवेक का नाश होता है। इसका उपाय मन की स्थिरता और इंद्रियों पर संयम है।'],
+  ['क्या हिंदी और तेलुगु अनुवाद विश्वसनीय हैं?','संस्कृत श्लोक गीता से ही हैं। अंग्रेज़ी, हिंदी और तेलुगु अर्थ अनुवाद हैं। हिंदी और तेलुगु अनुवाद संस्कृत और मानक भाष्यों के आधार पर AI की सहायता से तैयार किए गए और संस्कृत से मिलान कर स्वचालित रूप से जाँचे गए हैं। गंभीर अध्ययन के लिए कृपया किसी गुरु या मुद्रित संस्करण से पुष्टि कीजिए।'],
+  ['कौन-सी भाषाएँ और डिवाइस समर्थित हैं?','अंग्रेज़ी, हिंदी और तेलुगु; श्लोक संस्कृत में रहते हैं। वाणी इनपुट कंप्यूटर और Android पर Chrome या Edge में सबसे अच्छा चलता है, और साइट फ़ोन पर भी चलती है।']
+ ],
+ te:[
+  ['గీతోపదేశ్ అంటే ఏమిటి?','గీతోపదేశ్ ఒక ఉచిత, స్వర-ఆధారిత మార్గదర్శి; ఇక్కడ మీరు కృష్ణుడికి మీ సమస్య చెప్పి భగవద్గీత నుండి సమాధానం పొందుతారు. ఆయన ముందు వింటాడు, ఒక ప్రశ్న అడగవచ్చు, ఆపై ఒక శ్లోకాన్ని, ఆచరణాత్మక మార్గదర్శనాన్ని ఇస్తాడు; ఆంగ్లం, హిందీ లేదా తెలుగులో.'],
+  ['సమాధానం ఇచ్చే కృష్ణుడు నిజమేనా?','సమాధానాలను కృష్ణుడి స్వరంలో మాట్లాడే, భగవద్గీతపై ఆధారపడిన ఒక AI తయారుచేస్తుంది. చూపించే సంస్కృత శ్లోకాలు, లిప్యంతరీకరణలు, అర్థాలు గీత నుండే. ఇది ఆలోచనకు ఉపయోగపడే మార్గదర్శి మాత్రమే; గురువు, వైద్యుడు లేదా చికిత్సకుడికి ప్రత్యామ్నాయం కాదు.'],
+  ['గీతోపదేశ్ ఉచితమేనా, గోప్యంగా ఉంటుందా?','అవును, ఇది ఉచితం, సైన్-అప్ అవసరం లేదు. మీ సంభాషణ చరిత్ర మీ బ్రౌజర్‌లో మాత్రమే ఉంటుంది; చరిత్ర విభాగం నుండి ఎప్పుడైనా తొలగించవచ్చు. సమాధానం ఇవ్వడానికి మీ మాటలు Amazon Bedrock కు, కృష్ణుడు మాట్లాడే ప్రతి వాక్యం Microsoft స్పీచ్ సేవకు పంపబడతాయి. గీతోపదేశ్ వాటిని నిల్వ చేయదు.'],
+  ['నాకు శ్లోకాన్ని కృష్ణుడు ఎలా ఎంచుకుంటాడు?','మీ మాటల అర్థం, అంశం (భయం, కోపం, శోకం, కర్తవ్యం, చంచల మనస్సు వంటివి) ఆధారంగా భగవద్గీతలోని మొత్తం 701 శ్లోకాలతో పోల్చబడతాయి. ఉత్తమ సరిపోలికలు కృష్ణుడికి ఇవ్వబడతాయి; ఆయన మీ పరిస్థితికి సరిపోయేదాన్ని ఎంచుకుంటాడు.'],
+  ['ఫలితం గురించిన ఆందోళనపై భగవద్గీత ఏం చెబుతుంది?','2వ అధ్యాయం, 47వ శ్లోకం: మీకు కర్మపైనే అధికారం ఉంది, దాని ఫలంపై కాదు. ఎదుట ఉన్న పనికి పూర్తి కృషి ఇవ్వండి, ఫలితంపై ఆసక్తిని వదలండి. ఇదే నిష్కామ కర్మ సారం.'],
+  ['కోపం గురించి భగవద్గీత ఏం చెబుతుంది?','2వ అధ్యాయం, 62, 63 శ్లోకాలు: విషయాలను చింతించడం వల్ల ఆసక్తి, కోరిక, కోపం, మోహం, స్మృతి భ్రంశం, వివేక నాశనం కలుగుతాయి. మనస్సు స్థిరత్వం, ఇంద్రియ నిగ్రహం దీనికి పరిష్కారం.'],
+  ['హిందీ, తెలుగు అనువాదాలు నమ్మదగినవేనా?','సంస్కృత శ్లోకాలు గీత నుండే. ఆంగ్లం, హిందీ, తెలుగు అర్థాలు అనువాదాలు. హిందీ, తెలుగు అనువాదాలు సంస్కృతం, ప్రామాణిక వ్యాఖ్యానాల ఆధారంగా AI సహాయంతో తయారై, సంస్కృతంతో స్వయంచాలకంగా సరిచూడబడ్డాయి. గంభీర అధ్యయనానికి దయచేసి గురువు లేదా ముద్రిత గ్రంథంతో నిర్ధారించుకోండి.'],
+  ['ఏ భాషలు, పరికరాలకు మద్దతు ఉంది?','ఆంగ్లం, హిందీ, తెలుగు; శ్లోకాలు సంస్కృతంలోనే ఉంటాయి. స్వర ఇన్‌పుట్ కంప్యూటర్, Android లో Chrome లేదా Edge లో బాగా పనిచేస్తుంది; సైట్ ఫోన్‌లోనూ పనిచేస్తుంది.']
+ ]};
+
+/* ---- Devanagari to Telugu script (Sanskrit maps letter-for-letter) ---- */
+function toTelugu(s){return String(s).replace(/ॐ/g,'ఓం').replace(/[ऀ-ॿ]/g,c=>{const n=c.charCodeAt(0);return (n===0x964||n===0x965||(n>=0x966&&n<=0x96F))?c:String.fromCharCode(n+0x300)})}
+
+/* ---- verse text in the chosen language (translations prepared offline) ---- */
+const VT={};let vtLoading={};
+async function loadVT(l){
+ if(l==='en'||VT[l])return;
+ if(vtLoading[l])return vtLoading[l];
+ vtLoading[l]=fetch('/verses.'+l+'.json').then(r=>r.ok?r.json():null).then(j=>{if(j)VT[l]=j}).catch(()=>{});
+ await vtLoading[l];
+}
+function applyVerseLang(){
+ const T2=VT[lang];
+ VERSES.forEach(v=>{
+  if(v.translation_en===undefined){v.translation_en=v.translation;v.word_meanings_en=v.word_meanings}
+  const e=T2&&T2[id(v)];
+  v.translation=(e&&e.t)||v.translation_en;
+  v.word_meanings=(e&&e.w)||v.word_meanings_en;
+  v.localized=!!(e&&e.t);
+ });
+}
+
+/* ---- static page text ---- */
+const ST=[ // [selector, english source]. Source text is captured once from the page.
+ ['.hero-copy .eyebrow'],['.hero-copy .lead'],['#goBtn'],['.try'],['#newConvo'],['#readMore'],
+ ['#journey li:nth-child(1)'],['#journey li:nth-child(2)'],['#journey li:nth-child(3)'],['#journey li:nth-child(4)'],
+ ['#daily h2'],['#daily .lede'],['#explore h2'],['#explore .lede'],['#saved h2'],['#saved .lede'],['#how h2'],['#how .lede'],
+ ['#how .bento>div:nth-child(1) h3'],['#how .bento>div:nth-child(1) p'],['#how .bento>div:nth-child(2) h3'],['#how .bento>div:nth-child(2) p'],
+ ['#how .bento>div:nth-child(3) h3'],['#how .bento>div:nth-child(3) p'],['#how .bento>div:nth-child(4) h3'],['#how .bento>div:nth-child(4) p'],
+ ['#faq h2'],['#faq .lede'],['#chapters-index h2'],['#chapters-index .lede'],['#about h2'],['#about p'],['#support h2'],['#support .sp'],['#support .mailtxt'],['#support .go'],['footer p:nth-of-type(1)'],['noscript p']
+];
+function applyI18n(){
+ document.documentElement.lang=lang;
+ ST.forEach(([sel])=>{const el=document.querySelector(sel);if(!el)return;if(el.dataset.en===undefined)el.dataset.en=el.textContent.trim();el.textContent=tx(el.dataset.en)});
+ const h1=$('.hero-copy h1');if(h1){if(h1.dataset.en===undefined)h1.dataset.en=h1.innerHTML;
+  h1.innerHTML=lang==='hi'?'अपनी समस्या कहिए।<br><span>कृष्ण</span> आपका मार्ग दिखाएँगे।':lang==='te'?'మీ సమస్యను చెప్పండి.<br><span>కృష్ణుడు</span> మీకు దారి చూపిస్తాడు.':h1.dataset.en}
+ // placeholders and labels
+ const q=$('#q');if(q){if(q.dataset.en===undefined)q.dataset.en=q.placeholder;q.placeholder=tx(q.dataset.en)}
+ const s=$('#search');if(s){if(s.dataset.en===undefined)s.dataset.en=s.placeholder;s.placeholder=tx(s.dataset.en)}
+ // nav with counters
+ $('#histBtn').innerHTML=`${tx('History')} <span id="histCount">${hist.length}</span>`;
+ const lib=document.querySelector('.navr a[href="#explore"]');if(lib){if(lib.dataset.en===undefined)lib.dataset.en=lib.textContent.trim();lib.textContent=tx(lib.dataset.en)}
+ const sup=document.querySelector('.navr a[href="/support"]');if(sup){if(sup.dataset.en===undefined)sup.dataset.en=sup.textContent.trim();sup.textContent=tx(sup.dataset.en)}
+ const sv=document.querySelector('.navr a[href="#saved"]');if(sv)sv.innerHTML=`${tx('Saved')} <span id="savedCount">${saved.size}</span>`;
+ // footer privacy line keeps its portfolio link
+ const fp=document.querySelectorAll('footer p')[1];
+ if(fp){if(fp.dataset.en===undefined)fp.dataset.en='1';fp.innerHTML=esc(tx('Your words are sent to Amazon Bedrock to write Krishna’s reply, and each sentence he speaks is sent to Microsoft’s speech service. Gitopadesh does not store them; your conversation history stays only in your browser.'))+' · <a href="/support">'+esc(tx('Support'))+'</a> · <a href="mailto:hello@jmadhan.me">hello@jmadhan.me</a> · <a href="https://jmadhan.me" rel="noopener author" target="_blank">jmadhan.me</a>'}
+ // about button text and link stay; FAQ
+ const faq=$('#faq');if(faq){let box=faq.querySelector('.faq-box');
+  if(!box){box=document.createElement('div');box.className='faq-box';faq.appendChild(box)}
+  if(lang==='en'){faq.querySelectorAll(':scope > details').forEach(x=>x.hidden=false);box.innerHTML=''}
+  else{faq.querySelectorAll(':scope > details').forEach(x=>x.hidden=true);box.innerHTML=FAQ_I18N[lang].map(([a,b])=>`<details><summary>${esc(a)}</summary><p>${esc(b)}</p></details>`).join('')}}
+ // chapter links
+ $$('.chlinks a').forEach((a,i)=>{if(a.dataset.en===undefined)a.dataset.en=a.innerHTML;
+  a.innerHTML=lang==='en'?a.dataset.en:`${tx('Chapter')} ${i+1}: ${esc(CH_NAMES[lang][i])}<br><small style="opacity:.7">${(by_ch_count[i+1]||0)} ${tx('Verse')}</small>`});
+ // theme chips, chapter 'All'
+ buildThemeChips();
+ const allb=document.querySelector('#chapters [data-ch="0"]');if(allb)allb.textContent=tx('All');
+ document.title=lang==='hi'?'गीतोपदेश — कृष्ण से पूछिए, आपके जीवन के लिए भगवद्गीता मार्गदर्शन':lang==='te'?'గీతోపదేశ్ — కృష్ణుడిని అడగండి, మీ జీవితానికి భగవద్గీత మార్గదర్శనం':'Gitopadesh — Ask Krishna, Bhagavad Gita Guidance for Your Life';
+ setSpeakBtn();setFluteBtn();setConvoBtn();setVstyleBtn();
+ $('#more').textContent=tx('Show more');
+}
+const by_ch_count={};VERSES.forEach(v=>by_ch_count[v.chapter]=(by_ch_count[v.chapter]||0)+1);
+function buildThemeChips(){
+ const themes=[...new Set(VERSES.flatMap(v=>v.themes))].filter(t=>t!=='general').sort();
+ $('#themeChips').innerHTML=themes.map(t=>`<button class="pill${fTh===t?' on':''}" data-th="${t}">${esc(themeName(t))}</button>`).join('');
+}
+
+/* ---- apply a language everywhere ---- */
+async function applyLangAll(){
+ await loadVT(lang);applyVerseLang();applyI18n();
+ dLang=lang;renderDaily();chips();today();shown=12;explore();refreshSaved();heroQuoteRefresh();
+ if(!history.length){lastSub='';setSubtitle(T[lang].greet)}
+ const note=$('#i18nNote');if(note)note.hidden=!(lang!=='en'&&VT[lang]);
+}
+i18nReady=true;applyLangAll();
 
 })();

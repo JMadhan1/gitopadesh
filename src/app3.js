@@ -54,5 +54,5 @@ function ambStop(){
  setTimeout(()=>a.nodes.forEach(n=>{try{n.stop()}catch{}}),3200);
 }
 
-const setFluteBtn=()=>$('#fluteBtn').textContent='🪈 Flute: '+(ambOn?'on':'off');
+const setFluteBtn=()=>$('#fluteBtn').textContent='🪈 '+SL().flute+': '+(ambOn?SL().on:SL().off);
 $('#fluteBtn').onclick=()=>{ambOn=!ambOn;store.set('amb',ambOn);setFluteBtn();if(!ambOn)ambStop();else if(AC&&document.body.dataset.state==='speaking')ambStart()};setFluteBtn();

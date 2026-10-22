@@ -3,7 +3,7 @@
 const RE_DEV=/[ऀ-ॿ]/g,RE_TEL=/[ఀ-౿]/g;
 function detectLang(t){const n=String(t).replace(/\s/g,'').length||1,d=(String(t).match(RE_DEV)||[]).length/n,e=(String(t).match(RE_TEL)||[]).length/n;return d>.3?'hi':e>.3?'te':null}
 let convo=store.get('convo',false),sendTimer=null,silenceTimer=null,sttCfg=false,convoMiss=0;
-const setConvoBtn=()=>$('#convoBtn').textContent='🎧 Conversation: '+(convo?'on':'off');
+const setConvoBtn=()=>$('#convoBtn').textContent='🎧 '+SL().convo+': '+(convo?SL().on:SL().off);
 $('#convoBtn').onclick=()=>{convo=!convo;convoMiss=0;store.set('convo',convo);setConvoBtn();
  toast(convo?'Hands-free on: Krishna will listen again after he speaks':'Hands-free off');
  if(convo&&!busy&&!rec&&document.body.dataset.state==='idle')startListening()};setConvoBtn();

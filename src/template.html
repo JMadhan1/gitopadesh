@@ -33,7 +33,7 @@
  --night:#050a1c;--deep:#0a1434;--blue:#2d5bc9;--moon:#f4efe1;--petal:#ff7aa5;--gold:#f2c26b;--teal:#22cdaa;
  --ink:#ece7d8;--mute:#9aa6c7;--glass:rgba(10,20,52,.55);--line:rgba(244,239,225,.16);
  --leaf:#f1e6c9;--leaf-ink:#2a1d12;--leaf-mute:#6a5a44;--leaf-red:#a82e1a;
- --display:'Yatra One','Tiro Devanagari Sanskrit',serif;--serif:'Newsreader','Tiro Devanagari Sanskrit','Noto Serif Telugu',Georgia,serif;--sans:'Hanken Grotesk',system-ui,sans-serif;--sk:'Tiro Devanagari Sanskrit',serif;
+ --display:'Yatra One','Tiro Devanagari Sanskrit',serif;--serif:'Newsreader','Tiro Devanagari Sanskrit','Noto Serif Telugu',Georgia,serif;--sans:'Hanken Grotesk',system-ui,sans-serif;--sk:'Tiro Devanagari Sanskrit','Noto Serif Telugu',serif;
  color-scheme:dark;
 }
 *{box-sizing:border-box}html{scroll-behavior:smooth}
@@ -165,6 +165,10 @@ details p{margin:10px 0 0;color:#c9d0e6;font:400 17px/1.65 var(--serif);max-widt
 .chlinks{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px 18px;list-style:none;margin:0;padding:0}
 .chlinks a{color:#c9d0e6;text-decoration:none;font-size:15px;display:block;padding:5px 0;border-bottom:1px dotted var(--line)}
 .chlinks a:hover{color:var(--gold)}
+.support-card{display:flex;gap:24px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:linear-gradient(135deg,rgba(242,194,107,.16),rgba(10,20,52,.7));border:1px solid rgba(242,194,107,.35);border-radius:26px;padding:clamp(22px,4vw,36px)}
+.support-card h2{font-size:clamp(26px,3.4vw,38px)}
+.support-card p{margin:0 0 10px;font:400 17px/1.6 var(--serif);color:#d3d9ec;max-width:62ch}
+.support-card .mail a{color:var(--gold)}
 .about{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;background:linear-gradient(135deg,rgba(45,91,201,.3),rgba(10,20,52,.7));border:1px solid var(--line);border-radius:26px;padding:clamp(22px,4vw,40px)}
 .avatar{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font:400 38px var(--display);color:#241500;background:radial-gradient(circle at 30% 25%,#fff3c9,var(--gold) 60%,#c98a25);box-shadow:0 0 0 6px rgba(242,194,107,.18)}
 .about h2{font-size:clamp(26px,3.4vw,38px)}
@@ -185,6 +189,15 @@ footer a{color:var(--gold)}
 .x{float:right;background:none;border:0;color:var(--ink);font-size:28px;cursor:pointer}
 .toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,90px);background:var(--gold);color:#241500;padding:10px 20px;border-radius:99px;font-weight:700;transition:.35s;z-index:99;max-width:92vw;text-align:center}
 .toast.show{transform:translate(-50%,0)}
+.daily{display:grid;grid-template-columns:minmax(0,520px) minmax(0,1fr);gap:clamp(20px,4vw,48px);align-items:center}
+.daily canvas{width:100%;height:auto;aspect-ratio:1/1;border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.5);background:#0a0820;display:block}
+.dcite{font:600 12px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin:0 0 12px}
+.dctl .actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s ease}
+.rv.in{opacity:1;transform:none}
+.vgrid .vc{animation:rise .6s both}
+.vgrid .vc:nth-child(2){animation-delay:.05s}.vgrid .vc:nth-child(3){animation-delay:.1s}.vgrid .vc:nth-child(4){animation-delay:.15s}.vgrid .vc:nth-child(5){animation-delay:.2s}.vgrid .vc:nth-child(6){animation-delay:.25s}
+.pill:active,.go:active,.mic:active{transform:scale(.96)}
 .hlist{display:grid;gap:10px;margin:14px 0}
 .hitem{display:grid;gap:4px;text-align:left;width:100%;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:12px 16px;color:var(--ink);cursor:pointer;font:inherit;transition:.2s}
 .hitem:hover{border-color:var(--gold)}
@@ -206,7 +219,8 @@ footer a{color:var(--gold)}
  .bento>div{grid-column:span 6!important}
  .about{grid-template-columns:1fr}
 }
-@media(max-width:600px){.navr a.pill{display:none}.me{max-width:94%}.step p{font-size:18.5px}.kr{padding:22px 18px 6px}}
+@media(max-width:900px){.daily{grid-template-columns:1fr}.daily canvas{max-width:520px;margin:0 auto}.dctl{text-align:center}.dctl .actions{justify-content:center}}
+@media(max-width:600px){.composer textarea{min-height:72px;overflow:hidden}.box{padding:20px 16px}.actions .pill,.actions .go{padding:9px 14px}.top{flex-direction:column;align-items:flex-start;gap:10px}.navr{width:100%;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:4px}.navr::-webkit-scrollbar{display:none}.navr .pill{flex:none;white-space:nowrap}.me{max-width:94%}.step p{font-size:18.5px}.kr{padding:22px 18px 6px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
@@ -222,6 +236,7 @@ footer a{color:var(--gold)}
   <button class="pill" id="histBtn" type="button">History <span id="histCount">0</span></button>
   <a class="pill" href="#explore">Library</a>
   <a class="pill" href="#saved">Saved <span id="savedCount">0</span></a>
+  <a class="pill" href="/support">♡ Support</a>
  </nav>
 </header>
 
@@ -260,6 +275,18 @@ footer a{color:var(--gold)}
  <div class="strip wrap"><p class="try">Not sure how to begin? Try one of these</p><div class="chips" id="chips"></div><div class="row"><button class="pill" id="newConvo" type="button">↺ New conversation</button></div></div>
  <section id="chariot" class="wrap"><ol class="journey" id="journey" aria-label="How the conversation unfolds"><li>Speak</li><li>Be understood</li><li>Receive the verse</li><li>Walk the path</li></ol><div class="thread" id="thread"></div></section>
 
+ <section class="s wrap" id="daily">
+  <h2>Daily shloka</h2><p class="lede">A new shloka card every day, with its short meaning, ready to save and share in English, Hindi or Telugu.</p>
+  <div class="daily">
+   <canvas id="dailyCv" width="1080" height="1080" role="img" aria-label="Today's shloka card"></canvas>
+   <div class="dctl">
+    <p class="dcite" id="dailyCite"></p>
+    <div class="actions" id="dailyLangs"></div>
+    <div class="actions"><button class="go" id="dailyDl" type="button">⬇ Download card</button><button class="pill" id="dailyOpen" type="button">Open card</button></div>
+   </div>
+  </div>
+ </section>
+
  <section class="s wrap" id="today">
   <div class="today">
    <div class="arch"><img src="/img/krishna.webp" width="498" height="615" loading="lazy" alt="Silhouette of Krishna playing the flute on a hill under the moon, a peacock on a branch"></div>
@@ -285,8 +312,8 @@ footer a{color:var(--gold)}
   <h2>How Krishna guides you here</h2><p class="lede">The same way he guided Arjuna on the field of Kurukshetra: first he listened.</p>
   <div class="bento">
    <div><h3>He listens first</h3><p>Speak or type. If your words are brief, Krishna reflects what he heard and asks one gentle question before he teaches.</p></div>
-   <div><h3>One verse, chosen for you</h3><p>Your words are matched against all 701 verses. The Sanskrit, transliteration and meaning come from the Gītā itself, never invented.</p></div>
-   <div><h3>Three languages</h3><p>English, हिंदी and తెలుగు, with the shlokas in Sanskrit.</p></div>
+   <div><h3>One verse, chosen for you</h3><p>Your words are matched against all 701 verses. The Sanskrit and transliteration come from the Gītā itself. The English, Hindi and Telugu meanings are translations; the Hindi and Telugu were prepared with AI and reviewed against the Sanskrit.</p></div>
+   <div><h3>Three languages</h3><p>English, हिंदी and తెలుగు. The shlokas are in Sanskrit, shown in Devanagari, or in Telugu script when Telugu is chosen.</p></div>
    <div><h3>Keep and share</h3><p>Turn any verse into a 1080×1080 shloka card, save it, and return to it. Your saved verses stay on your device.</p></div>
   </div>
  </section>
@@ -299,6 +326,17 @@ footer a{color:var(--gold)}
  <section class="s wrap" id="chapters-index">
   <h2>All eighteen chapters</h2><p class="lede">Read every verse with its meaning.</p>
   <nav aria-label="Chapters of the Bhagavad Gita"><ul class="chlinks"><!--CHAPTERS--></ul></nav>
+ </section>
+
+ <section class="s wrap" id="support">
+  <div class="support-card">
+   <div>
+    <h2>Support Gitopadesh</h2>
+    <p class="sp">This is a personal project, not a business. If it has helped you and you can contribute, a voluntary gift helps keep it reliable and useful for everyone.</p>
+    <p class="mail"><span class="mailtxt">Suggestions and ideas:</span> <a href="mailto:hello@jmadhan.me">hello@jmadhan.me</a></p>
+   </div>
+   <a class="go" href="/support" style="text-decoration:none;display:inline-block;white-space:nowrap">Donate now</a>
+  </div>
  </section>
 
  <section class="s wrap" id="about">
@@ -315,7 +353,7 @@ footer a{color:var(--gold)}
 
 <footer>
  <p>Gitopadesh offers reflections drawn from the Bhagavad Gītā. It is not medical, legal or mental-health advice. If you are in crisis, contact a local helpline or someone you trust now.</p>
- <p>Voice input and speech run in your browser. Your words are sent only to generate a reply and are not stored. · <a href="https://jmadhan.me" rel="noopener author" target="_blank">jmadhan.me</a></p>
+ <p>Your words are sent to Amazon Bedrock to write Krishna’s reply, and each sentence he speaks is sent to Microsoft’s speech service. Gitopadesh does not store them; your conversation history stays only in your browser. · <a href="/support">Support</a> · <a href="mailto:hello@jmadhan.me">hello@jmadhan.me</a> · <a href="https://jmadhan.me" rel="noopener author" target="_blank">jmadhan.me</a></p>
 </footer>
 
 <button class="fab" id="fab" type="button" aria-label="Back to Krishna">🎙</button>
