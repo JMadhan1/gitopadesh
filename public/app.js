@@ -65,6 +65,7 @@ hi:{
  'The speech service is unreachable. Please type instead.':'वाक् सेवा उपलब्ध नहीं है। कृपया लिखिए।','No microphone was found.':'कोई माइक्रोफ़ोन नहीं मिला।',
  'Krishna will answer in हिंदी':'कृष्ण हिंदी में उत्तर देंगे','Krishna will answer in తెలుగు':'कृष्ण तेलुगु में उत्तर देंगे',
  'Close':'बंद करें','Home':'मुख्य पृष्ठ',
+ 'visitors':'आगंतुक','online now':'अभी ऑनलाइन','Counted with an anonymous random ID: no account or personal details.':'एक गुमनाम यादृच्छिक ID से गिना जाता है: कोई खाता या व्यक्तिगत विवरण नहीं।',
  'Daily shloka':'आज का श्लोक','A new shloka card every day, with its short meaning, ready to save and share in English, Hindi or Telugu.':'हर दिन एक नया श्लोक कार्ड, संक्षिप्त अर्थ सहित, अंग्रेज़ी, हिंदी या तेलुगु में सहेजने और साझा करने के लिए तैयार।','⬇ Download card':'⬇ कार्ड डाउनलोड करें','Open card':'कार्ड खोलें',
  'Support Gitopadesh':'गीतोपदेश को सहयोग दें','This is a personal project, not a business. If it has helped you and you can contribute, a voluntary gift helps keep it reliable and useful for everyone.':'यह एक व्यक्तिगत प्रोजेक्ट है, कोई व्यवसाय नहीं। यदि इससे आपको लाभ हुआ है और आप सहयोग कर सकते हैं, तो एक स्वैच्छिक उपहार इसे सबके लिए भरोसेमंद और उपयोगी बनाए रखने में सहायक होता है।','Suggestions and ideas:':'सुझाव और विचार:','Donate now':'अभी सहयोग करें','♡ Support':'♡ सहयोग','Support':'सहयोग',
  'Translation prepared with AI from the Sanskrit. Please confirm with a teacher or a printed edition for study.':'यह अनुवाद संस्कृत से AI की सहायता से तैयार किया गया है। अध्ययन के लिए कृपया किसी गुरु या मुद्रित संस्करण से पुष्टि कीजिए।'
@@ -134,6 +135,7 @@ te:{
  'The speech service is unreachable. Please type instead.':'స్పీచ్ సేవ అందుబాటులో లేదు. దయచేసి రాయండి.','No microphone was found.':'మైక్రోఫోన్ కనిపించలేదు.',
  'Krishna will answer in हिंदी':'కృష్ణుడు హిందీలో సమాధానం ఇస్తాడు','Krishna will answer in తెలుగు':'కృష్ణుడు తెలుగులో సమాధానం ఇస్తాడు',
  'Close':'మూసివేయి','Home':'హోమ్',
+ 'visitors':'సందర్శకులు','online now':'ఇప్పుడు ఆన్‌లైన్','Counted with an anonymous random ID: no account or personal details.':'అజ్ఞాత యాదృచ్ఛిక IDతో లెక్కించబడుతుంది: ఖాతా లేదా వ్యక్తిగత వివరాలు లేవు.',
  'Daily shloka':'నేటి శ్లోకం','A new shloka card every day, with its short meaning, ready to save and share in English, Hindi or Telugu.':'ప్రతిరోజూ ఒక కొత్త శ్లోక కార్డు, దాని సంక్షిప్త అర్థంతో, ఆంగ్లం, హిందీ లేదా తెలుగులో సేవ్ చేసి పంచుకోవడానికి సిద్ధం.','⬇ Download card':'⬇ కార్డు డౌన్‌లోడ్','Open card':'కార్డు తెరవండి',
  'Support Gitopadesh':'గీతోపదేశ్‌కు మద్దతు ఇవ్వండి','This is a personal project, not a business. If it has helped you and you can contribute, a voluntary gift helps keep it reliable and useful for everyone.':'ఇది ఒక వ్యక్తిగత ప్రాజెక్ట్, వ్యాపారం కాదు. ఇది మీకు సహాయపడి, మీరు సహకరించగలిగితే, స్వచ్ఛంద బహుమతి దీన్ని అందరికీ నమ్మదగినదిగా, ఉపయోగకరంగా ఉంచడానికి తోడ్పడుతుంది.','Suggestions and ideas:':'సూచనలు, ఆలోచనలు:','Donate now':'ఇప్పుడే విరాళం ఇవ్వండి','♡ Support':'♡ మద్దతు','Support':'మద్దతు',
  'Translation prepared with AI from the Sanskrit. Please confirm with a teacher or a printed edition for study.':'ఈ అనువాదం సంస్కృతం నుండి AI సహాయంతో తయారైంది. అధ్యయనానికి దయచేసి గురువు లేదా ముద్రిత గ్రంథంతో సరిచూసుకోండి.'
@@ -909,12 +911,38 @@ if($('#dailyCv')){
  $$('main section.s, main .strip').forEach(el=>{if(el.getBoundingClientRect().top>innerHeight*.92){el.classList.add('rv');io.observe(el)}});
 })();
 
+/* ================= Visitor counters (anonymous; hidden until the server reports them) ================= */
+let visStats=null,visId=store.get('gp_vid',null),visFirst=false;
+if(!visId||!/^[A-Za-z0-9_-]{16,32}$/.test(visId)){
+ try{visId=Array.from(crypto.getRandomValues(new Uint8Array(18)),b=>'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[b%62]).join('')}
+ catch{visId=(Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)+'abcdefghijklmnop').slice(0,20)}
+ store.set('gp_vid',visId);visFirst=true;
+}
+function renderStats(){
+ const box=$('#stats');if(!box||!visStats)return;
+ const nf=new Intl.NumberFormat(lang==='en'?'en-IN':lang==='hi'?'hi-IN':'te-IN');
+ $('#stTotal').textContent=`👁 ${nf.format(visStats.total)} ${tx('visitors')}`;
+ $('#stLive').innerHTML=`<i class="dotlive"></i>${nf.format(Math.max(1,visStats.live))} ${tx('online now')}`;
+ box.hidden=false;const n=$('#stNote');n.hidden=false;n.textContent=tx('Counted with an anonymous random ID: no account or personal details.');
+}
+async function visPing(){
+ if(document.hidden)return;
+ try{
+  const r=await fetch('/api/visit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:visId,first:visFirst})});
+  if(!r.ok)return;
+  const j=await r.json();
+  if(j&&typeof j.total==='number'&&typeof j.live==='number'){visFirst=false;visStats=j;renderStats()}
+ }catch{}
+}
+visPing();setInterval(visPing,60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)visPing()});
+
 /* ================= Whole-site language: English / हिंदी / తెలుగు ================= */
 const FAQ_I18N={
  hi:[
   ['गीतोपदेश क्या है?','गीतोपदेश एक निःशुल्क, वाणी-आधारित मार्गदर्शक है जहाँ आप कृष्ण को अपनी समस्या बताते हैं और भगवद्गीता से उत्तर पाते हैं। वे पहले सुनते हैं और एक प्रश्न पूछ सकते हैं, फिर एक श्लोक और व्यावहारिक मार्गदर्शन देते हैं, अंग्रेज़ी, हिंदी या तेलुगु में।'],
   ['क्या उत्तर देने वाले कृष्ण वास्तविक हैं?','उत्तर एक AI द्वारा बनाए जाते हैं जो कृष्ण की वाणी में बोलता है और भगवद्गीता पर आधारित है। दिखाए गए संस्कृत श्लोक, लिप्यंतरण और अर्थ गीता से ही हैं। यह एक चिंतनशील मार्गदर्शक है, किसी गुरु, चिकित्सक या मनोचिकित्सक का विकल्प नहीं।'],
-  ['क्या गीतोपदेश निःशुल्क और निजी है?','हाँ, यह निःशुल्क है और साइन-अप नहीं चाहिए। आपकी बातचीत का इतिहास केवल आपके ब्राउज़र में रहता है और आप उसे कभी भी इतिहास से मिटा सकते हैं। उत्तर देने के लिए आपके शब्द Amazon Bedrock को भेजे जाते हैं, और कृष्ण के बोले हर वाक्य को Microsoft की वाक् सेवा को भेजा जाता है। गीतोपदेश स्वयं इन्हें संग्रहीत नहीं करता।'],
+  ['क्या गीतोपदेश निःशुल्क और निजी है?','हाँ, यह निःशुल्क है और साइन-अप नहीं चाहिए। आपकी बातचीत का इतिहास केवल आपके ब्राउज़र में रहता है और आप उसे कभी भी इतिहास से मिटा सकते हैं। उत्तर देने के लिए आपके शब्द Amazon Bedrock को भेजे जाते हैं, और कृष्ण के बोले हर वाक्य को Microsoft की वाक् सेवा को भेजा जाता है। गीतोपदेश स्वयं इन्हें संग्रहीत नहीं करता। आगंतुक-गणना केवल आपके ब्राउज़र में रखी गई एक गुमनाम यादृच्छिक ID का उपयोग करती है।'],
   ['कृष्ण मेरे लिए श्लोक कैसे चुनते हैं?','आपके शब्दों का अर्थ और विषय (जैसे भय, क्रोध, शोक, कर्तव्य और अशांत मन) के आधार पर भगवद्गीता के सभी 701 श्लोकों से मिलान किया जाता है। सबसे अच्छे मिलान कृष्ण को दिए जाते हैं, जो आपकी स्थिति के अनुकूल श्लोक चुनते हैं।'],
   ['फल की चिंता के बारे में भगवद्गीता क्या कहती है?','अध्याय 2, श्लोक 47 कहता है कि आपका अधिकार कर्म पर है, उसके फल पर नहीं। सामने के कार्य में पूरा प्रयास दीजिए और परिणाम की आसक्ति छोड़िए। यही निष्काम कर्म का सार है।'],
   ['क्रोध के बारे में भगवद्गीता क्या कहती है?','अध्याय 2, श्लोक 62 और 63 बताते हैं कि विषयों का चिंतन करने से आसक्ति, फिर कामना, क्रोध, मोह, स्मृति-भ्रंश और विवेक का नाश होता है। इसका उपाय मन की स्थिरता और इंद्रियों पर संयम है।'],
@@ -924,7 +952,7 @@ const FAQ_I18N={
  te:[
   ['గీతోపదేశ్ అంటే ఏమిటి?','గీతోపదేశ్ ఒక ఉచిత, స్వర-ఆధారిత మార్గదర్శి; ఇక్కడ మీరు కృష్ణుడికి మీ సమస్య చెప్పి భగవద్గీత నుండి సమాధానం పొందుతారు. ఆయన ముందు వింటాడు, ఒక ప్రశ్న అడగవచ్చు, ఆపై ఒక శ్లోకాన్ని, ఆచరణాత్మక మార్గదర్శనాన్ని ఇస్తాడు; ఆంగ్లం, హిందీ లేదా తెలుగులో.'],
   ['సమాధానం ఇచ్చే కృష్ణుడు నిజమేనా?','సమాధానాలను కృష్ణుడి స్వరంలో మాట్లాడే, భగవద్గీతపై ఆధారపడిన ఒక AI తయారుచేస్తుంది. చూపించే సంస్కృత శ్లోకాలు, లిప్యంతరీకరణలు, అర్థాలు గీత నుండే. ఇది ఆలోచనకు ఉపయోగపడే మార్గదర్శి మాత్రమే; గురువు, వైద్యుడు లేదా చికిత్సకుడికి ప్రత్యామ్నాయం కాదు.'],
-  ['గీతోపదేశ్ ఉచితమేనా, గోప్యంగా ఉంటుందా?','అవును, ఇది ఉచితం, సైన్-అప్ అవసరం లేదు. మీ సంభాషణ చరిత్ర మీ బ్రౌజర్‌లో మాత్రమే ఉంటుంది; చరిత్ర విభాగం నుండి ఎప్పుడైనా తొలగించవచ్చు. సమాధానం ఇవ్వడానికి మీ మాటలు Amazon Bedrock కు, కృష్ణుడు మాట్లాడే ప్రతి వాక్యం Microsoft స్పీచ్ సేవకు పంపబడతాయి. గీతోపదేశ్ వాటిని నిల్వ చేయదు.'],
+  ['గీతోపదేశ్ ఉచితమేనా, గోప్యంగా ఉంటుందా?','అవును, ఇది ఉచితం, సైన్-అప్ అవసరం లేదు. మీ సంభాషణ చరిత్ర మీ బ్రౌజర్‌లో మాత్రమే ఉంటుంది; చరిత్ర విభాగం నుండి ఎప్పుడైనా తొలగించవచ్చు. సమాధానం ఇవ్వడానికి మీ మాటలు Amazon Bedrock కు, కృష్ణుడు మాట్లాడే ప్రతి వాక్యం Microsoft స్పీచ్ సేవకు పంపబడతాయి. గీతోపదేశ్ వాటిని నిల్వ చేయదు. సందర్శకుల లెక్కింపు మీ బ్రౌజర్‌లో ఉంచిన అజ్ఞాత యాదృచ్ఛిక ID మాత్రమే వాడుతుంది.'],
   ['నాకు శ్లోకాన్ని కృష్ణుడు ఎలా ఎంచుకుంటాడు?','మీ మాటల అర్థం, అంశం (భయం, కోపం, శోకం, కర్తవ్యం, చంచల మనస్సు వంటివి) ఆధారంగా భగవద్గీతలోని మొత్తం 701 శ్లోకాలతో పోల్చబడతాయి. ఉత్తమ సరిపోలికలు కృష్ణుడికి ఇవ్వబడతాయి; ఆయన మీ పరిస్థితికి సరిపోయేదాన్ని ఎంచుకుంటాడు.'],
   ['ఫలితం గురించిన ఆందోళనపై భగవద్గీత ఏం చెబుతుంది?','2వ అధ్యాయం, 47వ శ్లోకం: మీకు కర్మపైనే అధికారం ఉంది, దాని ఫలంపై కాదు. ఎదుట ఉన్న పనికి పూర్తి కృషి ఇవ్వండి, ఫలితంపై ఆసక్తిని వదలండి. ఇదే నిష్కామ కర్మ సారం.'],
   ['కోపం గురించి భగవద్గీత ఏం చెబుతుంది?','2వ అధ్యాయం, 62, 63 శ్లోకాలు: విషయాలను చింతించడం వల్ల ఆసక్తి, కోరిక, కోపం, మోహం, స్మృతి భ్రంశం, వివేక నాశనం కలుగుతాయి. మనస్సు స్థిరత్వం, ఇంద్రియ నిగ్రహం దీనికి పరిష్కారం.'],
@@ -961,7 +989,7 @@ const ST=[ // [selector, english source]. Source text is captured once from the 
  ['#daily h2'],['#daily .lede'],['#explore h2'],['#explore .lede'],['#saved h2'],['#saved .lede'],['#how h2'],['#how .lede'],
  ['#how .bento>div:nth-child(1) h3'],['#how .bento>div:nth-child(1) p'],['#how .bento>div:nth-child(2) h3'],['#how .bento>div:nth-child(2) p'],
  ['#how .bento>div:nth-child(3) h3'],['#how .bento>div:nth-child(3) p'],['#how .bento>div:nth-child(4) h3'],['#how .bento>div:nth-child(4) p'],
- ['#faq h2'],['#faq .lede'],['#chapters-index h2'],['#chapters-index .lede'],['#about h2'],['#about p'],['#support h2'],['#support .sp'],['#support .mailtxt'],['#support .go'],['footer p:nth-of-type(1)'],['noscript p']
+ ['#faq h2'],['#faq .lede'],['#chapters-index h2'],['#chapters-index .lede'],['#about h2'],['#about p'],['#support h2'],['#support .sp'],['#support .mailtxt'],['#support .go'],['#ftDisc'],['noscript p']
 ];
 function applyI18n(){
  document.documentElement.lang=lang;
@@ -977,7 +1005,7 @@ function applyI18n(){
  const sup=document.querySelector('.navr a[href="/support"]');if(sup){if(sup.dataset.en===undefined)sup.dataset.en=sup.textContent.trim();sup.textContent=tx(sup.dataset.en)}
  const sv=document.querySelector('.navr a[href="#saved"]');if(sv)sv.innerHTML=`${tx('Saved')} <span id="savedCount">${saved.size}</span>`;
  // footer privacy line keeps its portfolio link
- const fp=document.querySelectorAll('footer p')[1];
+ const fp=document.querySelector('#ftPriv');
  if(fp){if(fp.dataset.en===undefined)fp.dataset.en='1';fp.innerHTML=esc(tx('Your words are sent to Amazon Bedrock to write Krishna’s reply, and each sentence he speaks is sent to Microsoft’s speech service. Gitopadesh does not store them; your conversation history stays only in your browser.'))+' · <a href="/support">'+esc(tx('Support'))+'</a> · <a href="mailto:hello@jmadhan.me">hello@jmadhan.me</a> · <a href="https://jmadhan.me" rel="noopener author" target="_blank">jmadhan.me</a>'}
  // about button text and link stay; FAQ
  const faq=$('#faq');if(faq){let box=faq.querySelector('.faq-box');
@@ -1003,7 +1031,7 @@ function buildThemeChips(){
 /* ---- apply a language everywhere ---- */
 async function applyLangAll(){
  await loadVT(lang);applyVerseLang();applyI18n();
- dLang=lang;renderDaily();chips();today();shown=12;explore();refreshSaved();heroQuoteRefresh();
+ dLang=lang;renderDaily();renderStats();chips();today();shown=12;explore();refreshSaved();heroQuoteRefresh();
  if(!history.length){lastSub='';setSubtitle(T[lang].greet)}
  const note=$('#i18nNote');if(note)note.hidden=!(lang!=='en'&&VT[lang]);
 }
