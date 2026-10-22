@@ -10,3 +10,4 @@ dev.log
 dev.err
 scratch_*
 *.log
+.vercel
