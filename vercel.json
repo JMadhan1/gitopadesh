@@ -45,7 +45,7 @@
       ]
     },
     {
-      "source": "/(.*)\\.(?:woff2|png|svg|ico|webp)",
+      "source": "/img/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -68,6 +68,15 @@
         {
           "key": "Cache-Control",
           "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/(favicon.svg|og.png)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
         }
       ]
     }
