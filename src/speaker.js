@@ -46,8 +46,9 @@ function startSpeaker(){
     for(let j=from;j<lim;j++)push(ss[j]);
     if(lim>from)count[k]=lim});
   },
+  say(list){list.forEach(push)},
   end(){ended=true;if(!pro&&!items.length&&!(window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending)))finish();if(pro&&!items.length)finish();else if(pro)loop()},
   cancel(){cancelled=true;stopSpeak()}
  };
 }
-function speak(text){const sp=startSpeaker();speechParts(text).forEach(t=>sp.feed({mode:'TALK',sec:{SAY:t}},true));sp.end()}   // used by the Listen button
+function speak(text){const sp=startSpeaker();sp.say(speechParts(text));sp.end()}   // used by the Listen button
