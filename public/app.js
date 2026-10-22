@@ -110,7 +110,7 @@ function parseStream(buf){
  const out={mode:null,id:null,sec:{},done:false};
  let m=buf.match(/MODE:\s*(ASK|TEACH|TALK)/);if(m)out.mode=m[1];
  m=buf.match(/VERSE_ID:\s*(\d+\.\d+)/);if(m)out.id=m[1];
- const re=/^[ \t]*##\s*(SEE|FIELD|VERSE|PATH|SELF|ASK|SAY)[ \t]*$/gm,marks=[];let r;
+ const re=/^[ \t]*##\s*(SEE|FIELD|VERSE|PATH|SELF|ASK|SAY|BHAVAM|WORDS|MEANING|STORY|TODAY|REMEMBER)[ \t]*$/gm,marks=[];let r;
  while((r=re.exec(buf)))marks.push({n:r[1],s:r.index,e:r.index+r[0].length});
  marks.forEach((k,i)=>{out.sec[k.n]=buf.slice(k.e,i+1<marks.length?marks[i+1].s:buf.length).trim()});
  if(!out.mode&&marks.length)out.mode=marks.some(k=>k.n==='SAY')?'TALK':'TEACH';
@@ -139,9 +139,9 @@ function renderKrishna(el,p,candIds,streaming){
  if(!streaming&&!el.dataset.fin){el.dataset.fin=1;
   const verse=p.mode==='TEACH'?byId[vid]:null,text=order.map(k=>p.sec[k]).filter(Boolean).join('\n\n');
   const a=document.createElement('div');a.className='actions';
-  a.innerHTML=(verse?'<button class="pill" data-a="card">🖼 Shloka card</button>':'')+'<button class="pill" data-a="copy">⧉ Copy</button>'+(verse?'<button class="pill" data-a="save">♡ Save verse</button>':'')+'<button class="pill" data-a="listen">🔊 Listen</button>';
+  a.innerHTML=(verse?'<button class="pill" data-a="recite">🕉 Recite shloka</button><button class="pill" data-a="teach">📖 Teach me this shloka</button><button class="pill" data-a="card">🖼 Shloka card</button>':'')+'<button class="pill" data-a="copy">⧉ Copy</button>'+(verse?'<button class="pill" data-a="save">♡ Save verse</button>':'')+'<button class="pill" data-a="listen">🔊 Listen</button>';
   a.onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;const k=b.dataset.a;
-   if(k==='card')openVerse(vid,true);if(k==='copy')navigator.clipboard?.writeText(text+'\n— Gitopadesh').then(()=>toast('Copied'));
+   if(k==='card')openVerse(vid,true);if(k==='recite')reciteShloka(verse);if(k==='teach')openTeach(vid);if(k==='copy')navigator.clipboard?.writeText(text+'\n— Gitopadesh').then(()=>toast('Copied'));
    if(k==='save')toggleSave(vid);if(k==='listen')speak(text)};
   el.appendChild(a);
   history.push({role:'assistant',text:Object.entries(p.sec).map(([k,v])=>`##${k}\n${v}`).join('\n')});
@@ -200,7 +200,7 @@ let rec=null,recText='';
 let voices=[];const loadV=()=>voices=speechSynthesis.getVoices();if('speechSynthesis'in window){loadV();speechSynthesis.onvoiceschanged=loadV}
 // Prefer deep, natural MALE Indian neural voices (Edge ships Prabhat/Madhur/Mohan for free).
 const MALE=/prabhat|madhur|mohan|ravi|hemant|rishi|male|google (hindi|telugu)|kalyani/i, NOTMALE=/swara|neerja|kajal|shruti|female|heera|aditi|raveena/i;
-function pickVoice(){const loc=LOCALE[lang],pool=voices.filter(v=>v.lang.replace('_','-').toLowerCase().startsWith(lang));
+function pickVoice(l=lang){const loc=LOCALE[l],pool=voices.filter(v=>v.lang.replace('_','-').toLowerCase().startsWith(l));
  const exact=pool.filter(v=>v.lang.replace('_','-')===loc);const all=exact.length?exact:pool;
  return all.find(v=>/natural|online/i.test(v.name)&&MALE.test(v.name)&&!NOTMALE.test(v.name))||all.find(v=>MALE.test(v.name)&&!NOTMALE.test(v.name))||all.find(v=>/natural|online/i.test(v.name))||all[0]||null}
 function browserSpeak(text){
@@ -236,8 +236,9 @@ function openVerse(i,focusCard){
  <h3 style="margin-top:18px;font:700 24px 'Newsreader',serif;color:var(--gold)">Shloka card</h3>
  <div class="actions">${['Midnight','Saffron','Lotus'].map((n,k)=>`<button class="pill ${k===cardTheme?'on':''}" data-ct="${k}">${n}</button>`).join('')}</div>
  <canvas id="cv" class="cardprev" width="1080" height="1080"></canvas>
+ <div class="actions"><button class="pill" id="vRecite" type="button">🕉 Recite shloka</button><button class="pill" id="vTeach" type="button">📖 Teach me this shloka</button></div>
  <div class="actions"><button class="go" id="dl">⬇ Download 1080×1080</button><button class="pill" id="sv">${saved.has(i)?'♥ Saved':'♡ Save'}</button><button class="pill" id="cp">⧉ Copy verse</button><button class="pill" id="nx">Next verse ➜</button></div>`;
- $('#modal').classList.add('show');$('#xBtn').onclick=closeM;drawCard(v);
+ $('#modal').classList.add('show');$('#xBtn').onclick=closeM;drawCard(v);$('#vRecite').onclick=()=>reciteShloka(v);$('#vTeach').onclick=()=>openTeach(i);
  $$('[data-ct]').forEach(b=>b.onclick=()=>{cardTheme=+b.dataset.ct;$$('[data-ct]').forEach(x=>x.classList.toggle('on',x===b));drawCard(v)});
  $('#dl').onclick=()=>{const a=document.createElement('a');a.download=`gitopadesh-${i}.png`;a.href=$('#cv').toDataURL('image/png');a.click()};
  $('#sv').onclick=()=>{toggleSave(i);$('#sv').textContent=saved.has(i)?'♥ Saved':'♡ Save'};
@@ -400,14 +401,14 @@ setSubtitle(T[lang].greet);
 
 /* ================= Krishna's voice: neural speech, temple-hall mastering, bansuri + tanpura ================= */
 let warmN=null,bodyN=null,wetN=null,vstyle=store.get('vstyle','calm');
-const STYLE_FX={calm:{warm:5,body:3,wet:.3,rate:1},natural:{warm:0,body:0,wet:.06,rate:1},deep:{warm:7,body:4.5,wet:.3,rate:.97},device:{warm:0,body:0,wet:.3,rate:1}};
+const STYLE_FX={calm:{warm:5,body:3,wet:.3,rate:1},natural:{warm:0,body:0,wet:.06,rate:1},deep:{warm:7,body:4.5,wet:.3,rate:.97},device:{warm:0,body:0,wet:.3,rate:1},chant:{warm:6,body:3,wet:.4,rate:1}};
 let ttsCfg=false,AC=null,bus=null,verb=null,ambBus=null,vtoken=0,curSrc=null,ambOn=store.get('amb',true),amb=null;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
 function impulse(sec,decay){const n=Math.floor(AC.sampleRate*sec),b=AC.createBuffer(2,n,AC.sampleRate);
  for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,decay)}return b}
 
-function applyStyleFX(){const f=STYLE_FX[vstyle]||STYLE_FX.calm;if(!warmN)return;warmN.gain.value=f.warm;bodyN.gain.value=f.body;wetN.gain.value=f.wet}
+function applyStyleFX(st){const f=STYLE_FX[st||vstyle]||STYLE_FX.calm;if(!warmN)return;warmN.gain.value=f.warm;bodyN.gain.value=f.body;wetN.gain.value=f.wet}
 function audioInit(){
  if(AC){if(AC.state==='suspended')AC.resume();return}
  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;AC=new C();
@@ -457,24 +458,25 @@ const setFluteBtn=()=>$('#fluteBtn').textContent='🪈 Flute: '+(ambOn?'on':'off
 $('#fluteBtn').onclick=()=>{ambOn=!ambOn;store.set('amb',ambOn);setFluteBtn();if(!ambOn)ambStop();else if(AC&&document.body.dataset.state==='speaking')ambStart()};setFluteBtn();
 /* ---- speech: starts on the FIRST finished sentence while the rest is still being written ---- */
 const TERM=/(?<=[.!?।॥])\s+/;
-function sentencesOf(t){return String(t).replace(/[#*_]/g,'').split(TERM).map(s=>s.trim()).filter(Boolean)}
+function sentencesOf(t){return String(t).replace(/[#*_]/g,'').split(/(?<=[.!?।॥])\s+|[\r\n]+/).map(s=>s.trim()).filter(Boolean)}
 function speechParts(text){
  const raw=String(text).replace(/[#*_]/g,'').split(/(?<=[.!?।॥])\s+|\n+/).map(s=>s.trim()).filter(Boolean),out=[];
  for(const s of raw){if(out.length&&out[out.length-1].length<26)out[out.length-1]+=' '+s;else out.push(s)}
  return out.flatMap(s=>s.length<=500?[s]:s.match(/.{1,480}(?:\s|$)/g).map(x=>x.trim()));
 }
-function startSpeaker(){
- audioInit();stopSpeak();ambStart();
+function startSpeaker(langOv,styleOv){
+ const L=langOv||lang,S=styleOv||vstyle;
+ audioInit();stopSpeak();ambStart();applyStyleFX(S);
  const my=++vtoken,items=[],count={};
- let pro=!!(AC&&ttsCfg&&ttsCfg[lang])&&vstyle!=='device',ended=false,running=false,cancelled=false;
- const rate=(STYLE_FX[vstyle]||STYLE_FX.calm).rate;
- const once=s=>fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:s,lang,style:vstyle})})
+ let pro=!!(AC&&ttsCfg&&ttsCfg[L])&&S!=='device',ended=false,running=false,cancelled=false;
+ const rate=(STYLE_FX[S]||STYLE_FX.calm).rate;
+ const once=s=>fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:sanskritSpeech(s),lang:L,style:S==='device'?'calm':S})})
   .then(r=>r.ok?r.arrayBuffer():Promise.reject(new Error('tts '+r.status))).then(b=>AC.decodeAudioData(b));
  const load=s=>once(s).catch(()=>sleep(500).then(()=>once(s))).catch(()=>null);
  const finish=()=>{if(my===vtoken){setState('idle');ambStop();if(convo&&speakOn)setTimeout(()=>{if(!busy&&!rec&&my===vtoken&&document.body.dataset.state==='idle')startListening()},700)}};
  // browser voice path (also the graceful fallback)
- const vo=pickVoice();
- const browserSay=t=>new Promise(done=>{if(!('speechSynthesis'in window))return done();const u=new SpeechSynthesisUtterance(t);u.lang=LOCALE[lang];if(vo)u.voice=vo;
+ const vo=pickVoice(L);
+ const browserSay=t=>new Promise(done=>{if(!('speechSynthesis'in window))return done();const u=new SpeechSynthesisUtterance(sanskritSpeech(t));u.lang=LOCALE[L];if(vo)u.voice=vo;
   u.rate=.82;u.pitch=vo&&/natural|online/i.test(vo.name)?.9:.7;
   u.onstart=()=>{if(my===vtoken){setSubtitle(t);setState('speaking')}};
   u.onend=()=>{done();if(!pro&&ended&&my===vtoken&&!speechSynthesis.pending)setTimeout(()=>{if(!speechSynthesis.speaking)finish()},200)};
@@ -592,5 +594,60 @@ const SAMPLE={en:'O seeker, you have come to the field. Tell me what weighs upon
 const setVstyleBtn=()=>$('#vstyleBtn').textContent='🎙 Voice: '+(VSTYLES.find(v=>v[0]===vstyle)||VSTYLES[0])[1];
 $('#vstyleBtn').onclick=()=>{const i=VSTYLES.findIndex(v=>v[0]===vstyle);vstyle=VSTYLES[(i+1)%VSTYLES.length][0];store.set('vstyle',vstyle);setVstyleBtn();applyStyleFX();
  const sp=startSpeaker();sp.say([SAMPLE[lang]]);sp.end()};setVstyleBtn();
+
+/* ================= Sanskrit pronunciation, shloka recitation, and "Teach me this shloka" ================= */
+ORDER.LEARN=['BHAVAM','WORDS','MEANING','STORY','TODAY','REMEMBER'];
+const LEARN_H={
+ en:{BHAVAM:'The bhava, its inner feeling',WORDS:'Key words',MEANING:'The meaning',STORY:'From the Mahabharata',TODAY:'In your life today',REMEMBER:'Carry this with you'},
+ hi:{BHAVAM:'भाव',WORDS:'मुख्य शब्द',MEANING:'अर्थ',STORY:'महाभारत से',TODAY:'आज के जीवन में',REMEMBER:'इसे याद रखो'},
+ te:{BHAVAM:'భావం',WORDS:'ముఖ్య పదాలు',MEANING:'అర్థం',STORY:'మహాభారతం నుండి',TODAY:'నేటి జీవితంలో',REMEMBER:'దీన్ని గుర్తుంచుకో'}};
+
+/* The voice reads plain spelling best. Map scholarly transliteration to how the word is actually said. */
+const SK_MAP=[
+ [/Bhagavad[\s-]*G[iī]t[aā]/gi,'Bhagavad Geeta'],[/G[iī]t[aā]/g,'Geeta'],[/K[ṛr][ṣs]ṇa/g,'Krishna'],[/Kuruk[ṣs]etra/g,'Kurukshetra'],
+ [/P[āa]rtha/g,'Partha'],[/Bh[āa]rata/g,'Bharata'],[/P[āa][ñn]cajanya/g,'Panchajanya'],[/ni[ṣs]k[āa]ma/gi,'nishkama'],
+ [/sthitapraj[ñn]a/gi,'sthita-pragya'],[/M[āa]dhava/g,'Madhava'],[/Dh[ṛr]tar[āa][ṣs][ṭt]ra/g,'Dhritarashtra'],[/Sa[ñn]jaya/g,'Sanjay'],
+ [/Yudhi[ṣs][ṭt]hira/g,'Yudhishthira'],[/Bh[īi][ṣs]ma/g,'Bheeshma'],[/Dro[ṇn]a/g,'Drona'],[/Kar[ṇn]a/g,'Karna'],[/Draupad[īi]/g,'Draupadi'],
+ [/Vy[āa]sa/g,'Vyasa'],[/Upani[ṣs]ad/gi,'Upanishad'],[/\bGovinda\b/g,'Govinda'],[/\bOm\b|\bAum\b/g,'Om']];
+const SK_CH={'ā':'a','Ā':'A','ī':'ee','Ī':'Ee','ū':'oo','Ū':'Oo','ṛ':'ri','Ṛ':'Ri','ṝ':'ree','ṣ':'sh','Ṣ':'Sh','ś':'sh','Ś':'Sh','ṇ':'n','Ṇ':'N','ṭ':'t','Ṭ':'T','ḍ':'d','Ḍ':'D','ṅ':'ng','ñ':'ny','Ñ':'Ny','ṁ':'m','ṃ':'m','ḥ':'h','ḷ':'l'};
+function sanskritSpeech(t){let s=String(t);for(const[re,r]of SK_MAP)s=s.replace(re,r);
+ return s.replace(/jñ/g,'gy').replace(/[āĀīĪūŪṛṚṝṣṢśŚṇṆṭṬḍḌṅñÑṁṃḥḷ]/g,c=>SK_CH[c]||c)}
+
+/* Chant the shloka itself: Devanagari read line by line by the Hindi voice, slowly, with the hall's resonance. */
+function reciteShloka(v){
+ const lines=clean(v).split(/[।॥|]+/).map(s=>s.trim()).filter(Boolean);if(!lines.length)return;
+ const sp=startSpeaker('hi','chant');sp.say(lines.map(l=>l+' ।'));sp.end();toast('Reciting the shloka… ॐ');
+}
+
+/* The lesson: bhava, key words, meaning, a Mahabharata episode, and today's life. Cached on this device. */
+const TCK='gp_teach_v1:';
+function openTeach(vid){
+ const v=byId[vid];if(!v)return;stopSpeak();
+ const key=TCK+vid+':'+lang,H=LEARN_H[lang]||LEARN_H.en;let sec=null;
+ $('#box').innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><span class="cite">Bhagavad Gītā ${vid}</span><div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>
+ <div class="actions"><button class="pill" id="tRecite" type="button">🕉 Recite shloka</button><button class="pill" id="tListen" type="button">🔊 Listen to the lesson</button><button class="pill" id="tCard" type="button">🖼 Shloka card</button></div>
+ <div class="kr" id="tBody"><div class="who">॥ श्रीभगवानुवाच ॥</div><div class="body"><div class="dots"><span></span><span></span><span></span></div></div></div>`;
+ $('#modal').classList.add('show');
+ $('#xBtn').onclick=()=>{stopSpeak();closeM()};
+ $('#tRecite').onclick=()=>reciteShloka(v);$('#tCard').onclick=()=>openVerse(vid,true);
+ $('#tListen').onclick=()=>{if(!sec||!Object.keys(sec).length){toast('The lesson is still being prepared');return}const sp=startSpeaker();sp.feed({mode:'LEARN',sec},true);sp.end()};
+ const draw=final=>{const body=document.querySelector('#tBody .body');if(!body)return;
+  body.innerHTML=ORDER.LEARN.filter(k=>sec&&sec[k]).map(k=>`<div class="step"><b>${H[k]}</b><p>${esc(sec[k])}</p></div>`).join('')||'<div class="dots"><span></span><span></span><span></span></div>';
+  if(!final){const ps=body.querySelectorAll('p');if(ps.length)ps[ps.length-1].classList.add('caret')}};
+ const cached=store.get(key,null);if(cached){sec=cached;draw(true);return}
+ const offline=()=>{sec={BHAVAM:v.translation.trim(),WORDS:(v.word_meanings||'').split(';').slice(0,5).map(s=>s.trim().replace(/—/g,' - ')).filter(Boolean).join('\n'),MEANING:v.translation.trim()};draw(true)};
+ if(!hasLLM){offline();return}
+ (async()=>{
+  try{
+   const res=await fetch('/api/teach',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:vid,lang})});
+   if(!res.ok||!res.body)throw new Error('http '+res.status);
+   const rd=res.body.getReader(),dec=new TextDecoder();let buf='';
+   while(true){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});
+    if(buf.includes('\0ERR'))throw new Error('teach');sec=parseStream(buf).sec;draw(false)}
+   sec=parseStream(buf).sec;if(!sec.MEANING)throw new Error('format');
+   draw(true);store.set(key,sec);
+  }catch(e){toast(/429/.test(e.message)?'Krishna rests a moment. Please try again in a minute.':'The full lesson is unavailable right now. Showing the meaning.');offline()}
+ })();
+}
 
 })();

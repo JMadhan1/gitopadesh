@@ -19,6 +19,7 @@ const STYLES = {
   natural: { rate: '0%', pitch: '0%', volume: '+0%' },
   calm: { rate: '-12%', pitch: '-10%', volume: '+8%' },
   deep: { rate: '-10%', pitch: '-16%', volume: '+10%' },
+  chant: { rate: '-30%', pitch: '-12%', volume: '+10%' },   // slow recitation of a shloka
 };
 
 const json = (status, code, extra = {}) =>

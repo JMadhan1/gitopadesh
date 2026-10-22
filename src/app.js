@@ -109,7 +109,7 @@ function parseStream(buf){
  const out={mode:null,id:null,sec:{},done:false};
  let m=buf.match(/MODE:\s*(ASK|TEACH|TALK)/);if(m)out.mode=m[1];
  m=buf.match(/VERSE_ID:\s*(\d+\.\d+)/);if(m)out.id=m[1];
- const re=/^[ \t]*##\s*(SEE|FIELD|VERSE|PATH|SELF|ASK|SAY)[ \t]*$/gm,marks=[];let r;
+ const re=/^[ \t]*##\s*(SEE|FIELD|VERSE|PATH|SELF|ASK|SAY|BHAVAM|WORDS|MEANING|STORY|TODAY|REMEMBER)[ \t]*$/gm,marks=[];let r;
  while((r=re.exec(buf)))marks.push({n:r[1],s:r.index,e:r.index+r[0].length});
  marks.forEach((k,i)=>{out.sec[k.n]=buf.slice(k.e,i+1<marks.length?marks[i+1].s:buf.length).trim()});
  if(!out.mode&&marks.length)out.mode=marks.some(k=>k.n==='SAY')?'TALK':'TEACH';
@@ -138,9 +138,9 @@ function renderKrishna(el,p,candIds,streaming){
  if(!streaming&&!el.dataset.fin){el.dataset.fin=1;
   const verse=p.mode==='TEACH'?byId[vid]:null,text=order.map(k=>p.sec[k]).filter(Boolean).join('\n\n');
   const a=document.createElement('div');a.className='actions';
-  a.innerHTML=(verse?'<button class="pill" data-a="card">🖼 Shloka card</button>':'')+'<button class="pill" data-a="copy">⧉ Copy</button>'+(verse?'<button class="pill" data-a="save">♡ Save verse</button>':'')+'<button class="pill" data-a="listen">🔊 Listen</button>';
+  a.innerHTML=(verse?'<button class="pill" data-a="recite">🕉 Recite shloka</button><button class="pill" data-a="teach">📖 Teach me this shloka</button><button class="pill" data-a="card">🖼 Shloka card</button>':'')+'<button class="pill" data-a="copy">⧉ Copy</button>'+(verse?'<button class="pill" data-a="save">♡ Save verse</button>':'')+'<button class="pill" data-a="listen">🔊 Listen</button>';
   a.onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;const k=b.dataset.a;
-   if(k==='card')openVerse(vid,true);if(k==='copy')navigator.clipboard?.writeText(text+'\n— Gitopadesh').then(()=>toast('Copied'));
+   if(k==='card')openVerse(vid,true);if(k==='recite')reciteShloka(verse);if(k==='teach')openTeach(vid);if(k==='copy')navigator.clipboard?.writeText(text+'\n— Gitopadesh').then(()=>toast('Copied'));
    if(k==='save')toggleSave(vid);if(k==='listen')speak(text)};
   el.appendChild(a);
   history.push({role:'assistant',text:Object.entries(p.sec).map(([k,v])=>`##${k}\n${v}`).join('\n')});
@@ -199,7 +199,7 @@ let rec=null,recText='';
 let voices=[];const loadV=()=>voices=speechSynthesis.getVoices();if('speechSynthesis'in window){loadV();speechSynthesis.onvoiceschanged=loadV}
 // Prefer deep, natural MALE Indian neural voices (Edge ships Prabhat/Madhur/Mohan for free).
 const MALE=/prabhat|madhur|mohan|ravi|hemant|rishi|male|google (hindi|telugu)|kalyani/i, NOTMALE=/swara|neerja|kajal|shruti|female|heera|aditi|raveena/i;
-function pickVoice(){const loc=LOCALE[lang],pool=voices.filter(v=>v.lang.replace('_','-').toLowerCase().startsWith(lang));
+function pickVoice(l=lang){const loc=LOCALE[l],pool=voices.filter(v=>v.lang.replace('_','-').toLowerCase().startsWith(l));
  const exact=pool.filter(v=>v.lang.replace('_','-')===loc);const all=exact.length?exact:pool;
  return all.find(v=>/natural|online/i.test(v.name)&&MALE.test(v.name)&&!NOTMALE.test(v.name))||all.find(v=>MALE.test(v.name)&&!NOTMALE.test(v.name))||all.find(v=>/natural|online/i.test(v.name))||all[0]||null}
 function browserSpeak(text){
@@ -235,8 +235,9 @@ function openVerse(i,focusCard){
  <h3 style="margin-top:18px;font:700 24px 'Newsreader',serif;color:var(--gold)">Shloka card</h3>
  <div class="actions">${['Midnight','Saffron','Lotus'].map((n,k)=>`<button class="pill ${k===cardTheme?'on':''}" data-ct="${k}">${n}</button>`).join('')}</div>
  <canvas id="cv" class="cardprev" width="1080" height="1080"></canvas>
+ <div class="actions"><button class="pill" id="vRecite" type="button">🕉 Recite shloka</button><button class="pill" id="vTeach" type="button">📖 Teach me this shloka</button></div>
  <div class="actions"><button class="go" id="dl">⬇ Download 1080×1080</button><button class="pill" id="sv">${saved.has(i)?'♥ Saved':'♡ Save'}</button><button class="pill" id="cp">⧉ Copy verse</button><button class="pill" id="nx">Next verse ➜</button></div>`;
- $('#modal').classList.add('show');$('#xBtn').onclick=closeM;drawCard(v);
+ $('#modal').classList.add('show');$('#xBtn').onclick=closeM;drawCard(v);$('#vRecite').onclick=()=>reciteShloka(v);$('#vTeach').onclick=()=>openTeach(i);
  $$('[data-ct]').forEach(b=>b.onclick=()=>{cardTheme=+b.dataset.ct;$$('[data-ct]').forEach(x=>x.classList.toggle('on',x===b));drawCard(v)});
  $('#dl').onclick=()=>{const a=document.createElement('a');a.download=`gitopadesh-${i}.png`;a.href=$('#cv').toDataURL('image/png');a.click()};
  $('#sv').onclick=()=>{toggleSave(i);$('#sv').textContent=saved.has(i)?'♥ Saved':'♡ Save'};

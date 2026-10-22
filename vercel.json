@@ -8,6 +8,10 @@
     "api/ask.js": {
       "maxDuration": 60,
       "includeFiles": "lib/verse-index.json"
+    },
+    "api/teach.js": {
+      "maxDuration": 60,
+      "includeFiles": "lib/verse-index.json"
     }
   },
   "headers": [

@@ -1,23 +1,24 @@
 /* ---- speech: starts on the FIRST finished sentence while the rest is still being written ---- */
 const TERM=/(?<=[.!?।॥])\s+/;
-function sentencesOf(t){return String(t).replace(/[#*_]/g,'').split(TERM).map(s=>s.trim()).filter(Boolean)}
+function sentencesOf(t){return String(t).replace(/[#*_]/g,'').split(/(?<=[.!?।॥])\s+|[\r\n]+/).map(s=>s.trim()).filter(Boolean)}
 function speechParts(text){
  const raw=String(text).replace(/[#*_]/g,'').split(/(?<=[.!?।॥])\s+|\n+/).map(s=>s.trim()).filter(Boolean),out=[];
  for(const s of raw){if(out.length&&out[out.length-1].length<26)out[out.length-1]+=' '+s;else out.push(s)}
  return out.flatMap(s=>s.length<=500?[s]:s.match(/.{1,480}(?:\s|$)/g).map(x=>x.trim()));
 }
-function startSpeaker(){
- audioInit();stopSpeak();ambStart();
+function startSpeaker(langOv,styleOv){
+ const L=langOv||lang,S=styleOv||vstyle;
+ audioInit();stopSpeak();ambStart();applyStyleFX(S);
  const my=++vtoken,items=[],count={};
- let pro=!!(AC&&ttsCfg&&ttsCfg[lang])&&vstyle!=='device',ended=false,running=false,cancelled=false;
- const rate=(STYLE_FX[vstyle]||STYLE_FX.calm).rate;
- const once=s=>fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:s,lang,style:vstyle})})
+ let pro=!!(AC&&ttsCfg&&ttsCfg[L])&&S!=='device',ended=false,running=false,cancelled=false;
+ const rate=(STYLE_FX[S]||STYLE_FX.calm).rate;
+ const once=s=>fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:sanskritSpeech(s),lang:L,style:S==='device'?'calm':S})})
   .then(r=>r.ok?r.arrayBuffer():Promise.reject(new Error('tts '+r.status))).then(b=>AC.decodeAudioData(b));
  const load=s=>once(s).catch(()=>sleep(500).then(()=>once(s))).catch(()=>null);
  const finish=()=>{if(my===vtoken){setState('idle');ambStop();if(convo&&speakOn)setTimeout(()=>{if(!busy&&!rec&&my===vtoken&&document.body.dataset.state==='idle')startListening()},700)}};
  // browser voice path (also the graceful fallback)
- const vo=pickVoice();
- const browserSay=t=>new Promise(done=>{if(!('speechSynthesis'in window))return done();const u=new SpeechSynthesisUtterance(t);u.lang=LOCALE[lang];if(vo)u.voice=vo;
+ const vo=pickVoice(L);
+ const browserSay=t=>new Promise(done=>{if(!('speechSynthesis'in window))return done();const u=new SpeechSynthesisUtterance(sanskritSpeech(t));u.lang=LOCALE[L];if(vo)u.voice=vo;
   u.rate=.82;u.pitch=vo&&/natural|online/i.test(vo.name)?.9:.7;
   u.onstart=()=>{if(my===vtoken){setSubtitle(t);setState('speaking')}};
   u.onend=()=>{done();if(!pro&&ended&&my===vtoken&&!speechSynthesis.pending)setTimeout(()=>{if(!speechSynthesis.speaking)finish()},200)};

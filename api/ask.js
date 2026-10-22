@@ -35,7 +35,7 @@ export async function POST(req) {
   if (v.error) return json(400, v.error);
 
   const idx = verseIndex();
-  const ctx = v.ids.filter((i) => idx[i]).map((i) => `- ${i}: ${idx[i].slice(0, 400)}`).join('\n');
+  const ctx = v.ids.filter((i) => idx[i]).map((i) => `- ${i}: ${idx[i].m.slice(0, 400)}`).join('\n');
 
   const msgs = [];
   for (const h of v.history) {

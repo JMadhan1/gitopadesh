@@ -1,14 +1,14 @@
 
 /* ================= Krishna's voice: neural speech, temple-hall mastering, bansuri + tanpura ================= */
 let warmN=null,bodyN=null,wetN=null,vstyle=store.get('vstyle','calm');
-const STYLE_FX={calm:{warm:5,body:3,wet:.3,rate:1},natural:{warm:0,body:0,wet:.06,rate:1},deep:{warm:7,body:4.5,wet:.3,rate:.97},device:{warm:0,body:0,wet:.3,rate:1}};
+const STYLE_FX={calm:{warm:5,body:3,wet:.3,rate:1},natural:{warm:0,body:0,wet:.06,rate:1},deep:{warm:7,body:4.5,wet:.3,rate:.97},device:{warm:0,body:0,wet:.3,rate:1},chant:{warm:6,body:3,wet:.4,rate:1}};
 let ttsCfg=false,AC=null,bus=null,verb=null,ambBus=null,vtoken=0,curSrc=null,ambOn=store.get('amb',true),amb=null;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
 function impulse(sec,decay){const n=Math.floor(AC.sampleRate*sec),b=AC.createBuffer(2,n,AC.sampleRate);
  for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,decay)}return b}
 
-function applyStyleFX(){const f=STYLE_FX[vstyle]||STYLE_FX.calm;if(!warmN)return;warmN.gain.value=f.warm;bodyN.gain.value=f.body;wetN.gain.value=f.wet}
+function applyStyleFX(st){const f=STYLE_FX[st||vstyle]||STYLE_FX.calm;if(!warmN)return;warmN.gain.value=f.warm;bodyN.gain.value=f.body;wetN.gain.value=f.wet}
 function audioInit(){
  if(AC){if(AC.state==='suspended')AC.resume();return}
  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;AC=new C();
