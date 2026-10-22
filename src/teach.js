@@ -30,7 +30,7 @@ function openTeach(vid){
  const key=TCK+vid+':'+lang,H=LEARN_H[lang]||LEARN_H.en;let sec=null;
  $('#box').innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><span class="cite">${tx('Bhagavad Gītā')} ${vid}</span><div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>
  <div class="actions"><button class="pill" id="tRecite" type="button">${tx('🕉 Recite shloka')}</button><button class="pill" id="tListen" type="button">${tx('🔊 Listen to the lesson')}</button><button class="pill" id="tCard" type="button">${tx('🖼 Shloka card')}</button></div>
- <div class="kr" id="tBody"><div class="who">॥ श्रीभगवानुवाच ॥</div><div class="body"><div class="dots"><span></span><span></span><span></span></div></div></div>`;
+ <div class="kr" id="tBody"><div class="who">${UVACHA()}</div><div class="body"><div class="dots"><span></span><span></span><span></span></div></div></div>`;
  $('#modal').classList.add('show');
  $('#xBtn').onclick=()=>{stopSpeak();closeM()};
  $('#tRecite').onclick=()=>reciteShloka(v);$('#tCard').onclick=()=>openVerse(vid,true);

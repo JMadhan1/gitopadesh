@@ -157,6 +157,8 @@ const THEME_NAMES={
 function themeName(t){return (THEME_NAMES[lang]&&THEME_NAMES[lang][t])||t}
 
 
+function UVACHA(){return lang==='te'?'॥ శ్రీభగవానువాచ ॥':'॥ श्रीभगवानुवाच ॥'}
+
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
 const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -277,7 +279,7 @@ function parseStream(buf){
 }
 function newKrishna(){
  const el=document.createElement('div');el.className='kr';
- el.innerHTML='<div class="who">॥ श्रीभगवानुवाच ॥</div><div class="body"><div class="dots"><span></span><span></span><span></span></div></div>';
+ el.innerHTML='<div class="who">'+UVACHA()+'</div><div class="body"><div class="dots"><span></span><span></span><span></span></div></div>';
  $('#thread').appendChild(el);return el;
 }
 function renderKrishna(el,p,candIds,streaming){
@@ -476,7 +478,7 @@ const HK='gp_hist_v1';let hist=store.get(HK,[]);
 const updHist=()=>{$('#histCount').textContent=hist.length};
 function saveExchange(e){hist.unshift(e);hist=hist.slice(0,60);store.set(HK,hist);updHist()}
 function leafHTML(e){const L=T[e.lang]||T.en,order=ORDER[e.mode]||['SAY'];
- return `<div class="kr"><div class="who">॥ श्रीभगवानुवाच ॥</div>`+order.filter(k=>e.sec&&e.sec[k]).map(k=>{
+ return `<div class="kr"><div class="who">${UVACHA()}</div>`+order.filter(k=>e.sec&&e.sec[k]).map(k=>{
   const v=k==='VERSE'&&e.vid&&byId[e.vid];
   const vb=v?`<span class="cite">${tx('Bhagavad Gītā')} ${e.vid}</span><div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>`:'';
   return `<div class="step ${k==='ASK'?'ask':''}"><b>${L.h[k]}</b>${vb}<p>${esc(e.sec[k])}</p></div>`}).join('')+`</div>`}
@@ -786,7 +788,7 @@ function openTeach(vid){
  const key=TCK+vid+':'+lang,H=LEARN_H[lang]||LEARN_H.en;let sec=null;
  $('#box').innerHTML=`<button class="x" id="xBtn" aria-label="Close">×</button><span class="cite">${tx('Bhagavad Gītā')} ${vid}</span><div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>
  <div class="actions"><button class="pill" id="tRecite" type="button">${tx('🕉 Recite shloka')}</button><button class="pill" id="tListen" type="button">${tx('🔊 Listen to the lesson')}</button><button class="pill" id="tCard" type="button">${tx('🖼 Shloka card')}</button></div>
- <div class="kr" id="tBody"><div class="who">॥ श्रीभगवानुवाच ॥</div><div class="body"><div class="dots"><span></span><span></span><span></span></div></div></div>`;
+ <div class="kr" id="tBody"><div class="who">${UVACHA()}</div><div class="body"><div class="dots"><span></span><span></span><span></span></div></div></div>`;
  $('#modal').classList.add('show');
  $('#xBtn').onclick=()=>{stopSpeak();closeM()};
  $('#tRecite').onclick=()=>reciteShloka(v);$('#tCard').onclick=()=>openVerse(vid,true);

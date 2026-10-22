@@ -13,7 +13,7 @@ const HK='gp_hist_v1';let hist=store.get(HK,[]);
 const updHist=()=>{$('#histCount').textContent=hist.length};
 function saveExchange(e){hist.unshift(e);hist=hist.slice(0,60);store.set(HK,hist);updHist()}
 function leafHTML(e){const L=T[e.lang]||T.en,order=ORDER[e.mode]||['SAY'];
- return `<div class="kr"><div class="who">॥ श्रीभगवानुवाच ॥</div>`+order.filter(k=>e.sec&&e.sec[k]).map(k=>{
+ return `<div class="kr"><div class="who">${UVACHA()}</div>`+order.filter(k=>e.sec&&e.sec[k]).map(k=>{
   const v=k==='VERSE'&&e.vid&&byId[e.vid];
   const vb=v?`<span class="cite">${tx('Bhagavad Gītā')} ${e.vid}</span><div class="shloka">${esc(clean(v))}</div><div class="translit">${esc(v.transliteration)}</div>`:'';
   return `<div class="step ${k==='ASK'?'ask':''}"><b>${L.h[k]}</b>${vb}<p>${esc(e.sec[k])}</p></div>`}).join('')+`</div>`}

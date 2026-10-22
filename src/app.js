@@ -118,7 +118,7 @@ function parseStream(buf){
 }
 function newKrishna(){
  const el=document.createElement('div');el.className='kr';
- el.innerHTML='<div class="who">॥ श्रीभगवानुवाच ॥</div><div class="body"><div class="dots"><span></span><span></span><span></span></div></div>';
+ el.innerHTML='<div class="who">'+UVACHA()+'</div><div class="body"><div class="dots"><span></span><span></span><span></span></div></div>';
  $('#thread').appendChild(el);return el;
 }
 function renderKrishna(el,p,candIds,streaming){

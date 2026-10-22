@@ -155,3 +155,5 @@ const THEME_NAMES={
  te:{soul:'ఆత్మ',action:'క్రియ',god:'దేవుడు',duty:'కర్తవ్యం',mind:'మనస్సు',body:'శరీరం',time:'కాలం',pleasure:'సుఖం',death:'మృత్యువు',wisdom:'జ్ఞానం',detachment:'వైరాగ్యం',nature:'ప్రకృతి',world:'లోకం',sacrifice:'యజ్ఞం',devotion:'భక్తి',karma:'కర్మ',strength:'శక్తి',war:'యుద్ధం',renunciation:'సన్యాసం',desire:'కోరిక',anger:'క్రోధం',control:'నిగ్రహం',meditation:'ధ్యానం',confusion:'భ్రమ',ignorance:'అజ్ఞానం',compassion:'కరుణ',equality:'సమత్వం',peace:'శాంతి',grief:'శోకం',suffering:'దుఃఖం',fear:'భయం',liberation:'మోక్షం'}};
 function themeName(t){return (THEME_NAMES[lang]&&THEME_NAMES[lang][t])||t}
 
+
+function UVACHA(){return lang==='te'?'॥ శ్రీభగవానువాచ ॥':'॥ श्रीभगवानुवाच ॥'}
