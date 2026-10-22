@@ -2,8 +2,11 @@
 // Provider order (first one configured wins):
 //   1. ElevenLabs   ELEVENLABS_API_KEY (+ ELEVENLABS_VOICE_ID)   most lifelike; supports a custom-designed voice
 //   2. Azure Speech AZURE_SPEECH_KEY + AZURE_SPEECH_REGION        en-IN-PrabhatNeural / hi-IN-MadhurNeural / te-IN-MohanNeural
-//   3. Amazon Polly (the AWS keys already in use)                  English only (no Indian male voice exists for hi/te)
+//   3. Edge neural (free, no key)  en-IN-PrabhatNeural / hi-IN-MadhurNeural / te-IN-MohanNeural via the Edge read-aloud service.
+//      Unofficial endpoint: set EDGE_TTS=0 to turn it off. The page falls back to the browser voice if it ever fails.
+//   4. Amazon Polly (the AWS keys already in use)                  English only (no Indian male voice exists for hi/te)
 // With none available the page falls back to the browser's own speech.
+import { MsEdgeTTS, OUTPUT_FORMAT } from 'msedge-tts';
 import { SECURITY_HEADERS, clientIp, rateLimit, sameOrigin } from '../lib/guard.js';
 
 export const config = { maxDuration: 30 };
@@ -18,7 +21,8 @@ const json = (status, code, extra = {}) =>
 export const provider = () =>
   process.env.ELEVENLABS_API_KEY ? 'elevenlabs'
   : process.env.AZURE_SPEECH_KEY ? 'azure'
-  : process.env.AWS_ACCESS_KEY_ID && process.env.POLLY_ENABLED !== '0' ? 'polly'
+  : process.env.EDGE_TTS !== '0' ? 'edge'
+  : process.env.AWS_ACCESS_KEY_ID && process.env.POLLY_ENABLED === '1' ? 'polly'
   : null;
 
 const xml = (t) => t.replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
@@ -56,6 +60,22 @@ async function azure(text, lang) {
   return audio(r.body);
 }
 
+const EDGE_VOICE = { en: 'en-IN-PrabhatNeural', hi: 'hi-IN-MadhurNeural', te: 'te-IN-MohanNeural' };
+async function edge(text, lang) {
+  const tts = new MsEdgeTTS({ connectionTimeoutMs: 8000, synthesisTimeoutMs: 15000 });
+  await tts.setMetadata(env('EDGE_VOICE_' + lang.toUpperCase(), EDGE_VOICE[lang]), OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
+  const { audioStream } = tts.toStream(xml(text), { rate: env('EDGE_RATE', '-12%'), pitch: env('EDGE_PITCH', '-10%'), volume: '+8%' })   // calm pace, deep and full;
+  const chunks = [];
+  await new Promise((res, rej) => {
+    audioStream.on('data', (d) => chunks.push(d));
+    audioStream.on('close', res);
+    audioStream.on('error', rej);
+  });
+  const buf = Buffer.concat(chunks);
+  if (buf.length < 800) throw new Error('edge empty');
+  return audio(buf);
+}
+
 let polly;
 async function pollyTts(text, lang) {
   if (lang !== 'en') return null; // Polly has no male Indian voice for Hindi or Telugu
@@ -87,7 +107,7 @@ export async function POST(req) {
   if (!text || text.length > MAX) return json(400, 'bad_text');
 
   try {
-    const res = which === 'elevenlabs' ? await elevenlabs(text, lang) : which === 'azure' ? await azure(text, lang) : await pollyTts(text, lang);
+    const res = which === 'elevenlabs' ? await elevenlabs(text, lang) : which === 'azure' ? await azure(text, lang) : which === 'edge' ? await edge(text, lang) : await pollyTts(text, lang);
     return res || json(501, 'no_voice');
   } catch (e) {
     console.error('tts_error', which, e.name, e.message?.slice(0, 80)); // never logs the user's text
