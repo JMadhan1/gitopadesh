@@ -32,7 +32,7 @@ export async function POST(req) {
   try {
     if (redis) {
       const p = redis.pipeline();
-      if (body.first === true) p.pfadd('gp:uv:v2', id);
+      p.pfadd('gp:uv:v2', id);                 // idempotent: every browser that is online is also in the total
       p.zadd('gp:live:v2', { score: now, member: id });
       p.zremrangebyscore('gp:live:v2', 0, now - WINDOW);
       p.zcard('gp:live:v2');
@@ -40,7 +40,7 @@ export async function POST(req) {
       const r = await p.exec();
       return json(200, { live: Number(r[r.length - 2]) || 1, total: Number(r[r.length - 1]) || 0 });
     }
-    if (body.first === true) mem.uv.add(id);
+    mem.uv.add(id);
     mem.live.set(id, now);
     for (const [k, t] of mem.live) if (now - t > WINDOW) mem.live.delete(k);
     return json(200, { live: mem.live.size, total: mem.uv.size });
