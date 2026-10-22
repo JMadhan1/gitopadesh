@@ -399,21 +399,24 @@ $$('#langs [data-l]').forEach(b=>b.addEventListener('click',()=>{lastSub='';if(!
 setSubtitle(T[lang].greet);
 
 /* ================= Krishna's voice: neural speech, temple-hall mastering, bansuri + tanpura ================= */
+let warmN=null,bodyN=null,wetN=null,vstyle=store.get('vstyle','calm');
+const STYLE_FX={calm:{warm:5,body:3,wet:.3,rate:1},natural:{warm:0,body:0,wet:.06,rate:1},deep:{warm:7,body:4.5,wet:.3,rate:.97},device:{warm:0,body:0,wet:.3,rate:1}};
 let ttsCfg=false,AC=null,bus=null,verb=null,ambBus=null,vtoken=0,curSrc=null,ambOn=store.get('amb',true),amb=null;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
 function impulse(sec,decay){const n=Math.floor(AC.sampleRate*sec),b=AC.createBuffer(2,n,AC.sampleRate);
  for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,decay)}return b}
 
+function applyStyleFX(){const f=STYLE_FX[vstyle]||STYLE_FX.calm;if(!warmN)return;warmN.gain.value=f.warm;bodyN.gain.value=f.body;wetN.gain.value=f.wet}
 function audioInit(){
  if(AC){if(AC.state==='suspended')AC.resume();return}
  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;AC=new C();
- const warm=AC.createBiquadFilter();warm.type='lowshelf';warm.frequency.value=260;warm.gain.value=7;       // chest and warmth
- const body=AC.createBiquadFilter();body.type='peaking';body.frequency.value=160;body.gain.value=4.5;body.Q.value=.9;
+ const warm=AC.createBiquadFilter();warm.type='lowshelf';warm.frequency.value=240;warm.gain.value=5;       // chest and warmth
+ const body=AC.createBiquadFilter();body.type='peaking';body.frequency.value=150;body.gain.value=3;body.Q.value=.9;
  const air=AC.createBiquadFilter();air.type='highshelf';air.frequency.value=6500;air.gain.value=-4;          // soften the digital edge
  const comp=AC.createDynamicsCompressor();comp.threshold.value=-24;comp.ratio.value=3;
  verb=AC.createConvolver();verb.buffer=impulse(3.2,2.4);                                                       // a stone temple hall
- const wet=AC.createGain();wet.gain.value=.3;
+ const wet=AC.createGain();wet.gain.value=.3;warmN=warm;bodyN=body;wetN=wet;applyStyleFX();
  bus=AC.createGain();ambBus=AC.createGain();ambBus.gain.value=0;
  bus.connect(warm);warm.connect(body);body.connect(air);air.connect(comp);comp.connect(AC.destination);
  air.connect(verb);ambBus.connect(verb);verb.connect(wet);wet.connect(comp);ambBus.connect(comp);
@@ -463,9 +466,9 @@ function speechParts(text){
 function startSpeaker(){
  audioInit();stopSpeak();ambStart();
  const my=++vtoken,items=[],count={};
- let pro=!!(AC&&ttsCfg&&ttsCfg[lang]),ended=false,running=false,cancelled=false;
- const rate=.97;   // a hair slower and lower for gravity
- const once=s=>fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:s,lang})})
+ let pro=!!(AC&&ttsCfg&&ttsCfg[lang])&&vstyle!=='device',ended=false,running=false,cancelled=false;
+ const rate=(STYLE_FX[vstyle]||STYLE_FX.calm).rate;
+ const once=s=>fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:s,lang,style:vstyle})})
   .then(r=>r.ok?r.arrayBuffer():Promise.reject(new Error('tts '+r.status))).then(b=>AC.decodeAudioData(b));
  const load=s=>once(s).catch(()=>sleep(500).then(()=>once(s))).catch(()=>null);
  const finish=()=>{if(my===vtoken){setState('idle');ambStop();if(convo&&speakOn)setTimeout(()=>{if(!busy&&!rec&&my===vtoken&&document.body.dataset.state==='idle')startListening()},700)}};
@@ -582,5 +585,12 @@ async function listenRec(){
 }
 
 $('#mic').onclick=()=>{if(rec){rec.stop();return}startListening()};
+
+/* ================= Voice style: Calm / Natural / Deep / Device ================= */
+const VSTYLES=[['calm','Calm'],['natural','Natural'],['deep','Deep'],['device','Device']];
+const SAMPLE={en:'O seeker, you have come to the field. Tell me what weighs upon your heart.',hi:'हे साधक, तुम रणभूमि में आए हो। बोलो, तुम्हारे हृदय पर क्या बोझ है?',te:'ఓ సాధకా, నీవు యుద్ధభూమికి వచ్చావు. చెప్పు, నీ హృదయంపై ఏ భారం ఉంది?'};
+const setVstyleBtn=()=>$('#vstyleBtn').textContent='🎙 Voice: '+(VSTYLES.find(v=>v[0]===vstyle)||VSTYLES[0])[1];
+$('#vstyleBtn').onclick=()=>{const i=VSTYLES.findIndex(v=>v[0]===vstyle);vstyle=VSTYLES[(i+1)%VSTYLES.length][0];store.set('vstyle',vstyle);setVstyleBtn();applyStyleFX();
+ const sp=startSpeaker();sp.say([SAMPLE[lang]]);sp.end()};setVstyleBtn();
 
 })();

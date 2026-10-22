@@ -9,9 +9,9 @@ function speechParts(text){
 function startSpeaker(){
  audioInit();stopSpeak();ambStart();
  const my=++vtoken,items=[],count={};
- let pro=!!(AC&&ttsCfg&&ttsCfg[lang]),ended=false,running=false,cancelled=false;
- const rate=.97;   // a hair slower and lower for gravity
- const once=s=>fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:s,lang})})
+ let pro=!!(AC&&ttsCfg&&ttsCfg[lang])&&vstyle!=='device',ended=false,running=false,cancelled=false;
+ const rate=(STYLE_FX[vstyle]||STYLE_FX.calm).rate;
+ const once=s=>fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:s,lang,style:vstyle})})
   .then(r=>r.ok?r.arrayBuffer():Promise.reject(new Error('tts '+r.status))).then(b=>AC.decodeAudioData(b));
  const load=s=>once(s).catch(()=>sleep(500).then(()=>once(s))).catch(()=>null);
  const finish=()=>{if(my===vtoken){setState('idle');ambStop();if(convo&&speakOn)setTimeout(()=>{if(!busy&&!rec&&my===vtoken&&document.body.dataset.state==='idle')startListening()},700)}};

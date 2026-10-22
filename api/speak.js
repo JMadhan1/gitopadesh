@@ -14,6 +14,12 @@ export const config = { maxDuration: 30 };
 const env = (k, d) => process.env[k] || d;
 const LANGS = new Set(['en', 'hi', 'te']);
 const MAX = 520;
+// Delivery presets (the client sends only the preset name).
+const STYLES = {
+  natural: { rate: '0%', pitch: '0%', volume: '+0%' },
+  calm: { rate: '-12%', pitch: '-10%', volume: '+8%' },
+  deep: { rate: '-10%', pitch: '-16%', volume: '+10%' },
+};
 
 const json = (status, code, extra = {}) =>
   new Response(JSON.stringify({ error: code }), { status, headers: { 'Content-Type': 'application/json', ...SECURITY_HEADERS, ...extra } });
@@ -46,11 +52,11 @@ async function elevenlabs(text, lang) {
 }
 
 const AZ_VOICE = { en: 'en-IN-PrabhatNeural', hi: 'hi-IN-MadhurNeural', te: 'te-IN-MohanNeural' };
-async function azure(text, lang) {
+async function azure(text, lang, st) {
   const region = env('AZURE_SPEECH_REGION', 'centralindia');
   const voice = env('AZURE_VOICE_' + lang.toUpperCase(), AZ_VOICE[lang]);
   const loc = voice.split('-').slice(0, 2).join('-');
-  const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${loc}"><voice name="${voice}"><prosody rate="-14%" pitch="-7%">${xml(text)}</prosody></voice></speak>`;
+  const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${loc}"><voice name="${voice}"><prosody rate="${st.rate}" pitch="${st.pitch}">${xml(text)}</prosody></voice></speak>`;
   const r = await fetch(`https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`, {
     method: 'POST',
     headers: { 'Ocp-Apim-Subscription-Key': process.env.AZURE_SPEECH_KEY, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-24khz-96kbitrate-mono-mp3', 'User-Agent': 'gitopadesh' },
@@ -61,10 +67,10 @@ async function azure(text, lang) {
 }
 
 const EDGE_VOICE = { en: 'en-IN-PrabhatNeural', hi: 'hi-IN-MadhurNeural', te: 'te-IN-MohanNeural' };
-async function edge(text, lang) {
+async function edge(text, lang, st) {
   const tts = new MsEdgeTTS({ connectionTimeoutMs: 8000, synthesisTimeoutMs: 15000 });
   await tts.setMetadata(env('EDGE_VOICE_' + lang.toUpperCase(), EDGE_VOICE[lang]), OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
-  const { audioStream } = tts.toStream(xml(text), { rate: env('EDGE_RATE', '-10%'), pitch: env('EDGE_PITCH', '-16%'), volume: '+10%' })   // calm pace, deep and full;
+  const { audioStream } = tts.toStream(xml(text), st);
   const chunks = [];
   await new Promise((res, rej) => {
     audioStream.on('data', (d) => chunks.push(d));
@@ -105,9 +111,10 @@ export async function POST(req) {
   const text = typeof body?.text === 'string' ? body.text.replace(/[\u0000-\u001f]/g, ' ').replace(/\s+/g, ' ').trim() : '';
   const lang = LANGS.has(body?.lang) ? body.lang : 'en';
   if (!text || text.length > MAX) return json(400, 'bad_text');
+  const st = STYLES[body?.style] || STYLES.calm;
 
   try {
-    const run = () => which === 'elevenlabs' ? elevenlabs(text, lang) : which === 'azure' ? azure(text, lang) : which === 'edge' ? edge(text, lang) : pollyTts(text, lang);
+    const run = () => which === 'elevenlabs' ? elevenlabs(text, lang) : which === 'azure' ? azure(text, lang, st) : which === 'edge' ? edge(text, lang, st) : pollyTts(text, lang);
     let res, err;
     for (let i = 0; i < (which === 'edge' ? 4 : 1); i++) {   // the free Edge service sometimes answers 429; a short retry clears it
       try { res = await run(); err = null; break; } catch (e) { err = e; await new Promise((r) => setTimeout(r, 250 + Math.random() * 350)); }
