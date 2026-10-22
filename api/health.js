@@ -6,7 +6,7 @@ export function GET() {
   const p = process.env.ASK_DISABLED === '1' ? null : provider();
   // "hi"/"te" availability depends on the provider: Polly speaks English only.
   const tts = p ? { en: true, hi: p !== 'polly', te: p !== 'polly', deep: p === 'polly' } : false;
-  return new Response(JSON.stringify({ llm: live, tts }), {
+  return new Response(JSON.stringify({ llm: live, tts, stt: !!process.env.AZURE_SPEECH_KEY && process.env.ASK_DISABLED !== '1' }), {
     headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60', 'X-Content-Type-Options': 'nosniff' },
   });
 }

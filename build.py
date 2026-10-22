@@ -91,7 +91,7 @@ w("verses.json", json.dumps(verses, ensure_ascii=False, separators=(",", ":")))
 os.makedirs("lib", exist_ok=True)
 json.dump({f"{v['chapter']}.{v['verse']}": v["translation"].strip() for v in verses},
           open("lib/verse-index.json", "w", encoding="utf8"), ensure_ascii=False, separators=(",", ":"))
-app = open("src/app.js", encoding="utf8").read() + open("src/app2.js", encoding="utf8").read() + open("src/app3.js", encoding="utf8").read() + open("src/speaker.js", encoding="utf8").read()
+app = open("src/app.js", encoding="utf8").read() + open("src/app2.js", encoding="utf8").read() + open("src/app3.js", encoding="utf8").read() + open("src/speaker.js", encoding="utf8").read() + open("src/voicein.js", encoding="utf8").read()
 w("app.js", "(async()=>{const VERSES=await (await fetch('/verses.json')).json();\n" + app + "\n})();")
 
 # ---- home page ----------------------------------------------------------------

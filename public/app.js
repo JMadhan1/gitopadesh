@@ -154,7 +154,7 @@ const verse_pending=()=>false;
 /* ---------- Ask flow ---------- */
 async function ask(text){
  text=(text||'').trim();if(!text){toast('Speak or type what is on your heart 🙏');return}
- audioInit();if(busy)return;busy=true;$('#goBtn').disabled=true;stopSpeak();
+ audioInit();if(busy)return;{const dl=detectLang(text);if(dl&&dl!==lang){setLang(dl);toast(dl==='hi'?'Krishna will answer in हिंदी':'Krishna will answer in తెలుగు')}}busy=true;$('#goBtn').disabled=true;stopSpeak();
  $('#thread').innerHTML='';
  const me=document.createElement('div');me.className='me';const mk=document.createElement('small');mk.textContent='You';const mt=document.createElement('span');mt.textContent=text;me.append(mk,mt);$('#thread').appendChild(me);
  $('#chariot').classList.add('show');$('#readMore').classList.remove('show');
@@ -195,17 +195,6 @@ async function ask(text){
 /* ---------- Voice in (speak your problem) ---------- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition,LOCALE={en:'en-IN',hi:'hi-IN',te:'te-IN'};
 let rec=null,recText='';
-$('#mic').onclick=()=>{
- audioInit();
- if(!SR){toast('Voice input needs Chrome or Edge');return}
- if(rec){rec.stop();return}
- stopSpeak();rec=new SR();rec.lang=LOCALE[lang];rec.interimResults=true;rec.continuous=true;recText='';
- const base=$('#q').value?$('#q').value+' ':'';
- rec.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;recText=t;$('#q').value=base+t;autosize()};
- rec.onerror=e=>{toast(e.error==='not-allowed'?'Allow the microphone to speak to Krishna':'Mic: '+e.error)};
- rec.onend=()=>{$('#mic').classList.remove('rec');setState('idle');const had=recText.trim();rec=null;if(had)setTimeout(()=>ask($('#q').value),400)};
- rec.start();$('#mic').classList.add('rec');setState('listening');toast('Listening… tap again when done 🎙');
-};
 
 /* ---------- Voice out (Krishna speaks) ---------- */
 let voices=[];const loadV=()=>voices=speechSynthesis.getVoices();if('speechSynthesis'in window){loadV();speechSynthesis.onvoiceschanged=loadV}
@@ -290,7 +279,7 @@ $('#q').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preven
 const autosize=()=>{const q=$('#q');q.style.height='auto';q.style.height=Math.min(160,q.scrollHeight)+'px'};$('#q').addEventListener('input',autosize);
 function setLang(l){lang=l;store.set('lang',l);$$('#langs .pill').forEach(x=>x.classList.toggle('on',x.dataset.l===l));chips();if(rec)rec.stop()}
 $('#langs').onclick=e=>{const b=e.target.closest('[data-l]');if(b)setLang(b.dataset.l)};setLang(lang);
-fetch('/api/health').then(r=>r.json()).then(j=>{hasLLM=!!j.llm;ttsCfg=j.tts||false}).catch(()=>{});
+fetch('/api/health').then(r=>r.json()).then(j=>{hasLLM=!!j.llm;ttsCfg=j.tts||false;sttCfg=!!j.stt}).catch(()=>{});
 
 
 function today(){const v=VERSES[Math.floor(Math.random()*VERSES.length)];$('#todayBox').innerHTML=`<h2 style="margin:0">Verse of the moment</h2><span class="cite">Bhagavad Gītā ${id(v)}</span><div class="shloka">${esc(clean(v))}</div><p class="tr">${esc(v.translation)}</p><div class="row"><button class="pill" id="tNew" type="button">🪷 Another verse</button><button class="pill" id="tOpen" type="button">Open shloka card</button></div>`;
@@ -478,7 +467,7 @@ function startSpeaker(){
  const rate=ttsCfg&&ttsCfg.deep?.94:1;
  const load=s=>fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:s,lang})})
   .then(r=>r.ok?r.arrayBuffer():Promise.reject(new Error('tts '+r.status))).then(b=>AC.decodeAudioData(b)).catch(()=>null);
- const finish=()=>{if(my===vtoken){setState('idle');ambStop()}};
+ const finish=()=>{if(my===vtoken){setState('idle');ambStop();if(convo&&speakOn)setTimeout(()=>{if(!busy&&!rec&&my===vtoken&&document.body.dataset.state==='idle')startListening()},700)}};
  // browser voice path (also the graceful fallback)
  const vo=pickVoice();
  const browserSay=t=>{if(!('speechSynthesis'in window))return;const u=new SpeechSynthesisUtterance(t);u.lang=LOCALE[lang];if(vo)u.voice=vo;
@@ -514,5 +503,81 @@ function startSpeaker(){
  };
 }
 function speak(text){const sp=startSpeaker();speechParts(text).forEach(t=>sp.feed({mode:'TALK',sec:{SAY:t}},true));sp.end()}   // used by the Listen button
+
+/* ================= Voice in: hear everything, in any language, hands-free ================= */
+const RE_DEV=/[ऀ-ॿ]/g,RE_TEL=/[ఀ-౿]/g;
+function detectLang(t){const n=String(t).replace(/\s/g,'').length||1,d=(String(t).match(RE_DEV)||[]).length/n,e=(String(t).match(RE_TEL)||[]).length/n;return d>.3?'hi':e>.3?'te':null}
+let convo=store.get('convo',false),sendTimer=null,silenceTimer=null,sttCfg=false,convoMiss=0;
+const setConvoBtn=()=>$('#convoBtn').textContent='🎧 Conversation: '+(convo?'on':'off');
+$('#convoBtn').onclick=()=>{convo=!convo;convoMiss=0;store.set('convo',convo);setConvoBtn();
+ toast(convo?'Hands-free on: Krishna will listen again after he speaks':'Hands-free off');
+ if(convo&&!busy&&!rec&&document.body.dataset.state==='idle')startListening()};setConvoBtn();
+
+function scheduleSend(){clearTimeout(sendTimer);toast('Sending to Krishna… tap the box to edit');
+ sendTimer=setTimeout(()=>{const t=$('#q').value.trim();if(t)ask(t)},1500)}
+['input','focus'].forEach(ev=>$('#q').addEventListener(ev,()=>clearTimeout(sendTimer)));
+
+function endListenUI(){$('#mic').classList.remove('rec');if(!busy&&document.body.dataset.state==='listening')setState('idle')}
+const MIC_MSG={'not-allowed':'Allow the microphone so Krishna can hear you.','service-not-allowed':'Allow the microphone so Krishna can hear you.','no-speech':'I heard nothing. Tap the mic and speak again.','network':'The speech service is unreachable. Please type instead.','audio-capture':'No microphone was found.'};
+
+function startListening(){
+ audioInit();stopSpeak();clearTimeout(sendTimer);
+ if(SR)return listenSR();
+ if(sttCfg)return listenRec();
+ toast('Voice input needs Chrome, Edge or Safari. You can still type.');
+}
+
+/* Browser speech recognition: live words, stops by itself after a pause */
+function listenSR(){
+ const r=new SR();r.lang=LOCALE[lang];r.interimResults=true;r.continuous=true;r.maxAlternatives=1;
+ let final='',got=false,errored=false;const base=$('#q').value.trim()?$('#q').value.trim()+' ':'';
+ const arm=()=>{clearTimeout(silenceTimer);silenceTimer=setTimeout(()=>{if(got)r.stop()},2200)};
+ r.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;got=!!t.trim();final=t;$('#q').value=base+t;autosize();arm()};
+ r.onerror=e=>{errored=true;clearTimeout(silenceTimer);if(e.error!=='aborted'&&MIC_MSG[e.error])toast(MIC_MSG[e.error])};
+ r.onend=()=>{clearTimeout(silenceTimer);rec=null;endListenUI();
+  if(final.trim()&&!errored){convoMiss=0;scheduleSend()}
+  else if(convo&&!errored&&!busy){if(++convoMiss>=2){convo=false;store.set('convo',false);setConvoBtn();toast('Hands-free paused. Tap the mic when ready.')}else setTimeout(startListening,600)}};
+ rec=r;$('#mic').classList.add('rec');setState('listening');
+ try{r.start()}catch{rec=null;endListenUI();return}
+ toast('Listening… speak freely. I wait while you pause.');
+ setTimeout(()=>{if(rec===r&&!got)r.stop()},9000);
+}
+
+/* Fallback for browsers without speech recognition: record, then Krishna's server transcribes (Azure) */
+function wavBlob(chunks,inRate){
+ let len=0;chunks.forEach(c=>len+=c.length);const all=new Float32Array(len);let o=0;chunks.forEach(c=>{all.set(c,o);o+=c.length});
+ const ratio=inRate/16000,n=Math.floor(len/ratio),pcm=new Int16Array(n);
+ for(let i=0;i<n;i++){const v=Math.max(-1,Math.min(1,all[Math.floor(i*ratio)]));pcm[i]=v<0?v*0x8000:v*0x7FFF}
+ const buf=new ArrayBuffer(44+pcm.length*2),dv=new DataView(buf),w=(p,s)=>[...s].forEach((c,i)=>dv.setUint8(p+i,c.charCodeAt(0)));
+ w(0,'RIFF');dv.setUint32(4,36+pcm.length*2,true);w(8,'WAVEfmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);
+ dv.setUint32(24,16000,true);dv.setUint32(28,32000,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);w(36,'data');dv.setUint32(40,pcm.length*2,true);
+ new Int16Array(buf,44).set(pcm);return new Blob([buf],{type:'audio/wav'});
+}
+async function listenRec(){
+ let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}catch{toast(MIC_MSG['not-allowed']);return}
+ const C=window.AudioContext||window.webkitAudioContext,ctx=new C(),src=ctx.createMediaStreamSource(stream),proc=ctx.createScriptProcessor(4096,1,1),chunks=[];
+ let voiced=false,lastVoice=performance.now(),t0=lastVoice,done=false;
+ const finish=async()=>{
+  if(done)return;done=true;rec=null;proc.disconnect();src.disconnect();stream.getTracks().forEach(t=>t.stop());endListenUI();
+  if(!voiced){ctx.close();toast(MIC_MSG['no-speech']);return}
+  setState('thinking');toast('Krishna is listening to what you said…');
+  try{
+   const blob=wavBlob(chunks,ctx.sampleRate);ctx.close();
+   const r=await fetch('/api/transcribe?lang='+lang,{method:'POST',headers:{'Content-Type':'audio/wav'},body:blob});
+   if(!r.ok)throw new Error('stt '+r.status);
+   const j=await r.json();
+   if(j.text){$('#q').value=($('#q').value.trim()+' '+j.text).trim();autosize();convoMiss=0;scheduleSend()}else{toast(MIC_MSG['no-speech'])}
+  }catch(e){toast('I could not hear that clearly. Please try again or type.')}
+  if(!busy)setState('idle');
+ };
+ proc.onaudioprocess=e=>{const d=e.inputBuffer.getChannelData(0);chunks.push(new Float32Array(d));
+  let s=0;for(let i=0;i<d.length;i+=8)s+=d[i]*d[i];const rms=Math.sqrt(s/(d.length/8)),now=performance.now();
+  if(rms>.015){voiced=true;lastVoice=now}
+  if((voiced&&now-lastVoice>1800)||now-t0>45000||(!voiced&&now-t0>9000))finish()};
+ src.connect(proc);proc.connect(ctx.destination);   // the processor writes no output, so nothing is played back
+ rec={stop:finish};$('#mic').classList.add('rec');setState('listening');toast('Listening… speak freely. I wait while you pause.');
+}
+
+$('#mic').onclick=()=>{if(rec){rec.stop();return}startListening()};
 
 })();

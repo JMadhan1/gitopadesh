@@ -13,7 +13,7 @@ function startSpeaker(){
  const rate=ttsCfg&&ttsCfg.deep?.94:1;
  const load=s=>fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:s,lang})})
   .then(r=>r.ok?r.arrayBuffer():Promise.reject(new Error('tts '+r.status))).then(b=>AC.decodeAudioData(b)).catch(()=>null);
- const finish=()=>{if(my===vtoken){setState('idle');ambStop()}};
+ const finish=()=>{if(my===vtoken){setState('idle');ambStop();if(convo&&speakOn)setTimeout(()=>{if(!busy&&!rec&&my===vtoken&&document.body.dataset.state==='idle')startListening()},700)}};
  // browser voice path (also the graceful fallback)
  const vo=pickVoice();
  const browserSay=t=>{if(!('speechSynthesis'in window))return;const u=new SpeechSynthesisUtterance(t);u.lang=LOCALE[lang];if(vo)u.voice=vo;

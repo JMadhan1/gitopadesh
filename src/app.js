@@ -153,7 +153,7 @@ const verse_pending=()=>false;
 /* ---------- Ask flow ---------- */
 async function ask(text){
  text=(text||'').trim();if(!text){toast('Speak or type what is on your heart 🙏');return}
- audioInit();if(busy)return;busy=true;$('#goBtn').disabled=true;stopSpeak();
+ audioInit();if(busy)return;{const dl=detectLang(text);if(dl&&dl!==lang){setLang(dl);toast(dl==='hi'?'Krishna will answer in हिंदी':'Krishna will answer in తెలుగు')}}busy=true;$('#goBtn').disabled=true;stopSpeak();
  $('#thread').innerHTML='';
  const me=document.createElement('div');me.className='me';const mk=document.createElement('small');mk.textContent='You';const mt=document.createElement('span');mt.textContent=text;me.append(mk,mt);$('#thread').appendChild(me);
  $('#chariot').classList.add('show');$('#readMore').classList.remove('show');
@@ -194,17 +194,6 @@ async function ask(text){
 /* ---------- Voice in (speak your problem) ---------- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition,LOCALE={en:'en-IN',hi:'hi-IN',te:'te-IN'};
 let rec=null,recText='';
-$('#mic').onclick=()=>{
- audioInit();
- if(!SR){toast('Voice input needs Chrome or Edge');return}
- if(rec){rec.stop();return}
- stopSpeak();rec=new SR();rec.lang=LOCALE[lang];rec.interimResults=true;rec.continuous=true;recText='';
- const base=$('#q').value?$('#q').value+' ':'';
- rec.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;recText=t;$('#q').value=base+t;autosize()};
- rec.onerror=e=>{toast(e.error==='not-allowed'?'Allow the microphone to speak to Krishna':'Mic: '+e.error)};
- rec.onend=()=>{$('#mic').classList.remove('rec');setState('idle');const had=recText.trim();rec=null;if(had)setTimeout(()=>ask($('#q').value),400)};
- rec.start();$('#mic').classList.add('rec');setState('listening');toast('Listening… tap again when done 🎙');
-};
 
 /* ---------- Voice out (Krishna speaks) ---------- */
 let voices=[];const loadV=()=>voices=speechSynthesis.getVoices();if('speechSynthesis'in window){loadV();speechSynthesis.onvoiceschanged=loadV}
@@ -289,7 +278,7 @@ $('#q').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preven
 const autosize=()=>{const q=$('#q');q.style.height='auto';q.style.height=Math.min(160,q.scrollHeight)+'px'};$('#q').addEventListener('input',autosize);
 function setLang(l){lang=l;store.set('lang',l);$$('#langs .pill').forEach(x=>x.classList.toggle('on',x.dataset.l===l));chips();if(rec)rec.stop()}
 $('#langs').onclick=e=>{const b=e.target.closest('[data-l]');if(b)setLang(b.dataset.l)};setLang(lang);
-fetch('/api/health').then(r=>r.json()).then(j=>{hasLLM=!!j.llm;ttsCfg=j.tts||false}).catch(()=>{});
+fetch('/api/health').then(r=>r.json()).then(j=>{hasLLM=!!j.llm;ttsCfg=j.tts||false;sttCfg=!!j.stt}).catch(()=>{});
 
 
 function today(){const v=VERSES[Math.floor(Math.random()*VERSES.length)];$('#todayBox').innerHTML=`<h2 style="margin:0">Verse of the moment</h2><span class="cite">Bhagavad Gītā ${id(v)}</span><div class="shloka">${esc(clean(v))}</div><p class="tr">${esc(v.translation)}</p><div class="row"><button class="pill" id="tNew" type="button">🪷 Another verse</button><button class="pill" id="tOpen" type="button">Open shloka card</button></div>`;
