@@ -107,7 +107,12 @@ export async function POST(req) {
   if (!text || text.length > MAX) return json(400, 'bad_text');
 
   try {
-    const res = which === 'elevenlabs' ? await elevenlabs(text, lang) : which === 'azure' ? await azure(text, lang) : which === 'edge' ? await edge(text, lang) : await pollyTts(text, lang);
+    const run = () => which === 'elevenlabs' ? elevenlabs(text, lang) : which === 'azure' ? azure(text, lang) : which === 'edge' ? edge(text, lang) : pollyTts(text, lang);
+    let res, err;
+    for (let i = 0; i < (which === 'edge' ? 4 : 1); i++) {   // the free Edge service sometimes answers 429; a short retry clears it
+      try { res = await run(); err = null; break; } catch (e) { err = e; await new Promise((r) => setTimeout(r, 250 + Math.random() * 350)); }
+    }
+    if (err) throw err;
     return res || json(501, 'no_voice');
   } catch (e) {
     console.error('tts_error', which, e.name, e.message?.slice(0, 80)); // never logs the user's text

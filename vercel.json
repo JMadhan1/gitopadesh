@@ -81,5 +81,8 @@
       ]
     }
   ],
-  "framework": null
+  "framework": null,
+  "regions": [
+    "bom1"
+  ]
 }
