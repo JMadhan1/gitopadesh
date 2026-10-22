@@ -1,0 +1,17 @@
+# Gitopadesh
+
+> Gitopadesh is a free, voice-first web app where people tell Krishna their problem and receive guidance drawn from the Bhagavad Gita. It covers all 701 verses in 18 chapters, with Sanskrit, transliteration, English translation and word-by-word meanings, and replies in English, Hindi and Telugu. Replies are AI-generated in Krishna's voice and grounded in the verses; it is not medical or therapeutic advice.
+
+Created by Madhan (https://jmadhan.me).
+
+## Key pages
+- [Ask Krishna](https://gitopadesh.jmadhan.me/): the voice and text conversation
+- [Chapter index](https://gitopadesh.jmadhan.me/#chapters-index): all 18 chapters
+- [Chapter 2, Sankhya Yoga](https://gitopadesh.jmadhan.me/chapter/2): the imperishable Self and selfless action
+- [Verse 2.47](https://gitopadesh.jmadhan.me/verse/2-47): the right to action, not to its fruits
+- [Verse 18.66](https://gitopadesh.jmadhan.me/verse/18-66): surrender and freedom from grief
+- [Sitemap](https://gitopadesh.jmadhan.me/sitemap.xml): every verse page
+
+## Facts
+- Every verse page lists chapter, verse number, Sanskrit, transliteration, translation and word meanings.
+- Conversation history is stored only in the user's own browser.

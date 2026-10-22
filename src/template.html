@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gitopadesh — Ask Krishna, Bhagavad Gita Guidance for Your Life</title>
+<meta name="description" content="Speak your dilemma and Krishna answers from the Bhagavad Gita: a voice-first guide drawing on all 701 verses, in English, Hindi and Telugu. Free, private, no sign-up.">
+<meta name="theme-color" content="#050a1c">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+<link rel="canonical" href="{{SITE}}/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Gitopadesh">
+<meta property="og:title" content="Gitopadesh — Ask Krishna">
+<meta property="og:description" content="Speak your dilemma. Krishna listens, asks, and answers from the Bhagavad Gita, in English, Hindi and Telugu.">
+<meta property="og:url" content="{{SITE}}/">
+<meta property="og:image" content="{{SITE}}/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Krishna playing the flute in front of a full moon">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Gitopadesh — Ask Krishna">
+<meta name="twitter:description" content="Voice-first Bhagavad Gita guidance for the dilemmas of modern life.">
+<meta name="twitter:image" content="{{SITE}}/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/img/krishna-live.webp" type="image/webp">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Noto+Serif+Telugu:wght@500;700&family=Tiro+Devanagari+Sanskrit:ital@0;1&family=Yatra+One&display=swap" rel="stylesheet">
+<!--JSONLD-->
+<style>
+/* Layout: one cinematic night scene. The portrait is the hero; the dialogue happens in it (live subtitles) and unfolds below as manuscript leaves. */
+:root{
+ --night:#050a1c;--deep:#0a1434;--blue:#2d5bc9;--moon:#f4efe1;--petal:#ff7aa5;--gold:#f2c26b;--teal:#22cdaa;
+ --ink:#ece7d8;--mute:#9aa6c7;--glass:rgba(10,20,52,.55);--line:rgba(244,239,225,.16);
+ --leaf:#f1e6c9;--leaf-ink:#2a1d12;--leaf-mute:#6a5a44;--leaf-red:#a82e1a;
+ --display:'Yatra One','Tiro Devanagari Sanskrit',serif;--serif:'Newsreader','Tiro Devanagari Sanskrit','Noto Serif Telugu',Georgia,serif;--sans:'Hanken Grotesk',system-ui,sans-serif;--sk:'Tiro Devanagari Sanskrit',serif;
+ color-scheme:dark;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--night);color:var(--ink);font:400 16px/1.6 var(--sans);overflow-x:hidden;padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.07;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>")}
+a{color:inherit}
+canvas#sky{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:6px}
+
+/* top bar */
+.top{position:absolute;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:max(14px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+.logo{font:400 24px var(--display);letter-spacing:.03em;color:var(--moon);text-decoration:none;text-shadow:0 2px 20px rgba(0,0,0,.6)}
+.navr{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.pill{border:1px solid var(--line);background:var(--glass);color:var(--ink);padding:7px 14px;border-radius:99px;font:500 13px var(--sans);cursor:pointer;transition:.25s;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);text-decoration:none;display:inline-block}
+.pill:hover{border-color:var(--gold);transform:translateY(-1px)}
+.pill.on{background:var(--gold);color:#241500;border-color:transparent}
+
+/* hero */
+.hero{position:relative;min-height:clamp(760px,100vh,900px);overflow:hidden;isolation:isolate;display:grid;align-items:end}
+.hero-img{position:absolute;inset:0 0 0 clamp(0px,9vw,170px);z-index:-2;overflow:hidden}
+.hero-img img{width:100%;height:100%;object-fit:cover;display:block;transform-origin:55% 28%;animation:breathe 14s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.045)}}
+.hero-img canvas{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(5,10,28,.92) 0%,rgba(5,10,28,.7) 26%,rgba(5,10,28,0) 54%),linear-gradient(0deg,var(--night) 0%,rgba(5,10,28,.85) 14%,rgba(5,10,28,0) 46%)}
+.mist{position:absolute;left:-20%;right:-20%;bottom:0;height:34%;background:radial-gradient(60% 70% at 30% 100%,rgba(190,215,255,.26),transparent 70%),radial-gradient(50% 60% at 75% 100%,rgba(190,215,255,.2),transparent 70%);filter:blur(14px);animation:drift 22s ease-in-out infinite alternate;pointer-events:none}
+@keyframes drift{to{transform:translateX(9%)}}
+.hero-copy{position:absolute;left:max(24px,6vw);top:clamp(84px,13vh,130px);max-width:min(440px,42vw);z-index:2}
+.eyebrow{font:600 12px var(--sans);letter-spacing:.22em;text-transform:uppercase;color:var(--teal);margin:0 0 14px}
+h1{font:400 clamp(38px,5.2vw,68px)/1.02 var(--display);margin:0 0 18px;color:var(--moon);text-shadow:0 0 60px rgba(120,160,255,.45);text-wrap:balance}
+h1 span{background:linear-gradient(100deg,var(--moon) 20%,var(--gold) 55%,var(--petal));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font:400 clamp(17px,1.7vw,20px)/1.55 var(--serif);color:#dfe3f0;margin:0 0 20px;text-shadow:0 1px 18px rgba(0,0,0,.7)}
+.quote{margin:0 0 18px;padding:14px 0 14px 18px;border-left:2px solid var(--gold);min-height:118px;transition:opacity .5s}
+.quote.out{opacity:0}
+.quote .sk{font:400 clamp(18px,2vw,22px)/1.5 var(--sk);color:var(--gold);margin:0 0 6px}
+.quote .en{font:italic 400 clamp(15px,1.5vw,17.5px)/1.5 var(--serif);color:#dfe3f0;margin:0 0 6px;text-shadow:0 1px 16px rgba(0,0,0,.8)}
+.quote cite{font:600 11px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-style:normal}
+.strip{display:grid;gap:12px;justify-items:center;text-align:center;padding-top:22px}
+.try{margin:0;font:600 11px var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+#chariot .journey{justify-content:center;margin-bottom:26px}
+.journey{list-style:none;margin:0;padding:0;display:flex;gap:6px;flex-wrap:wrap}
+.journey li{font:600 11px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);padding:6px 11px;border:1px solid var(--line);border-radius:99px;background:var(--glass);backdrop-filter:blur(10px);transition:.5s}
+body[data-stage="1"] .journey li:nth-child(-n+1),body[data-stage="2"] .journey li:nth-child(-n+2),body[data-stage="3"] .journey li:nth-child(-n+3),body[data-stage="4"] .journey li:nth-child(-n+4){color:#241500;background:var(--gold);border-color:transparent}
+.hero-bottom{width:min(780px,100%);margin:0 auto;padding:0 max(16px,env(safe-area-inset-left,0px)) 28px;display:grid;gap:14px;z-index:3}
+.subtitle{min-height:76px;display:grid;place-items:center;text-align:center;font:italic 500 clamp(19px,2.3vw,26px)/1.45 var(--serif);color:var(--moon);text-shadow:0 2px 24px rgba(0,0,0,.95),0 0 3px rgba(0,0,0,.8);padding:0 6px;transition:opacity .5s}
+.subtitle q{quotes:none}
+.composer{background:var(--glass);border:1px solid var(--line);border-radius:28px;padding:10px 12px 12px;backdrop-filter:blur(22px) saturate(1.2);-webkit-backdrop-filter:blur(22px) saturate(1.2);box-shadow:0 24px 70px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08)}
+.composer textarea{width:100%;min-height:52px;max-height:150px;background:transparent;border:0;outline:0;resize:none;color:var(--ink);font:400 17px/1.5 var(--sans);padding:8px 10px}
+.composer textarea::placeholder{color:var(--mute)}
+.crow{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.lang{display:flex;gap:6px}
+.lang .pill{padding:6px 12px}
+.mic{width:60px;height:60px;border-radius:50%;border:0;cursor:pointer;font-size:24px;color:#fff;background:radial-gradient(circle at 35% 30%,#7fa8ff,#3a5fd9 55%,#23399a);box-shadow:0 10px 34px rgba(60,100,255,.6),inset 0 1px 0 rgba(255,255,255,.4);position:relative;transition:transform .2s}
+.mic:hover{transform:scale(1.08)}
+.mic.rec{background:radial-gradient(circle at 35% 30%,#ffb3c8,#ff4f86 55%,#b0235b);animation:rec 1.3s infinite}
+@keyframes rec{0%{box-shadow:0 0 0 0 rgba(255,79,134,.7)}100%{box-shadow:0 0 0 28px rgba(255,79,134,0)}}
+.go{background:var(--gold);color:#241500;border:0;border-radius:99px;padding:13px 24px;font:700 15px var(--sans);cursor:pointer;box-shadow:0 10px 30px rgba(242,194,107,.35);transition:.2s}
+.go:hover{transform:translateY(-2px)}
+.go:disabled{opacity:.55;cursor:wait}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.chips .pill{font-size:13px}
+.readmore{justify-self:center;display:none}
+.readmore.show{display:inline-block;animation:rise .6s}
+
+/* dialogue leaves */
+#chariot{padding-block:64px 8px;display:none}
+#chariot.show{display:block}
+.thread{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.me{align-self:flex-end;max-width:86%;background:linear-gradient(135deg,rgba(45,91,201,.55),rgba(45,91,201,.28));border:1px solid rgba(120,160,255,.4);padding:12px 16px;border-radius:18px 18px 4px 18px;line-height:1.5}
+.me small{display:block;font:600 10px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:#a9c0ff;margin-bottom:3px}
+.kr{position:relative;background:var(--leaf);color:var(--leaf-ink);padding:26px 26px 10px;clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px),0 14px);animation:rise .7s;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.kr::before{content:"";position:absolute;inset:8px;border:1px solid rgba(168,46,26,.5);clip-path:inherit;pointer-events:none}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}}
+.who{text-align:center;font:400 22px var(--sk);color:var(--leaf-red);margin:0 0 16px;letter-spacing:.04em}
+.step{margin:0 0 20px}
+.step b{display:block;font:700 10.5px var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--leaf-red);margin-bottom:6px}
+.step p{margin:0;font:400 20px/1.62 var(--serif);white-space:pre-wrap}
+.step.ask p{font-style:italic;font-size:22px}
+.caret::after{content:"▍";color:var(--leaf-red);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.cite{display:inline-block;font:600 12px var(--sans);letter-spacing:.08em;color:var(--leaf-red);border:1px solid rgba(168,46,26,.45);padding:2px 12px;border-radius:99px;margin-bottom:8px}
+.shloka{font:400 clamp(22px,3.6vw,28px)/1.75 var(--sk);text-align:center;margin:8px 0;color:#1d140c}
+.translit{font:italic 400 17px var(--serif);color:var(--leaf-mute);text-align:center;margin-bottom:12px}
+.kr .actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.kr .pill{background:rgba(42,29,18,.08);color:var(--leaf-ink);border-color:rgba(42,29,18,.25);backdrop-filter:none}
+.kr .pill:hover{border-color:var(--leaf-red)}
+.dots span{display:inline-block;width:9px;height:9px;margin:0 3px;border-radius:50%;background:var(--leaf-red);animation:b 1s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes b{50%{transform:translateY(-8px);opacity:.4}}
+
+/* sections */
+section.s{padding-block:72px 0}
+h2{font:400 clamp(30px,4.4vw,46px)/1.05 var(--display);color:var(--moon);margin:0 0 8px;text-wrap:balance}
+.lede{color:var(--mute);margin:0 0 26px;max-width:60ch;font:400 18px/1.55 var(--serif)}
+.today{display:grid;grid-template-columns:minmax(220px,320px) 1fr;gap:clamp(20px,4vw,52px);align-items:center}
+.arch{position:relative;aspect-ratio:498/615;border-radius:999px 999px 18px 18px;overflow:hidden;border:1px solid rgba(244,239,225,.3);box-shadow:0 0 0 8px rgba(244,239,225,.04),0 30px 90px rgba(40,80,200,.45)}
+.arch img{width:100%;height:100%;object-fit:cover;display:block;animation:breathe 16s ease-in-out infinite}
+.arch::after{content:"";position:absolute;left:8%;top:32%;width:80%;height:30%;background:radial-gradient(closest-side,rgba(255,255,255,.55),transparent);filter:blur(10px);animation:drift 14s ease-in-out infinite alternate;opacity:.5}
+.tv{text-align:center;display:grid;gap:12px;justify-items:center;min-width:0}
+.tv .shloka{color:var(--gold);font-size:clamp(22px,3vw,30px)}
+.tv .tr{font:italic 400 clamp(18px,2vw,22px)/1.55 var(--serif);color:#d7dcec;margin:0;max-width:52ch}
+.tv .cite{color:var(--teal);border-color:rgba(34,205,170,.5)}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.chapters{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 12px;margin-bottom:10px;scrollbar-width:thin}
+.chapters .pill{min-width:44px;text-align:center;padding:9px 12px;flex:none}
+input.search{width:100%;padding:14px 20px;border-radius:99px;border:1px solid var(--line);background:var(--glass);color:var(--ink);font:400 16px var(--sans);outline:0;margin-bottom:12px}
+input.search:focus{border-color:var(--gold)}
+.themes{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.vc{background:linear-gradient(160deg,rgba(45,91,201,.22),rgba(10,20,52,.7));border:1px solid var(--line);border-radius:16px;padding:18px;cursor:pointer;transition:.3s;position:relative;min-width:0}
+.vc:hover{transform:translateY(-5px);border-color:var(--gold);box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.vc .t{font:700 11px var(--sans);color:var(--teal);letter-spacing:.14em}
+.vc .s{font:400 17px/1.6 var(--sk);margin:8px 0;color:var(--gold)}
+.vc .e{font:400 15px/1.5 var(--serif);color:#c9d0e6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:99px;background:rgba(255,255,255,.08);color:var(--mute);margin:10px 4px 0 0}
+.heart{position:absolute;right:12px;top:10px;font-size:18px;background:none;border:0;cursor:pointer;color:var(--mute)}
+.heart.on{color:var(--petal)}
+.empty{color:var(--mute);text-align:center;padding:26px}
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.bento>div{background:linear-gradient(160deg,rgba(45,91,201,.2),rgba(10,20,52,.6));border:1px solid var(--line);border-radius:20px;padding:24px;min-width:0}
+.bento>div:nth-child(1){grid-column:span 3}.bento>div:nth-child(2){grid-column:span 3}.bento>div:nth-child(3){grid-column:span 2}.bento>div:nth-child(4){grid-column:span 4}
+.bento h3{font:400 24px var(--display);color:var(--gold);margin:0 0 8px}
+.bento p{margin:0;font:400 16.5px/1.6 var(--serif);color:#d3d9ec}
+details{border-bottom:1px solid var(--line);padding:16px 0}
+details summary{cursor:pointer;font:600 17px var(--sans);list-style:none;display:flex;justify-content:space-between;gap:12px}
+details summary::after{content:"+";color:var(--gold);font-size:22px;line-height:1}
+details[open] summary::after{content:"–"}
+details p{margin:10px 0 0;color:#c9d0e6;font:400 17px/1.65 var(--serif);max-width:70ch}
+.chlinks{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px 18px;list-style:none;margin:0;padding:0}
+.chlinks a{color:#c9d0e6;text-decoration:none;font-size:15px;display:block;padding:5px 0;border-bottom:1px dotted var(--line)}
+.chlinks a:hover{color:var(--gold)}
+.about{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;background:linear-gradient(135deg,rgba(45,91,201,.3),rgba(10,20,52,.7));border:1px solid var(--line);border-radius:26px;padding:clamp(22px,4vw,40px)}
+.avatar{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font:400 38px var(--display);color:#241500;background:radial-gradient(circle at 30% 25%,#fff3c9,var(--gold) 60%,#c98a25);box-shadow:0 0 0 6px rgba(242,194,107,.18)}
+.about h2{font-size:clamp(26px,3.4vw,38px)}
+.about p{margin:0 0 14px;font:400 17px/1.6 var(--serif);color:#d3d9ec;max-width:62ch}
+footer{text-align:center;color:var(--mute);font-size:13.5px;padding:56px max(16px,env(safe-area-inset-left,0px)) max(48px,env(safe-area-inset-bottom,0px));line-height:1.7}
+footer a{color:var(--gold)}
+.fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:40;width:58px;height:58px;border-radius:50%;border:0;cursor:pointer;font-size:24px;color:#fff;background:radial-gradient(circle at 35% 30%,#7fa8ff,#3a5fd9 55%,#23399a);box-shadow:0 10px 34px rgba(60,100,255,.6);transform:scale(0);transition:.3s}
+.fab.show{transform:scale(1)}
+.modal{position:fixed;inset:0;background:rgba(3,6,20,.82);backdrop-filter:blur(10px);z-index:80;display:none;align-items:center;justify-content:center;padding:16px}
+.modal.show{display:flex}
+.box{background:var(--deep);border:1px solid var(--line);border-radius:24px;max-width:700px;width:100%;max-height:92vh;overflow:auto;padding:26px;animation:pop .35s}
+@keyframes pop{from{transform:scale(.92);opacity:0}}
+.box .cite{color:var(--teal);border-color:rgba(34,205,170,.5)}
+.box .shloka{color:var(--gold)}.box .translit{color:var(--mute)}
+.box .actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.wm{font-size:14px;line-height:1.7;color:var(--mute)}
+.cardprev{width:100%;border-radius:14px;margin:12px 0;box-shadow:0 14px 50px rgba(0,0,0,.5)}
+.x{float:right;background:none;border:0;color:var(--ink);font-size:28px;cursor:pointer}
+.toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,90px);background:var(--gold);color:#241500;padding:10px 20px;border-radius:99px;font-weight:700;transition:.35s;z-index:99;max-width:92vw;text-align:center}
+.toast.show{transform:translate(-50%,0)}
+.hlist{display:grid;gap:10px;margin:14px 0}
+.hitem{display:grid;gap:4px;text-align:left;width:100%;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:12px 16px;color:var(--ink);cursor:pointer;font:inherit;transition:.2s}
+.hitem:hover{border-color:var(--gold)}
+.hitem .hd{font:600 11px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--teal)}
+.hitem .hq{font:400 16px/1.45 var(--serif)}
+.box h3{font:400 28px var(--display);color:var(--gold);margin:0 0 4px}
+.box .kr{box-shadow:none;margin:12px 0;animation:none}
+.box .me{max-width:100%;margin-top:12px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media(max-width:900px){
+ .top{position:relative;padding-bottom:12px}
+ .hero{min-height:0;display:flex;flex-direction:column;align-items:stretch;padding-top:6px}
+ .hero-copy{position:static;max-width:none;padding:0 max(18px,env(safe-area-inset-left,0px));order:1;margin-bottom:14px}
+ .hero-img{position:relative;inset:auto;order:2;aspect-ratio:4/5;max-height:70vh;width:100%;z-index:0}
+ .hero::before{display:none}
+ .hero-img::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,var(--night) 0%,rgba(5,10,28,0) 35%)}
+ .hero-bottom{order:3;margin-top:-170px;position:relative}
+ .today{grid-template-columns:1fr}.arch{max-width:300px;margin:0 auto}
+ .bento>div{grid-column:span 6!important}
+ .about{grid-template-columns:1fr}
+}
+@media(max-width:600px){.navr a.pill{display:none}.me{max-width:94%}.step p{font-size:18.5px}.kr{padding:22px 18px 6px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body data-state="idle" data-stage="1">
+<canvas id="sky" aria-hidden="true"></canvas>
+<header class="top">
+ <a class="logo" href="/" aria-label="Gitopadesh home">Gitopadesh</a>
+ <nav class="navr" aria-label="Primary">
+    <button class="pill" id="voiceOut" type="button">🔊 Krishna speaks: off</button>
+  <button class="pill" id="fluteBtn" type="button">🪈 Flute: on</button>
+  <button class="pill" id="histBtn" type="button">History <span id="histCount">0</span></button>
+  <a class="pill" href="#explore">Library</a>
+  <a class="pill" href="#saved">Saved <span id="savedCount">0</span></a>
+ </nav>
+</header>
+
+<section class="hero" id="hero">
+ <div class="hero-img" id="heroImg">
+  <img id="heroPic" src="/img/krishna-live.webp" width="1280" height="720" fetchpriority="high" alt="Krishna in a moonlit forest, playing the flute before a full moon, peacock feathers in his crown and rose petals drifting in the air">
+  <canvas id="fx" aria-hidden="true"></canvas>
+  <div class="mist" aria-hidden="true"></div>
+ </div>
+ <div class="hero-copy">
+  <p class="eyebrow">Every Arjuna needs a charioteer</p>
+  <h1>Tell your problem.<br>Let <span>Krishna</span> guide you.</h1>
+  <p class="lead">Speak what weighs on your heart. He listens, asks, then shows the right path from the Bhagavad Gītā.</p>
+  <figure class="quote" id="heroQuote" aria-label="A verse from the Bhagavad Gita"></figure>
+ </div>
+ <div class="hero-bottom">
+  <div class="subtitle" id="subtitle" aria-live="polite"><q>O seeker, you have come to the field. Speak: tell me what weighs upon your heart.</q></div>
+  <div class="composer">
+   <label class="sr" for="q">Tell Krishna what troubles you</label>
+   <textarea id="q" rows="1" maxlength="1500" placeholder="Tap the mic and speak to Krishna, or write here…"></textarea>
+   <div class="crow">
+    <div class="lang" id="langs" role="group" aria-label="Language">
+     <button class="pill on" type="button" data-l="en">English</button><button class="pill" type="button" data-l="hi">हिंदी</button><button class="pill" type="button" data-l="te">తెలుగు</button>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+     <button class="mic" id="mic" type="button" title="Speak to Krishna" aria-label="Speak to Krishna">🎙</button>
+     <button class="go" id="goBtn" type="button">Ask Krishna</button>
+    </div>
+   </div>
+  </div>
+  <button class="pill readmore" id="readMore" type="button">Read the full teaching ↓</button>
+ </div>
+</section>
+
+<main>
+ <div class="strip wrap"><p class="try">Not sure how to begin? Try one of these</p><div class="chips" id="chips"></div><div class="row"><button class="pill" id="newConvo" type="button">↺ New conversation</button></div></div>
+ <section id="chariot" class="wrap"><ol class="journey" id="journey" aria-label="How the conversation unfolds"><li>Speak</li><li>Be understood</li><li>Receive the verse</li><li>Walk the path</li></ol><div class="thread" id="thread"></div></section>
+
+ <section class="s wrap" id="today">
+  <div class="today">
+   <div class="arch"><img src="/img/krishna.webp" width="498" height="615" loading="lazy" alt="Silhouette of Krishna playing the flute on a hill under the moon, a peacock on a branch"></div>
+   <div class="tv" id="todayBox"></div>
+  </div>
+ </section>
+
+ <section class="s wrap" id="explore">
+  <h2>The Gītā, verse by verse</h2><p class="lede">Eighteen chapters, 701 verses, each with its Sanskrit, transliteration and word-by-word meaning. Search by word, theme or number, like 2.47.</p>
+  <div class="chapters" id="chapters" role="group" aria-label="Chapters"></div>
+  <input class="search" id="search" type="search" placeholder="Search: fear, 2.47, detachment, ‘fruit of action’…" aria-label="Search verses">
+  <div class="themes" id="themeChips"></div>
+  <div class="vgrid" id="results"></div>
+  <div class="row" style="margin-top:18px"><button class="pill" id="more" type="button" style="display:none">Show more</button></div>
+ </section>
+
+ <section class="s wrap" id="saved">
+  <h2>Verses you kept</h2><p class="lede">Saved only in this browser.</p>
+  <div class="vgrid" id="savedGrid"></div>
+ </section>
+
+ <section class="s wrap" id="how">
+  <h2>How Krishna guides you here</h2><p class="lede">The same way he guided Arjuna on the field of Kurukshetra: first he listened.</p>
+  <div class="bento">
+   <div><h3>He listens first</h3><p>Speak or type. If your words are brief, Krishna reflects what he heard and asks one gentle question before he teaches.</p></div>
+   <div><h3>One verse, chosen for you</h3><p>Your words are matched against all 701 verses. The Sanskrit, transliteration and meaning come from the Gītā itself, never invented.</p></div>
+   <div><h3>Three languages</h3><p>English, हिंदी and తెలుగు, with the shlokas in Sanskrit.</p></div>
+   <div><h3>Keep and share</h3><p>Turn any verse into a 1080×1080 shloka card, save it, and return to it. Your saved verses stay on your device.</p></div>
+  </div>
+ </section>
+
+ <section class="s wrap" id="faq">
+  <h2>Questions, answered</h2><p class="lede">What people ask before they begin.</p>
+  <!--FAQ-->
+ </section>
+
+ <section class="s wrap" id="chapters-index">
+  <h2>All eighteen chapters</h2><p class="lede">Read every verse with its meaning.</p>
+  <nav aria-label="Chapters of the Bhagavad Gita"><ul class="chlinks"><!--CHAPTERS--></ul></nav>
+ </section>
+
+ <section class="s wrap" id="about">
+  <div class="about">
+   <div class="avatar" aria-hidden="true">म</div>
+   <div>
+    <h2>About the maker</h2>
+    <p>Hi, I’m Madhan. I build Gitopadesh as a quiet place to bring a hard question and hear the Gītā answer it. See my other projects and say hello on my portfolio.</p>
+    <a class="go" href="https://jmadhan.me" rel="noopener author" target="_blank" style="text-decoration:none;display:inline-block">jmadhan.me ↗</a>
+   </div>
+  </div>
+ </section>
+</main>
+
+<footer>
+ <p>Gitopadesh offers reflections drawn from the Bhagavad Gītā. It is not medical, legal or mental-health advice. If you are in crisis, contact a local helpline or someone you trust now.</p>
+ <p>Voice input and speech run in your browser. Your words are sent only to generate a reply and are not stored. · <a href="https://jmadhan.me" rel="noopener author" target="_blank">jmadhan.me</a></p>
+</footer>
+
+<button class="fab" id="fab" type="button" aria-label="Back to Krishna">🎙</button>
+<div class="modal" id="modal" role="dialog" aria-modal="true"><div class="box" id="box"></div></div>
+<div class="toast" id="toast" role="status"></div>
+<noscript><p style="padding:24px;text-align:center">Gitopadesh needs JavaScript for the voice conversation. You can still read every verse from the chapter links above.</p></noscript>
+<script src="/app.js" defer></script>
+</body>
+</html>

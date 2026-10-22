@@ -1,0 +1,21 @@
+{
+  "name": "gitopadesh",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Speak your dilemma; Krishna answers from the Bhagavad Gita.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "python build.py",
+    "dev": "node dev.js",
+    "start": "node dev.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.700.0",
+    "@aws-sdk/client-polly": "^3.1155.0",
+    "@upstash/ratelimit": "^2.0.5",
+    "@upstash/redis": "^1.34.3"
+  }
+}
