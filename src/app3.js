@@ -9,8 +9,8 @@ function impulse(sec,decay){const n=Math.floor(AC.sampleRate*sec),b=AC.createBuf
 function audioInit(){
  if(AC){if(AC.state==='suspended')AC.resume();return}
  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;AC=new C();
- const warm=AC.createBiquadFilter();warm.type='lowshelf';warm.frequency.value=240;warm.gain.value=5;       // chest and warmth
- const body=AC.createBiquadFilter();body.type='peaking';body.frequency.value=150;body.gain.value=3;body.Q.value=.9;
+ const warm=AC.createBiquadFilter();warm.type='lowshelf';warm.frequency.value=260;warm.gain.value=7;       // chest and warmth
+ const body=AC.createBiquadFilter();body.type='peaking';body.frequency.value=160;body.gain.value=4.5;body.Q.value=.9;
  const air=AC.createBiquadFilter();air.type='highshelf';air.frequency.value=6500;air.gain.value=-4;          // soften the digital edge
  const comp=AC.createDynamicsCompressor();comp.threshold.value=-24;comp.ratio.value=3;
  verb=AC.createConvolver();verb.buffer=impulse(3.2,2.4);                                                       // a stone temple hall

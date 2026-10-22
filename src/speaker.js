@@ -10,18 +10,19 @@ function startSpeaker(){
  audioInit();stopSpeak();ambStart();
  const my=++vtoken,items=[],count={};
  let pro=!!(AC&&ttsCfg&&ttsCfg[lang]),ended=false,running=false,cancelled=false;
- const rate=ttsCfg&&ttsCfg.deep?.94:1;
+ const rate=.97;   // a hair slower and lower for gravity
  const once=s=>fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:s,lang})})
   .then(r=>r.ok?r.arrayBuffer():Promise.reject(new Error('tts '+r.status))).then(b=>AC.decodeAudioData(b));
  const load=s=>once(s).catch(()=>sleep(500).then(()=>once(s))).catch(()=>null);
  const finish=()=>{if(my===vtoken){setState('idle');ambStop();if(convo&&speakOn)setTimeout(()=>{if(!busy&&!rec&&my===vtoken&&document.body.dataset.state==='idle')startListening()},700)}};
  // browser voice path (also the graceful fallback)
  const vo=pickVoice();
- const browserSay=t=>{if(!('speechSynthesis'in window))return;const u=new SpeechSynthesisUtterance(t);u.lang=LOCALE[lang];if(vo)u.voice=vo;
+ const browserSay=t=>new Promise(done=>{if(!('speechSynthesis'in window))return done();const u=new SpeechSynthesisUtterance(t);u.lang=LOCALE[lang];if(vo)u.voice=vo;
   u.rate=.82;u.pitch=vo&&/natural|online/i.test(vo.name)?.9:.7;
   u.onstart=()=>{if(my===vtoken){setSubtitle(t);setState('speaking')}};
-  u.onend=()=>{if(ended&&my===vtoken&&!speechSynthesis.pending)setTimeout(()=>{if(!speechSynthesis.speaking)finish()},200)};
-  speechSynthesis.speak(u)};
+  u.onend=()=>{done();if(!pro&&ended&&my===vtoken&&!speechSynthesis.pending)setTimeout(()=>{if(!speechSynthesis.speaking)finish()},200)};
+  u.onerror=()=>done();setTimeout(done,Math.max(4000,t.length*130));   // never hang the queue
+  speechSynthesis.speak(u)});
  async function loop(){
   if(running)return;running=true;let i=0;
   while(true){
@@ -29,7 +30,7 @@ function startSpeaker(){
    if(i>=items.length){if(ended){finish();return}await sleep(70);continue}
    const it=items[i++],buf=await it.p;
    if(my!==vtoken||cancelled)return;
-   if(!buf){pro=false;ttsCfg=false;items.slice(i-1).forEach(x=>browserSay(x.t));running=false;return}   // provider failed: hand over to the browser voice
+   if(!buf){setSubtitle(it.t);setState('speaking');await browserSay(it.t);if(my!==vtoken||cancelled)return;continue}   // this sentence only: the deep voice resumes on the next one
    setSubtitle(it.t);setState('speaking');
    await new Promise(res=>{const src=AC.createBufferSource();src.buffer=buf;src.playbackRate.value=rate;src.connect(bus);curSrc=src;src.onended=res;src.start()});
    if(my!==vtoken||cancelled)return;await sleep(240);

@@ -64,7 +64,7 @@ const EDGE_VOICE = { en: 'en-IN-PrabhatNeural', hi: 'hi-IN-MadhurNeural', te: 't
 async function edge(text, lang) {
   const tts = new MsEdgeTTS({ connectionTimeoutMs: 8000, synthesisTimeoutMs: 15000 });
   await tts.setMetadata(env('EDGE_VOICE_' + lang.toUpperCase(), EDGE_VOICE[lang]), OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
-  const { audioStream } = tts.toStream(xml(text), { rate: env('EDGE_RATE', '-12%'), pitch: env('EDGE_PITCH', '-10%'), volume: '+8%' })   // calm pace, deep and full;
+  const { audioStream } = tts.toStream(xml(text), { rate: env('EDGE_RATE', '-10%'), pitch: env('EDGE_PITCH', '-16%'), volume: '+10%' })   // calm pace, deep and full;
   const chunks = [];
   await new Promise((res, rej) => {
     audioStream.on('data', (d) => chunks.push(d));
