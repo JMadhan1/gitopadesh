@@ -32,11 +32,11 @@ export async function POST(req) {
   try {
     if (redis) {
       const p = redis.pipeline();
-      if (body.first === true) p.pfadd('gp:uv', id);
-      p.zadd('gp:live', { score: now, member: id });
-      p.zremrangebyscore('gp:live', 0, now - WINDOW);
-      p.zcard('gp:live');
-      p.pfcount('gp:uv');
+      if (body.first === true) p.pfadd('gp:uv:v2', id);
+      p.zadd('gp:live:v2', { score: now, member: id });
+      p.zremrangebyscore('gp:live:v2', 0, now - WINDOW);
+      p.zcard('gp:live:v2');
+      p.pfcount('gp:uv:v2');
       const r = await p.exec();
       return json(200, { live: Number(r[r.length - 2]) || 1, total: Number(r[r.length - 1]) || 0 });
     }
