@@ -12,6 +12,13 @@ All 701 verses were audited before publication. This note records what was check
 | Word-by-word meanings | Checked against each verse's own Sanskrit | In 23 verses the source list carried the neighbouring verse's words (e.g. 12.3 included 12.4; 1.5 included half of 1.6). Verse 11.19 had no meanings at all. Each was rebuilt from its own Sanskrit and re-audited |
 | Hindi and Telugu | Prepared from the Sanskrit, the verified English and standard Hindi references, then each of the 701 in both languages audited by a native-speaker-level model | Hindi: 21 flagged (3%). Telugu: 108 flagged (15%), including a reversed meaning in 7.12. Every flagged verse was regenerated and passed a second audit |
 
+## Faults found late, and how they were caught
+
+A final scan of the live data found two kinds of fault that the first audits had let through. They are listed here because they show why every language was re-checked after the first pass.
+
+- **Leaked reasoning text.** The regenerated English for verse 1.21 contained the model's own "Wait, let me reconsider" notes. It was rewritten by hand.
+- **Sanskrit instead of a translation.** In 56 Telugu and 4 Hindi entries the "translation" was just the Sanskrit written again in Telugu or Devanagari script, which an earlier check treated as acceptable. Each was regenerated under a rule that forbids repeating the Sanskrit, and the judge now rejects it. After the fix, no entry repeats the Sanskrit beyond ordinary shared terms.
+
 ## Limits
 
 - The audits were performed by AI, not by human scholars. They are strong at catching changed or missing meaning, but they are not a replacement for review by a teacher.

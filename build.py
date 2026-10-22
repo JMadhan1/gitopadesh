@@ -117,7 +117,7 @@ for _l in ("hi", "te"):
     for v in verses:
         k = f"{v['chapter']}.{v['verse']}"
         j = _src.get(k) or {}
-        t = (j.get("t") or "").strip()
+        t = re.sub(r"[।॥|]+\s*\d+[.\-–]\d+\s*[।॥|]+", "", (j.get("t") or "")).strip()
         if not t or len(_rx.findall(t)) < 0.5 * len(re.sub(r"[\s\W\d]", "", t) or "x"):
             _warn.append(k)
             continue
