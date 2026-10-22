@@ -6,15 +6,17 @@ function speechParts(text){
  for(const s of raw){if(out.length&&out[out.length-1].length<26)out[out.length-1]+=' '+s;else out.push(s)}
  return out.flatMap(s=>s.length<=500?[s]:s.match(/.{1,480}(?:\s|$)/g).map(x=>x.trim()));
 }
+let ttsFails=0,ttsCool=0;   // after 3 failures in a row the device voice is used for 5 minutes
 function startSpeaker(langOv,styleOv){
  const L=langOv||lang,S=styleOv||vstyle;
  audioInit();stopSpeak();ambStart();applyStyleFX(S);
  const my=++vtoken,items=[],count={};
- let pro=!!(AC&&ttsCfg&&ttsCfg[L])&&S!=='device',ended=false,running=false,cancelled=false;
+ let pro=!!(AC&&ttsCfg&&ttsCfg[L])&&S!=='device'&&Date.now()>=ttsCool,ended=false,running=false,cancelled=false;
  const rate=(STYLE_FX[S]||STYLE_FX.calm).rate;
- const once=s=>fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:sanskritSpeech(s),lang:L,style:S==='device'?'calm':S})})
-  .then(r=>r.ok?r.arrayBuffer():Promise.reject(new Error('tts '+r.status))).then(b=>AC.decodeAudioData(b));
- const load=s=>once(s).catch(()=>sleep(500).then(()=>once(s))).catch(()=>null);
+ const once=s=>{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),12000);
+  return fetch('/api/speak',{signal:ac.signal,method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:sanskritSpeech(s),lang:L,style:S==='device'?'calm':S})})
+   .then(r=>r.ok?r.arrayBuffer():Promise.reject(new Error('tts '+r.status))).then(b=>AC.decodeAudioData(b)).finally(()=>clearTimeout(t))};
+ const load=s=>once(s).catch(()=>sleep(400).then(()=>once(s))).then(b=>{ttsFails=0;return b},()=>{if(++ttsFails>=3)ttsCool=Date.now()+300000;return null});
  const finish=()=>{if(my===vtoken){setState('idle');ambStop();if(convo&&speakOn)setTimeout(()=>{if(!busy&&!rec&&my===vtoken&&document.body.dataset.state==='idle')startListening()},700)}};
  // browser voice path (also the graceful fallback)
  const vo=pickVoice(L);

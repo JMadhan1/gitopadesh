@@ -53,7 +53,8 @@ let heroQuoteRefresh=()=>{};
 (()=>{
  const img=$('#heroPic'),cv=$('#fx'),ctx=cv.getContext('2d'),reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
  const MOON={x:.54,y:.29,r:.195},IW=1280,IH=720;
- let W=0,H=0,dpr=1,pp=[.56,.25],P=[],F=[],rot=0,spd=.05,glow=.45,rip=[],rt=0,last=performance.now();
+ let W=0,H=0,dpr=1,pp=[.56,.25],P=[],F=[],rot=0,spd=.05,glow=.45,rip=[],rt=0,last=performance.now(),vis=true,slow=0,lowFx=false;
+ if('IntersectionObserver'in window)new IntersectionObserver(([e])=>{vis=e.isIntersecting}).observe(cv);
  const place=()=>{pp=innerWidth<=900?[.55,.3]:[.56,.25];img.style.objectPosition=pp[0]*100+'% '+pp[1]*100+'%'};
  const map=(nx,ny)=>{const s=Math.max(W/IW,H/IH);return[(W-IW*s)*pp[0]+nx*IW*s,(H-IH*s)*pp[1]+ny*IH*s,s]};
  const rnd=(a,b)=>a+Math.random()*(b-a);
@@ -68,6 +69,8 @@ let heroQuoteRefresh=()=>{};
   ctx.rotate(-2*a);ctx.setLineDash([2,9]);ctx.beginPath();ctx.arc(0,0,r2+16,0,7);ctx.stroke();ctx.setLineDash([]);ctx.restore()}
  function frame(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;if(!W){size();requestAnimationFrame(frame);return}
+  if(!vis||document.hidden){requestAnimationFrame(frame);return}          // nothing to draw: costs almost nothing
+  if(!lowFx){if(dt>.042)slow++;else slow=Math.max(0,slow-1);if(slow>90){lowFx=true;P.length=Math.ceil(P.length/3);F.length=Math.ceil(F.length/4)}}   // a slow phone gets a lighter scene
   const st=document.body.dataset.state||'idle';
   const tS={idle:.05,listening:.14,thinking:.9,speaking:.24}[st],tG={idle:.45,listening:.68,thinking:.85,speaking:1}[st];
   spd+=(tS-spd)*Math.min(1,dt*3);glow+=(tG-glow)*Math.min(1,dt*2.5);rot+=spd*dt;

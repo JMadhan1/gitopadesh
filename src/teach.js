@@ -42,14 +42,16 @@ function openTeach(vid){
  const offline=()=>{sec={BHAVAM:v.translation.trim(),WORDS:(v.word_meanings||'').split(';').slice(0,5).map(s=>s.trim().replace(/—/g,' - ')).filter(Boolean).join('\n'),MEANING:v.translation.trim()};draw(true)};
  if(!hasLLM){offline();return}
  (async()=>{
+  const ac=new AbortController();let got=false;
+  const tF=setTimeout(()=>{if(!got)ac.abort()},25000),tT=setTimeout(()=>ac.abort(),100000);
   try{
-   const res=await fetch('/api/teach',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:vid,lang})});
+   const res=await fetch('/api/teach',{signal:ac.signal,method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:vid,lang})});
    if(!res.ok||!res.body)throw new Error('http '+res.status);
    const rd=res.body.getReader(),dec=new TextDecoder();let buf='';
-   while(true){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});
+   while(true){const{done,value}=await rd.read();if(done)break;got=true;buf+=dec.decode(value,{stream:true});
     if(buf.includes('\0ERR'))throw new Error('teach');sec=parseStream(buf).sec;draw(false)}
    sec=parseStream(buf).sec;if(!sec.MEANING)throw new Error('format');
-   draw(true);store.set(key,sec);
-  }catch(e){toast(/429/.test(e.message)?'Krishna rests a moment. Please try again in a minute.':'The full lesson is unavailable right now. Showing the meaning.');offline()}
+   draw(true);store.set(key,sec);clearTimeout(tF);clearTimeout(tT);
+  }catch(e){clearTimeout(tF);clearTimeout(tT);toast(e.name==='AbortError'?'The lesson is taking longer than usual. Showing the meaning.':/429/.test(e.message)?'Krishna rests a moment. Please try again in a minute.':'The full lesson is unavailable right now. Showing the meaning.');offline()}
  })();
 }

@@ -65,6 +65,7 @@ hi:{
  'The speech service is unreachable. Please type instead.':'वाक् सेवा उपलब्ध नहीं है। कृपया लिखिए।','No microphone was found.':'कोई माइक्रोफ़ोन नहीं मिला।',
  'Krishna will answer in हिंदी':'कृष्ण हिंदी में उत्तर देंगे','Krishna will answer in తెలుగు':'कृष्ण तेलुगु में उत्तर देंगे',
  'Close':'बंद करें','Home':'मुख्य पृष्ठ',
+ 'Krishna is taking longer than usual. Showing the quick guide.':'कृष्ण को सामान्य से अधिक समय लग रहा है। त्वरित मार्गदर्शन दिखाया जा रहा है।','The lesson is taking longer than usual. Showing the meaning.':'पाठ में सामान्य से अधिक समय लग रहा है। अर्थ दिखाया जा रहा है।','Something went wrong. Please try again.':'कुछ गड़बड़ हो गई। कृपया फिर प्रयास कीजिए।',
  'visitors':'आगंतुक','online now':'अभी ऑनलाइन','Counted with an anonymous random ID: no account or personal details.':'एक गुमनाम यादृच्छिक ID से गिना जाता है: कोई खाता या व्यक्तिगत विवरण नहीं।',
  'Daily shloka':'आज का श्लोक','A new shloka card every day, with its short meaning, ready to save and share in English, Hindi or Telugu.':'हर दिन एक नया श्लोक कार्ड, संक्षिप्त अर्थ सहित, अंग्रेज़ी, हिंदी या तेलुगु में सहेजने और साझा करने के लिए तैयार।','⬇ Download card':'⬇ कार्ड डाउनलोड करें','Open card':'कार्ड खोलें',
  'Support Gitopadesh':'गीतोपदेश को सहयोग दें','This is a personal project, not a business. If it has helped you and you can contribute, a voluntary gift helps keep it reliable and useful for everyone.':'यह एक व्यक्तिगत प्रोजेक्ट है, कोई व्यवसाय नहीं। यदि इससे आपको लाभ हुआ है और आप सहयोग कर सकते हैं, तो एक स्वैच्छिक उपहार इसे सबके लिए भरोसेमंद और उपयोगी बनाए रखने में सहायक होता है।','Suggestions and ideas:':'सुझाव और विचार:','Donate now':'अभी सहयोग करें','♡ Support':'♡ सहयोग','Support':'सहयोग',
@@ -135,6 +136,7 @@ te:{
  'The speech service is unreachable. Please type instead.':'స్పీచ్ సేవ అందుబాటులో లేదు. దయచేసి రాయండి.','No microphone was found.':'మైక్రోఫోన్ కనిపించలేదు.',
  'Krishna will answer in हिंदी':'కృష్ణుడు హిందీలో సమాధానం ఇస్తాడు','Krishna will answer in తెలుగు':'కృష్ణుడు తెలుగులో సమాధానం ఇస్తాడు',
  'Close':'మూసివేయి','Home':'హోమ్',
+ 'Krishna is taking longer than usual. Showing the quick guide.':'కృష్ణుడికి సాధారణం కంటే ఎక్కువ సమయం పడుతోంది. త్వరిత మార్గదర్శనం చూపిస్తున్నాం.','The lesson is taking longer than usual. Showing the meaning.':'పాఠానికి సాధారణం కంటే ఎక్కువ సమయం పడుతోంది. అర్థం చూపిస్తున్నాం.','Something went wrong. Please try again.':'ఏదో తప్పు జరిగింది. దయచేసి మళ్లీ ప్రయత్నించండి.',
  'visitors':'సందర్శకులు','online now':'ఇప్పుడు ఆన్‌లైన్','Counted with an anonymous random ID: no account or personal details.':'అజ్ఞాత యాదృచ్ఛిక IDతో లెక్కించబడుతుంది: ఖాతా లేదా వ్యక్తిగత వివరాలు లేవు.',
  'Daily shloka':'నేటి శ్లోకం','A new shloka card every day, with its short meaning, ready to save and share in English, Hindi or Telugu.':'ప్రతిరోజూ ఒక కొత్త శ్లోక కార్డు, దాని సంక్షిప్త అర్థంతో, ఆంగ్లం, హిందీ లేదా తెలుగులో సేవ్ చేసి పంచుకోవడానికి సిద్ధం.','⬇ Download card':'⬇ కార్డు డౌన్‌లోడ్','Open card':'కార్డు తెరవండి',
  'Support Gitopadesh':'గీతోపదేశ్‌కు మద్దతు ఇవ్వండి','This is a personal project, not a business. If it has helped you and you can contribute, a voluntary gift helps keep it reliable and useful for everyone.':'ఇది ఒక వ్యక్తిగత ప్రాజెక్ట్, వ్యాపారం కాదు. ఇది మీకు సహాయపడి, మీరు సహకరించగలిగితే, స్వచ్ఛంద బహుమతి దీన్ని అందరికీ నమ్మదగినదిగా, ఉపయోగకరంగా ఉంచడానికి తోడ్పడుతుంది.','Suggestions and ideas:':'సూచనలు, ఆలోచనలు:','Donate now':'ఇప్పుడే విరాళం ఇవ్వండి','♡ Support':'♡ మద్దతు','Support':'మద్దతు',
@@ -171,10 +173,10 @@ let lang=store.get('lang','en'), saved=new Set(store.get('saved',[])), cardTheme
 let i18nReady=false;
 
 /* ---------- Starry sky ---------- */
-(()=>{const c=$('#sky'),x=c.getContext('2d');let W,H,S=[],mx=0,my=0;
+(()=>{const c=$('#sky'),x=c.getContext('2d');let W,H,S=[],mx=0,my=0,lt=0;
  const rs=()=>{W=c.width=innerWidth;H=c.height=innerHeight;S=Array.from({length:Math.min(140,W/8)},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+.3,p:Math.random()*6,s:Math.random()*.0004+.0001}))};
  addEventListener('resize',rs);rs();addEventListener('pointermove',e=>{mx=e.clientX/W-.5;my=e.clientY/H-.5});
- (function f(t){x.clearRect(0,0,W,H);const dark=document.documentElement.dataset.theme!=='light';
+ (function f(t){if(lt&&t-lt<30){requestAnimationFrame(f);return}lt=t;x.clearRect(0,0,W,H);const dark=document.documentElement.dataset.theme!=='light';
   S.forEach(s=>{const a=.4+.6*Math.abs(Math.sin(t*s.s*8+s.p));x.fillStyle=dark?`rgba(255,230,170,${a})`:`rgba(168,102,26,${a*.35})`;x.beginPath();x.arc(s.x+mx*s.r*18,s.y+my*s.r*18,s.r,0,7);x.fill()});
   requestAnimationFrame(f)})(0)})();
 
@@ -317,6 +319,14 @@ const verse_pending=()=>false;
 /* ---------- Ask flow ---------- */
 async function ask(text){
  text=(text||'').trim();if(!text){toast('Speak or type what is on your heart 🙏');return}
+ if(busy)return;
+ // whatever happens inside, the page is released: no spinner without end, no locked Ask button
+ const wd=setTimeout(()=>{busy=false;$('#goBtn').disabled=false;if(document.body.dataset.state==='thinking')setState('idle')},130000);
+ try{await askInner(text)}catch(e){console.error('ask failed',e);toast('Something went wrong. Please try again.')}
+ finally{clearTimeout(wd);busy=false;$('#goBtn').disabled=false;if(!(window.speechSynthesis&&speechSynthesis.speaking)&&document.body.dataset.state==='thinking')setState('idle')}
+}
+async function askInner(text){
+ text=(text||'').trim();if(!text){toast('Speak or type what is on your heart 🙏');return}
  audioInit();if(busy)return;{const dl=detectLang(text);if(dl&&dl!==lang){setLang(dl);toast(dl==='hi'?'Krishna will answer in हिंदी':'Krishna will answer in తెలుగు')}}busy=true;$('#goBtn').disabled=true;stopSpeak();
  $('#thread').innerHTML='';
  const me=document.createElement('div');me.className='me';const mk=document.createElement('small');mk.textContent=tx('You');const mt=document.createElement('span');mt.textContent=text;me.append(mk,mt);$('#thread').appendChild(me);
@@ -328,18 +338,22 @@ async function ask(text){
  const mood=classify(allUser),cands=retrieve(allUser,mood,4),candIds=cands.map(id);
  const el=newKrishna();setState('thinking');setSubtitle('…');let liveSp=speakOn?startSpeaker():null;
  let parsed;
+ const ac=new AbortController();let got=false;
+ const tF=setTimeout(()=>{if(!got)ac.abort()},22000),tT=setTimeout(()=>ac.abort(),95000);   // no first word in 22s, or no end in 95s: switch to the quick guide
  try{
   if(!hasLLM)throw new Error('offline');
-  const res=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,history,mood,candidates:cands.map(v=>({id:id(v),translation:v.translation}))})});
+  const res=await fetch('/api/ask',{signal:ac.signal,method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,history,mood,candidates:cands.map(v=>({id:id(v),translation:v.translation}))})});
   if(!res.ok||!res.body)throw new Error('http '+res.status);
   const rd=res.body.getReader(),dec=new TextDecoder();let buf='';
-  while(true){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});if(document.body.dataset.state==='thinking')setState('speaking');
+  while(true){const{done,value}=await rd.read();if(done)break;got=true;buf+=dec.decode(value,{stream:true});if(document.body.dataset.state==='thinking')setState('speaking');
    if(buf.includes('\0ERR'))throw new Error('bedrock');
    parsed=parseStream(buf);renderKrishna(el,parsed,candIds,true);if(liveSp)liveSp.feed(parsed,false)}
   parsed=parseStream(buf);if(!parsed.mode)throw new Error('format');
+  clearTimeout(tF);clearTimeout(tT);
  }catch(err){
+  clearTimeout(tF);clearTimeout(tT);
   console.warn('falling back to offline guide:',err.message);
-  if(err.message!=='offline')toast(/429/.test(err.message)?'Krishna rests a moment. Please try again in a minute.':/503/.test(err.message)?'Many seekers are here today. Showing the offline guide.':'Krishna’s cloud voice is unreachable. Showing the offline guide.');
+  if(err.message!=='offline')toast(err.name==='AbortError'?'Krishna is taking longer than usual. Showing the quick guide.':/429/.test(err.message)?'Krishna rests a moment. Please try again in a minute.':/503/.test(err.message)?'Many seekers are here today. Showing the offline guide.':'Krishna’s cloud voice is unreachable. Showing the offline guide.');
   el.querySelector('.body').removeAttribute('data-mode');
   if(liveSp){liveSp.cancel();liveSp=speakOn?startSpeaker():null}
   parsed=offlineParsed(text,cands,mood,isFirst);
@@ -520,7 +534,8 @@ let heroQuoteRefresh=()=>{};
 (()=>{
  const img=$('#heroPic'),cv=$('#fx'),ctx=cv.getContext('2d'),reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
  const MOON={x:.54,y:.29,r:.195},IW=1280,IH=720;
- let W=0,H=0,dpr=1,pp=[.56,.25],P=[],F=[],rot=0,spd=.05,glow=.45,rip=[],rt=0,last=performance.now();
+ let W=0,H=0,dpr=1,pp=[.56,.25],P=[],F=[],rot=0,spd=.05,glow=.45,rip=[],rt=0,last=performance.now(),vis=true,slow=0,lowFx=false;
+ if('IntersectionObserver'in window)new IntersectionObserver(([e])=>{vis=e.isIntersecting}).observe(cv);
  const place=()=>{pp=innerWidth<=900?[.55,.3]:[.56,.25];img.style.objectPosition=pp[0]*100+'% '+pp[1]*100+'%'};
  const map=(nx,ny)=>{const s=Math.max(W/IW,H/IH);return[(W-IW*s)*pp[0]+nx*IW*s,(H-IH*s)*pp[1]+ny*IH*s,s]};
  const rnd=(a,b)=>a+Math.random()*(b-a);
@@ -535,6 +550,8 @@ let heroQuoteRefresh=()=>{};
   ctx.rotate(-2*a);ctx.setLineDash([2,9]);ctx.beginPath();ctx.arc(0,0,r2+16,0,7);ctx.stroke();ctx.setLineDash([]);ctx.restore()}
  function frame(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;if(!W){size();requestAnimationFrame(frame);return}
+  if(!vis||document.hidden){requestAnimationFrame(frame);return}          // nothing to draw: costs almost nothing
+  if(!lowFx){if(dt>.042)slow++;else slow=Math.max(0,slow-1);if(slow>90){lowFx=true;P.length=Math.ceil(P.length/3);F.length=Math.ceil(F.length/4)}}   // a slow phone gets a lighter scene
   const st=document.body.dataset.state||'idle';
   const tS={idle:.05,listening:.14,thinking:.9,speaking:.24}[st],tG={idle:.45,listening:.68,thinking:.85,speaking:1}[st];
   spd+=(tS-spd)*Math.min(1,dt*3);glow+=(tG-glow)*Math.min(1,dt*2.5);rot+=spd*dt;
@@ -628,15 +645,17 @@ function speechParts(text){
  for(const s of raw){if(out.length&&out[out.length-1].length<26)out[out.length-1]+=' '+s;else out.push(s)}
  return out.flatMap(s=>s.length<=500?[s]:s.match(/.{1,480}(?:\s|$)/g).map(x=>x.trim()));
 }
+let ttsFails=0,ttsCool=0;   // after 3 failures in a row the device voice is used for 5 minutes
 function startSpeaker(langOv,styleOv){
  const L=langOv||lang,S=styleOv||vstyle;
  audioInit();stopSpeak();ambStart();applyStyleFX(S);
  const my=++vtoken,items=[],count={};
- let pro=!!(AC&&ttsCfg&&ttsCfg[L])&&S!=='device',ended=false,running=false,cancelled=false;
+ let pro=!!(AC&&ttsCfg&&ttsCfg[L])&&S!=='device'&&Date.now()>=ttsCool,ended=false,running=false,cancelled=false;
  const rate=(STYLE_FX[S]||STYLE_FX.calm).rate;
- const once=s=>fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:sanskritSpeech(s),lang:L,style:S==='device'?'calm':S})})
-  .then(r=>r.ok?r.arrayBuffer():Promise.reject(new Error('tts '+r.status))).then(b=>AC.decodeAudioData(b));
- const load=s=>once(s).catch(()=>sleep(500).then(()=>once(s))).catch(()=>null);
+ const once=s=>{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),12000);
+  return fetch('/api/speak',{signal:ac.signal,method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:sanskritSpeech(s),lang:L,style:S==='device'?'calm':S})})
+   .then(r=>r.ok?r.arrayBuffer():Promise.reject(new Error('tts '+r.status))).then(b=>AC.decodeAudioData(b)).finally(()=>clearTimeout(t))};
+ const load=s=>once(s).catch(()=>sleep(400).then(()=>once(s))).then(b=>{ttsFails=0;return b},()=>{if(++ttsFails>=3)ttsCool=Date.now()+300000;return null});
  const finish=()=>{if(my===vtoken){setState('idle');ambStop();if(convo&&speakOn)setTimeout(()=>{if(!busy&&!rec&&my===vtoken&&document.body.dataset.state==='idle')startListening()},700)}};
  // browser voice path (also the graceful fallback)
  const vo=pickVoice(L);
@@ -802,15 +821,17 @@ function openTeach(vid){
  const offline=()=>{sec={BHAVAM:v.translation.trim(),WORDS:(v.word_meanings||'').split(';').slice(0,5).map(s=>s.trim().replace(/—/g,' - ')).filter(Boolean).join('\n'),MEANING:v.translation.trim()};draw(true)};
  if(!hasLLM){offline();return}
  (async()=>{
+  const ac=new AbortController();let got=false;
+  const tF=setTimeout(()=>{if(!got)ac.abort()},25000),tT=setTimeout(()=>ac.abort(),100000);
   try{
-   const res=await fetch('/api/teach',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:vid,lang})});
+   const res=await fetch('/api/teach',{signal:ac.signal,method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:vid,lang})});
    if(!res.ok||!res.body)throw new Error('http '+res.status);
    const rd=res.body.getReader(),dec=new TextDecoder();let buf='';
-   while(true){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});
+   while(true){const{done,value}=await rd.read();if(done)break;got=true;buf+=dec.decode(value,{stream:true});
     if(buf.includes('\0ERR'))throw new Error('teach');sec=parseStream(buf).sec;draw(false)}
    sec=parseStream(buf).sec;if(!sec.MEANING)throw new Error('format');
-   draw(true);store.set(key,sec);
-  }catch(e){toast(/429/.test(e.message)?'Krishna rests a moment. Please try again in a minute.':'The full lesson is unavailable right now. Showing the meaning.');offline()}
+   draw(true);store.set(key,sec);clearTimeout(tF);clearTimeout(tT);
+  }catch(e){clearTimeout(tF);clearTimeout(tT);toast(e.name==='AbortError'?'The lesson is taking longer than usual. Showing the meaning.':/429/.test(e.message)?'Krishna rests a moment. Please try again in a minute.':'The full lesson is unavailable right now. Showing the meaning.');offline()}
  })();
 }
 

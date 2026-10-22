@@ -14,6 +14,9 @@ export const config = { maxDuration: 30 };
 const env = (k, d) => process.env[k] || d;
 const LANGS = new Set(['en', 'hi', 'te']);
 const MAX = 520;
+// Circuit breaker: if the free voice service keeps failing, stop hammering it and let pages use the device voice.
+let edgeFails = [];
+let edgeOpenUntil = 0;
 // Delivery presets (the client sends only the preset name).
 const STYLES = {
   natural: { rate: '0%', pitch: '0%', volume: '+0%' },
@@ -69,7 +72,7 @@ async function azure(text, lang, st) {
 
 const EDGE_VOICE = { en: 'en-IN-PrabhatNeural', hi: 'hi-IN-MadhurNeural', te: 'te-IN-MohanNeural' };
 async function edge(text, lang, st) {
-  const tts = new MsEdgeTTS({ connectionTimeoutMs: 8000, synthesisTimeoutMs: 15000 });
+  const tts = new MsEdgeTTS({ connectionTimeoutMs: 5000, synthesisTimeoutMs: 9000 });
   await tts.setMetadata(env('EDGE_VOICE_' + lang.toUpperCase(), EDGE_VOICE[lang]), OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
   const { audioStream } = tts.toStream(xml(text), st);
   const chunks = [];
@@ -104,6 +107,7 @@ export async function POST(req) {
   const which = provider();
   if (!which) return json(501, 'no_voice');
 
+  if (which === 'edge' && Date.now() < edgeOpenUntil) return json(503, 'voice_busy', { 'Retry-After': '20' });
   const limited = await rateLimit(clientIp(req), 'tts');
   if (limited) return json(limited.status, limited.code, limited.retryAfter ? { 'Retry-After': String(limited.retryAfter) } : {});
 
@@ -117,12 +121,14 @@ export async function POST(req) {
   try {
     const run = () => which === 'elevenlabs' ? elevenlabs(text, lang) : which === 'azure' ? azure(text, lang, st) : which === 'edge' ? edge(text, lang, st) : pollyTts(text, lang);
     let res, err;
-    for (let i = 0; i < (which === 'edge' ? 4 : 1); i++) {   // the free Edge service sometimes answers 429; a short retry clears it
+    for (let i = 0; i < (which === 'edge' ? 2 : 1); i++) {   // the free Edge service sometimes answers 429; a short retry clears it
       try { res = await run(); err = null; break; } catch (e) { err = e; await new Promise((r) => setTimeout(r, 250 + Math.random() * 350)); }
     }
     if (err) throw err;
+    if (which === 'edge') edgeFails = [];
     return res || json(501, 'no_voice');
   } catch (e) {
+    if (which === 'edge') { const n = Date.now(); edgeFails = edgeFails.filter((t) => n - t < 30000).concat(n); if (edgeFails.length >= 4) edgeOpenUntil = n + 20000; }
     console.error('tts_error', which, e.name, e.message?.slice(0, 80)); // never logs the user's text
     return json(502, 'voice_failed');
   }

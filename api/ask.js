@@ -1,13 +1,15 @@
 // POST /api/ask — streams Krishna's counsel from Amazon Bedrock (Converse API).
-import { BedrockRuntimeClient, ConverseStreamCommand } from '@aws-sdk/client-bedrock-runtime';
+import { BedrockRuntimeClient } from '@aws-sdk/client-bedrock-runtime';
+import { streamText } from '../lib/bedrock.js';
 import { readFileSync } from 'node:fs';
 import { SYSTEM, LANG } from '../lib/prompt.js';
 import { LIMITS, SECURITY_HEADERS, clientIp, rateLimit, sameOrigin, validate } from '../lib/guard.js';
 
 export const config = { maxDuration: 60 };
 
-const MODEL_ID = process.env.BEDROCK_MODEL_ID || 'global.anthropic.claude-opus-4-6-v1';
-const client = new BedrockRuntimeClient({ region: process.env.AWS_REGION || 'ap-south-1' });
+const client = new BedrockRuntimeClient({ region: process.env.AWS_REGION || 'ap-south-1', maxAttempts: 2 });
+let inflight = 0;                       // replies being written by this instance
+const MAX_INFLIGHT = +(process.env.MAX_INFLIGHT || 120);
 
 let INDEX;
 const verseIndex = () =>
@@ -26,6 +28,7 @@ export async function POST(req) {
   const len = +(req.headers.get('content-length') || 0);
   if (len > 40_000) return json(413, 'too_large');
 
+  if (inflight >= MAX_INFLIGHT) return json(503, 'busy', { 'Retry-After': '5' });   // shed load early so the page can switch to its quick guide
   const limited = await rateLimit(clientIp(req));
   if (limited) return json(limited.status, limited.code, limited.retryAfter ? { 'Retry-After': String(limited.retryAfter) } : {});
 
@@ -50,7 +53,6 @@ export async function POST(req) {
   if (msgs[0].role !== 'user') msgs.unshift({ role: 'user', content: [{ text: '(The seeker approaches.)' }] });
 
   const cmd = {
-    modelId: MODEL_ID,
     system: [{ text: SYSTEM.replace('{lang}', LANG[v.lang]) }],
     messages: msgs,
     inferenceConfig: { maxTokens: +(process.env.MAX_TOKENS || 1000), temperature: 0.85 },
@@ -63,18 +65,16 @@ export async function POST(req) {
   }
 
   const enc = new TextEncoder();
+  inflight++;
   const stream = new ReadableStream({
     async start(ctrl) {
       try {
-        const resp = await client.send(new ConverseStreamCommand(cmd), { abortSignal: req.signal });
-        for await (const ev of resp.stream) {
-          const t = ev.contentBlockDelta?.delta?.text;
-          if (t) ctrl.enqueue(enc.encode(t));
-        }
+        for await (const t of streamText(client, cmd, req.signal)) ctrl.enqueue(enc.encode(t));
       } catch (e) {
         console.error('bedrock_error', e.name); // never log user text or credentials
         ctrl.enqueue(enc.encode('\n\u0000ERR'));
       } finally {
+        inflight--;
         try { ctrl.close(); } catch {}
       }
     },
