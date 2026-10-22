@@ -1,14 +1,11 @@
 // POST /api/visit — anonymous visitor counters: {id} -> {total, live}.
 // total = unique browsers ever (HyperLogLog, ~1% error); live = browsers that pinged in the last 150 seconds.
 // Only a random id generated in the visitor's browser is stored. No IP address, cookie, account or personal detail.
-import { Redis } from '@upstash/redis';
+import { redis } from '../lib/redis.js';
 import { SECURITY_HEADERS, clientIp, rateLimit, sameOrigin } from '../lib/guard.js';
 
 export const config = { maxDuration: 10 };
 
-const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
-const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-const redis = url && token ? new Redis({ url, token }) : null;
 const MEMORY = process.env.VISIT_MEMORY === '1'; // local testing only
 const mem = { uv: new Set(), live: new Map() };
 const ID = /^[A-Za-z0-9_-]{16,32}$/;
