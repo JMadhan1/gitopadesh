@@ -5,10 +5,10 @@
   "type": "module",
   "description": "Speak your dilemma; Krishna answers from the Bhagavad Gita.",
   "engines": {
-    "node": ">=20"
+    "node": "22.x"
   },
   "scripts": {
-    "build": "python build.py",
+    "build:site": "python build.py",
     "dev": "node dev.js",
     "start": "node dev.js"
   },
