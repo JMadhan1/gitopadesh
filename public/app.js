@@ -66,6 +66,7 @@ hi:{
  'The speech service is unreachable. Please type instead.':'वाक् सेवा उपलब्ध नहीं है। कृपया लिखिए।','No microphone was found.':'कोई माइक्रोफ़ोन नहीं मिला।',
  'Krishna will answer in हिंदी':'कृष्ण हिंदी में उत्तर देंगे','Krishna will answer in తెలుగు':'कृष्ण तेलुगु में उत्तर देंगे',
  'Close':'बंद करें','Home':'मुख्य पृष्ठ',
+ 'Card copied. Paste it into the WhatsApp chat.':'कार्ड कॉपी हो गया। इसे WhatsApp चैट में पेस्ट कीजिए।','Card saved. Attach it in WhatsApp.':'कार्ड सहेज लिया गया। इसे WhatsApp में जोड़िए।',
  '📲 Share':'📲 साझा करें','Copy link':'लिंक कॉपी करें','Link copied':'लिंक कॉपी हो गया',
  'Listening… take your time. I keep listening through your pauses. Tap the mic when you are done, then press Ask Krishna.':'सुन रहा हूँ… आराम से बोलिए। आपके रुकने पर भी मैं सुनता रहूँगा। बात पूरी होने पर माइक दबाइए, फिर “कृष्ण से पूछें” दबाइए।','Tap the mic when you want to continue.':'आगे बोलना हो तो माइक दबाइए।',
  'Krishna is taking longer than usual. Showing the quick guide.':'कृष्ण को सामान्य से अधिक समय लग रहा है। त्वरित मार्गदर्शन दिखाया जा रहा है।','The lesson is taking longer than usual. Showing the meaning.':'पाठ में सामान्य से अधिक समय लग रहा है। अर्थ दिखाया जा रहा है।','Something went wrong. Please try again.':'कुछ गड़बड़ हो गई। कृपया फिर प्रयास कीजिए।',
@@ -139,6 +140,7 @@ te:{
  'The speech service is unreachable. Please type instead.':'స్పీచ్ సేవ అందుబాటులో లేదు. దయచేసి రాయండి.','No microphone was found.':'మైక్రోఫోన్ కనిపించలేదు.',
  'Krishna will answer in हिंदी':'కృష్ణుడు హిందీలో సమాధానం ఇస్తాడు','Krishna will answer in తెలుగు':'కృష్ణుడు తెలుగులో సమాధానం ఇస్తాడు',
  'Close':'మూసివేయి','Home':'హోమ్',
+ 'Card copied. Paste it into the WhatsApp chat.':'కార్డు కాపీ అయింది. WhatsApp చాట్‌లో పేస్ట్ చేయండి.','Card saved. Attach it in WhatsApp.':'కార్డు సేవ్ అయింది. WhatsAppలో జతచేయండి.',
  '📲 Share':'📲 పంచుకోండి','Copy link':'లింక్ కాపీ','Link copied':'లింక్ కాపీ అయింది',
  'Listening… take your time. I keep listening through your pauses. Tap the mic when you are done, then press Ask Krishna.':'వింటున్నాను… నిదానంగా చెప్పండి. మీరు ఆగినా నేను వింటూనే ఉంటాను. చెప్పడం పూర్తయ్యాక మైక్ నొక్కి, ఆపై “కృష్ణుడిని అడగండి” నొక్కండి.','Tap the mic when you want to continue.':'కొనసాగించాలనుకున్నప్పుడు మైక్ నొక్కండి.',
  'Krishna is taking longer than usual. Showing the quick guide.':'కృష్ణుడికి సాధారణం కంటే ఎక్కువ సమయం పడుతోంది. త్వరిత మార్గదర్శనం చూపిస్తున్నాం.','The lesson is taking longer than usual. Showing the meaning.':'పాఠానికి సాధారణం కంటే ఎక్కువ సమయం పడుతోంది. అర్థం చూపిస్తున్నాం.','Something went wrong. Please try again.':'ఏదో తప్పు జరిగింది. దయచేసి మళ్లీ ప్రయత్నించండి.',
@@ -1011,16 +1013,34 @@ async function shareNative(cv,v,L){
   else await navigator.share({text:SHARE_CAP[L]||SHARE_CAP.en,url,title:'Gitopadesh'});
  }catch(e){if(e&&e.name!=='AbortError'){window.open(shareTargets(v,L)[0][1],'_blank','noopener')}}
 }
+/* WhatsApp always carries the card picture:
+   phones  -> the share sheet opens with the image already attached (tap WhatsApp);
+   computers -> the image goes on the clipboard and WhatsApp opens with the caption (paste with Ctrl+V). */
+async function shareWhatsApp(cv,v,L){
+ const url=verseUrl(v),cap=SHARE_CAP[L]||SHARE_CAP.en,link=shareTargets(v,L)[0][1];
+ let blob=null;try{blob=await new Promise(r=>cv.toBlob(r,'image/png'))}catch{}
+ if(blob&&navigator.share&&navigator.canShare){
+  try{const file=new File([blob],`gitopadesh-${id(v)}-${L}.png`,{type:'image/png'});
+   if(navigator.canShare({files:[file]})){await navigator.share({files:[file],text:cap+'\n'+url,title:'Gitopadesh'});return}}
+  catch(e){if(e&&e.name==='AbortError')return}
+ }
+ let copied=false;
+ if(blob&&navigator.clipboard&&window.ClipboardItem){try{await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);copied=true}catch{}}
+ if(!copied&&blob){const a=document.createElement('a');a.download=`gitopadesh-${id(v)}-${L}.png`;a.href=URL.createObjectURL(blob);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+ window.open(link,'_blank','noopener');
+ toast(copied?'Card copied. Paste it into the WhatsApp chat.':'Card saved. Attach it in WhatsApp.');
+}
 /* mounts a share row into `el`; call el.render() whenever the verse or language changes */
 function mountShare(el,getV,getL,getCv){
  el.render=()=>{
   const v=getV(),L=getL();if(!v){el.innerHTML='';return}
   el.innerHTML=(navigator.share?`<button class="pill" type="button" data-sh="native">${esc(tx('📲 Share'))}</button>`:'')+
-   shareTargets(v,L).map(([n,h])=>`<a class="pill" target="_blank" rel="noopener noreferrer" href="${h}">${n}</a>`).join('')+
+   shareTargets(v,L).map(([n,h])=>`<a class="pill"${n==='WhatsApp'?' data-sh="wa" title="Sends the card picture"':''} target="_blank" rel="noopener noreferrer" href="${h}">${n}</a>`).join('')+
    `<button class="pill" type="button" data-sh="copy">${esc(tx('Copy link'))}</button>`;
  };
  el.onclick=e=>{const b=e.target.closest('[data-sh]');if(!b)return;const v=getV(),L=getL();
-  if(b.dataset.sh==='native')shareNative(getCv(),v,L);
+  if(b.dataset.sh==='wa'){e.preventDefault();shareWhatsApp(getCv(),v,L)}
+  else if(b.dataset.sh==='native')shareNative(getCv(),v,L);
   else navigator.clipboard?.writeText(verseUrl(v)).then(()=>toast('Link copied'),()=>toast(verseUrl(v)))};
  el.render();return el;
 }

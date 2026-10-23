@@ -90,16 +90,34 @@ async function shareNative(cv,v,L){
   else await navigator.share({text:SHARE_CAP[L]||SHARE_CAP.en,url,title:'Gitopadesh'});
  }catch(e){if(e&&e.name!=='AbortError'){window.open(shareTargets(v,L)[0][1],'_blank','noopener')}}
 }
+/* WhatsApp always carries the card picture:
+   phones  -> the share sheet opens with the image already attached (tap WhatsApp);
+   computers -> the image goes on the clipboard and WhatsApp opens with the caption (paste with Ctrl+V). */
+async function shareWhatsApp(cv,v,L){
+ const url=verseUrl(v),cap=SHARE_CAP[L]||SHARE_CAP.en,link=shareTargets(v,L)[0][1];
+ let blob=null;try{blob=await new Promise(r=>cv.toBlob(r,'image/png'))}catch{}
+ if(blob&&navigator.share&&navigator.canShare){
+  try{const file=new File([blob],`gitopadesh-${id(v)}-${L}.png`,{type:'image/png'});
+   if(navigator.canShare({files:[file]})){await navigator.share({files:[file],text:cap+'\n'+url,title:'Gitopadesh'});return}}
+  catch(e){if(e&&e.name==='AbortError')return}
+ }
+ let copied=false;
+ if(blob&&navigator.clipboard&&window.ClipboardItem){try{await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);copied=true}catch{}}
+ if(!copied&&blob){const a=document.createElement('a');a.download=`gitopadesh-${id(v)}-${L}.png`;a.href=URL.createObjectURL(blob);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+ window.open(link,'_blank','noopener');
+ toast(copied?'Card copied. Paste it into the WhatsApp chat.':'Card saved. Attach it in WhatsApp.');
+}
 /* mounts a share row into `el`; call el.render() whenever the verse or language changes */
 function mountShare(el,getV,getL,getCv){
  el.render=()=>{
   const v=getV(),L=getL();if(!v){el.innerHTML='';return}
   el.innerHTML=(navigator.share?`<button class="pill" type="button" data-sh="native">${esc(tx('📲 Share'))}</button>`:'')+
-   shareTargets(v,L).map(([n,h])=>`<a class="pill" target="_blank" rel="noopener noreferrer" href="${h}">${n}</a>`).join('')+
+   shareTargets(v,L).map(([n,h])=>`<a class="pill"${n==='WhatsApp'?' data-sh="wa" title="Sends the card picture"':''} target="_blank" rel="noopener noreferrer" href="${h}">${n}</a>`).join('')+
    `<button class="pill" type="button" data-sh="copy">${esc(tx('Copy link'))}</button>`;
  };
  el.onclick=e=>{const b=e.target.closest('[data-sh]');if(!b)return;const v=getV(),L=getL();
-  if(b.dataset.sh==='native')shareNative(getCv(),v,L);
+  if(b.dataset.sh==='wa'){e.preventDefault();shareWhatsApp(getCv(),v,L)}
+  else if(b.dataset.sh==='native')shareNative(getCv(),v,L);
   else navigator.clipboard?.writeText(verseUrl(v)).then(()=>toast('Link copied'),()=>toast(verseUrl(v)))};
  el.render();return el;
 }
