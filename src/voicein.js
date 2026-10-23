@@ -13,11 +13,11 @@ function scheduleSend(){clearTimeout(sendTimer);toast('Sending to Krishna… tap
  sendTimer=setTimeout(()=>{const t=$('#q').value.trim();if(t)ask(t)},1500)}
 ['input','focus'].forEach(ev=>$('#q').addEventListener(ev,()=>clearTimeout(sendTimer)));
 
-function endListenUI(){$('#mic').classList.remove('rec');if(!busy&&document.body.dataset.state==='listening')setState('idle')}
+function endListenUI(){micHold=false;$('#mic').classList.remove('rec');if(!busy&&document.body.dataset.state==='listening')setState('idle')}
 const MIC_MSG={'not-allowed':'Allow the microphone so Krishna can hear you.','service-not-allowed':'Allow the microphone so Krishna can hear you.','no-speech':'I heard nothing. Tap the mic and speak again.','network':'The speech service is unreachable. Please type instead.','audio-capture':'No microphone was found.'};
 
 function startListening(){
- audioInit();stopSpeak();clearTimeout(sendTimer);micWanted=true;emptyRuns=0;
+ stopSpeak();if(MOBILE){micHold=true;if(AC&&AC.state==='running')AC.suspend().catch(()=>{})}else audioInit();clearTimeout(sendTimer);micWanted=true;emptyRuns=0;
  if(SR)return listenSR();
  if(sttCfg)return listenRec();
  toast('Voice input needs Chrome, Edge or Safari. You can still type.');
