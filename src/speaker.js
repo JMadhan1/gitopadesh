@@ -1,4 +1,5 @@
-/* ---- speech: starts on the FIRST finished sentence while the rest is still being written ---- */
+/* ---- speech: starts on the FIRST finished sentence while the rest is still being written.
+        Audio is scheduled on the audio clock, so playback stays gapless even when the phone's main thread is busy. ---- */
 const TERM=/(?<=[.!?।॥])\s+/;
 function sentencesOf(t){return String(t).replace(/[#*_]/g,'').split(/(?<=[.!?।॥])\s+|[\r\n]+/).map(s=>s.trim()).filter(Boolean)}
 function speechParts(text){
@@ -11,7 +12,7 @@ function startSpeaker(langOv,styleOv){
  const L=langOv||lang,S=styleOv||vstyle;
  audioInit();stopSpeak();ambStart();applyStyleFX(S);
  const my=++vtoken,items=[],count={};
- let pro=!!(AC&&ttsCfg&&ttsCfg[L])&&S!=='device'&&Date.now()>=ttsCool,ended=false,running=false,cancelled=false;
+ let pro=!!(AC&&ttsCfg&&ttsCfg[L])&&S!=='device'&&Date.now()>=ttsCool,ended=false,running=false,cancelled=false,nextAt=0;
  const rate=(STYLE_FX[S]||STYLE_FX.calm).rate;
  const once=s=>{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),12000);
   return fetch('/api/speak',{signal:ac.signal,method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:sanskritSpeech(s),lang:L,style:S==='device'?'calm':S})})
@@ -26,20 +27,37 @@ function startSpeaker(langOv,styleOv){
   u.onend=()=>{done();if(!pro&&ended&&my===vtoken&&!speechSynthesis.pending)setTimeout(()=>{if(!speechSynthesis.speaking)finish()},200)};
   u.onerror=()=>done();setTimeout(done,Math.max(4000,t.length*130));   // never hang the queue
   speechSynthesis.speak(u)});
+ const idleWait=()=>sleep(Math.max(0,(nextAt-(AC?AC.currentTime:0))*1000)+60);   // let already-scheduled audio finish
+ function schedule(it,buf){
+  const now=AC.currentTime,at=Math.max(nextAt,now+.05);
+  const src=AC.createBufferSource();src.buffer=buf;src.playbackRate.value=rate;src.connect(bus);
+  liveSrcs.push(src);src.onended=()=>{const k=liveSrcs.indexOf(src);if(k>=0)liveSrcs.splice(k,1)};
+  src.start(at);nextAt=at+buf.duration/rate+.18;      // a natural breath between lines, set on the audio clock
+  setTimeout(()=>{if(my===vtoken&&!cancelled){setSubtitle(it.t);setState('speaking')}},Math.max(0,(at-now)*1000));
+ }
  async function loop(){
   if(running)return;running=true;let i=0;
   while(true){
    if(my!==vtoken||cancelled)return;
-   if(i>=items.length){if(ended){finish();return}await sleep(70);continue}
+   if(i>=items.length){if(ended){await idleWait();finish();return}await sleep(60);continue}
    const it=items[i++],buf=await it.p;
    if(my!==vtoken||cancelled)return;
-   if(!buf){setSubtitle(it.t);setState('speaking');await browserSay(it.t);if(my!==vtoken||cancelled)return;continue}   // this sentence only: the deep voice resumes on the next one
-   setSubtitle(it.t);setState('speaking');
-   await new Promise(res=>{const src=AC.createBufferSource();src.buffer=buf;src.playbackRate.value=rate;src.connect(bus);curSrc=src;src.onended=res;src.start()});
-   if(my!==vtoken||cancelled)return;await sleep(240);
+   if(!buf){   // this chunk only: wait for audio already queued, speak it with the device voice, then resume the deep voice
+    await idleWait();if(my!==vtoken||cancelled)return;
+    setSubtitle(it.t);setState('speaking');await browserSay(it.t);if(my!==vtoken||cancelled)return;nextAt=AC.currentTime;continue}
+   schedule(it,buf);
   }
  }
- const push=t=>{if(!pro){browserSay(t);return}items.push({t,p:load(t)});loop()};
+ // fewer, larger requests: the first sentence goes out at once for a fast start, the rest travel in groups
+ let acc='',first=true,accT=null;
+ const flush=()=>{clearTimeout(accT);if(!acc)return;const t=acc;acc='';items.push({t,p:load(t)});loop()};
+ const push=t=>{
+  if(!pro){browserSay(t);return}
+  if(first){first=false;items.push({t,p:load(t)});loop();return}
+  if(acc&&(acc+' '+t).length>460)flush();
+  acc=acc?acc+' '+t:t;
+  if(acc.length>=130)flush();else{clearTimeout(accT);accT=setTimeout(flush,1100)}
+ };
  return {
   feed(p,final){
    const order=ORDER[p.mode]||[];
@@ -50,8 +68,8 @@ function startSpeaker(langOv,styleOv){
     if(lim>from)count[k]=lim});
   },
   say(list){list.forEach(push)},
-  end(){ended=true;if(!pro&&!items.length&&!(window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending)))finish();if(pro&&!items.length)finish();else if(pro)loop()},
-  cancel(){cancelled=true;stopSpeak()}
+  end(){flush();ended=true;if(!pro&&!items.length&&!(window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending)))finish();if(pro&&!items.length)finish();else if(pro)loop()},
+  cancel(){cancelled=true;clearTimeout(accT);stopSpeak()}
  };
 }
 function speak(text){const sp=startSpeaker();sp.say(speechParts(text));sp.end()}   // used by the Listen button

@@ -60,14 +60,15 @@ let heroQuoteRefresh=()=>{};
  const rnd=(a,b)=>a+Math.random()*(b-a);
  const petal=top=>({x:rnd(0,W),y:top?rnd(-H,H):rnd(-60,-10),vx:rnd(6,22),vy:rnd(14,34),r:rnd(0,6.28),vr:rnd(-1.5,1.5),s:rnd(4,9),a:rnd(.45,.9),ph:rnd(0,6.28)});
  const fly=()=>({x:rnd(0,W),y:rnd(H*.3,H),vx:rnd(-6,6),vy:rnd(-12,-3),ph:rnd(0,6.28),s:rnd(1,2.4),c:Math.random()<.5?'255,214,120':'80,230,200'});
- function size(){const r=cv.getBoundingClientRect();W=r.width;H=r.height;if(!W||!H)return;dpr=Math.min(2,devicePixelRatio||1);cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);place();
-  P=Array.from({length:Math.max(10,Math.round(W/42))},()=>petal(true));F=Array.from({length:Math.max(10,Math.round(W/34))},fly)}
+ function size(){const r=cv.getBoundingClientRect();W=r.width;H=r.height;if(!W||!H)return;dpr=MOBILE?1:Math.min(2,devicePixelRatio||1);cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);place();
+  P=Array.from({length:MOBILE?7:Math.max(10,Math.round(W/42))},()=>petal(true));F=Array.from({length:MOBILE?5:Math.max(10,Math.round(W/34))},fly)}
  function chakra(cx,cy,r1,r2,a,al){
   ctx.save();ctx.translate(cx,cy);ctx.strokeStyle=`rgba(255,226,160,${al})`;ctx.fillStyle=`rgba(255,226,160,${al})`;
   ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,0,r1,0,7);ctx.stroke();ctx.beginPath();ctx.arc(0,0,r2,0,7);ctx.stroke();
   ctx.rotate(a);for(let i=0;i<18;i++){ctx.save();ctx.rotate(i*Math.PI/9);ctx.beginPath();ctx.moveTo(r1,0);ctx.lineTo(r2,0);ctx.stroke();ctx.beginPath();ctx.arc(r2+5,0,2.2,0,7);ctx.fill();ctx.restore()}
   ctx.rotate(-2*a);ctx.setLineDash([2,9]);ctx.beginPath();ctx.arc(0,0,r2+16,0,7);ctx.stroke();ctx.setLineDash([]);ctx.restore()}
  function frame(now){
+  if(MOBILE&&now-last<45){requestAnimationFrame(frame);return}          // phones draw at about 22 fps; the voice gets the processor
   const dt=Math.min(.05,(now-last)/1000);last=now;if(!W){size();requestAnimationFrame(frame);return}
   if(!vis||document.hidden){requestAnimationFrame(frame);return}          // nothing to draw: costs almost nothing
   if(!lowFx){if(dt>.042)slow++;else slow=Math.max(0,slow-1);if(slow>90){lowFx=true;P.length=Math.ceil(P.length/3);F.length=Math.ceil(F.length/4)}}   // a slow phone gets a lighter scene

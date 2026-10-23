@@ -1,3 +1,4 @@
+const MOBILE=/Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent)||(!!window.matchMedia&&matchMedia('(pointer:coarse)').matches);
 const TX={
 hi:{
  'Every Arjuna needs a charioteer':'हर अर्जुन को एक सारथी चाहिए',

@@ -1,4 +1,5 @@
 (async()=>{const VERSES=await (await fetch('/verses.json')).json();
+const MOBILE=/Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent)||(!!window.matchMedia&&matchMedia('(pointer:coarse)').matches);
 const TX={
 hi:{
  'Every Arjuna needs a charioteer':'हर अर्जुन को एक सारथी चाहिए',
@@ -176,7 +177,7 @@ let i18nReady=false;
 (()=>{const c=$('#sky'),x=c.getContext('2d');let W,H,S=[],mx=0,my=0,lt=0;
  const rs=()=>{W=c.width=innerWidth;H=c.height=innerHeight;S=Array.from({length:Math.min(140,W/8)},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+.3,p:Math.random()*6,s:Math.random()*.0004+.0001}))};
  addEventListener('resize',rs);rs();addEventListener('pointermove',e=>{mx=e.clientX/W-.5;my=e.clientY/H-.5});
- (function f(t){if(lt&&t-lt<30){requestAnimationFrame(f);return}lt=t;x.clearRect(0,0,W,H);const dark=document.documentElement.dataset.theme!=='light';
+ (function f(t){if(lt&&t-lt<(MOBILE?120:30)){requestAnimationFrame(f);return}lt=t;x.clearRect(0,0,W,H);const dark=document.documentElement.dataset.theme!=='light';
   S.forEach(s=>{const a=.4+.6*Math.abs(Math.sin(t*s.s*8+s.p));x.fillStyle=dark?`rgba(255,230,170,${a})`:`rgba(168,102,26,${a*.35})`;x.beginPath();x.arc(s.x+mx*s.r*18,s.y+my*s.r*18,s.r,0,7);x.fill()});
   requestAnimationFrame(f)})(0)})();
 
@@ -389,7 +390,7 @@ function browserSpeak(text){
   if(i===parts.length-1)u.onend=()=>{setState('idle');ambStop()};
   speechSynthesis.speak(u)});
 }
-function stopSpeak(){try{speechSynthesis.cancel()}catch{}vtoken++;try{curSrc&&curSrc.stop()}catch{}ambStop();setState('idle')}
+function stopSpeak(){try{speechSynthesis.cancel()}catch{}vtoken++;try{curSrc&&curSrc.stop()}catch{}stopAllSrcs();ambStop();setState('idle')}
 const setSpeakBtn=()=>$('#voiceOut').textContent='🔊 '+SL().speaks+': '+(speakOn?SL().on:SL().off);
 $('#voiceOut').onclick=()=>{speakOn=!speakOn;store.set('speak',speakOn);setSpeakBtn();if(!speakOn)stopSpeak()};setSpeakBtn();
 
@@ -541,14 +542,15 @@ let heroQuoteRefresh=()=>{};
  const rnd=(a,b)=>a+Math.random()*(b-a);
  const petal=top=>({x:rnd(0,W),y:top?rnd(-H,H):rnd(-60,-10),vx:rnd(6,22),vy:rnd(14,34),r:rnd(0,6.28),vr:rnd(-1.5,1.5),s:rnd(4,9),a:rnd(.45,.9),ph:rnd(0,6.28)});
  const fly=()=>({x:rnd(0,W),y:rnd(H*.3,H),vx:rnd(-6,6),vy:rnd(-12,-3),ph:rnd(0,6.28),s:rnd(1,2.4),c:Math.random()<.5?'255,214,120':'80,230,200'});
- function size(){const r=cv.getBoundingClientRect();W=r.width;H=r.height;if(!W||!H)return;dpr=Math.min(2,devicePixelRatio||1);cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);place();
-  P=Array.from({length:Math.max(10,Math.round(W/42))},()=>petal(true));F=Array.from({length:Math.max(10,Math.round(W/34))},fly)}
+ function size(){const r=cv.getBoundingClientRect();W=r.width;H=r.height;if(!W||!H)return;dpr=MOBILE?1:Math.min(2,devicePixelRatio||1);cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);place();
+  P=Array.from({length:MOBILE?7:Math.max(10,Math.round(W/42))},()=>petal(true));F=Array.from({length:MOBILE?5:Math.max(10,Math.round(W/34))},fly)}
  function chakra(cx,cy,r1,r2,a,al){
   ctx.save();ctx.translate(cx,cy);ctx.strokeStyle=`rgba(255,226,160,${al})`;ctx.fillStyle=`rgba(255,226,160,${al})`;
   ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,0,r1,0,7);ctx.stroke();ctx.beginPath();ctx.arc(0,0,r2,0,7);ctx.stroke();
   ctx.rotate(a);for(let i=0;i<18;i++){ctx.save();ctx.rotate(i*Math.PI/9);ctx.beginPath();ctx.moveTo(r1,0);ctx.lineTo(r2,0);ctx.stroke();ctx.beginPath();ctx.arc(r2+5,0,2.2,0,7);ctx.fill();ctx.restore()}
   ctx.rotate(-2*a);ctx.setLineDash([2,9]);ctx.beginPath();ctx.arc(0,0,r2+16,0,7);ctx.stroke();ctx.setLineDash([]);ctx.restore()}
  function frame(now){
+  if(MOBILE&&now-last<45){requestAnimationFrame(frame);return}          // phones draw at about 22 fps; the voice gets the processor
   const dt=Math.min(.05,(now-last)/1000);last=now;if(!W){size();requestAnimationFrame(frame);return}
   if(!vis||document.hidden){requestAnimationFrame(frame);return}          // nothing to draw: costs almost nothing
   if(!lowFx){if(dt>.042)slow++;else slow=Math.max(0,slow-1);if(slow>90){lowFx=true;P.length=Math.ceil(P.length/3);F.length=Math.ceil(F.length/4)}}   // a slow phone gets a lighter scene
@@ -583,7 +585,11 @@ setSubtitle(T[lang].greet);
 /* ================= Krishna's voice: neural speech, temple-hall mastering, bansuri + tanpura ================= */
 let warmN=null,bodyN=null,wetN=null,vstyle=store.get('vstyle','calm');
 const STYLE_FX={calm:{warm:5,body:3,wet:.3,rate:1},natural:{warm:0,body:0,wet:.06,rate:1},deep:{warm:7,body:4.5,wet:.3,rate:.97},device:{warm:0,body:0,wet:.3,rate:1},chant:{warm:6,body:3,wet:.4,rate:1}};
-let ttsCfg=false,AC=null,bus=null,verb=null,ambBus=null,vtoken=0,curSrc=null,ambOn=store.get('amb',true),amb=null;
+let ttsCfg=false,AC=null,bus=null,verb=null,ambBus=null,vtoken=0,curSrc=null,ambOn=store.get('amb',!MOBILE),amb=null;
+const liveSrcs=[];
+function stopAllSrcs(){for(const s of liveSrcs.splice(0)){try{s.stop()}catch{}}}
+let noiseBuf=null;
+const noise=()=>noiseBuf||(noiseBuf=(()=>{const n=AC.sampleRate*2,b=AC.createBuffer(1,n,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;return b})());
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
 function impulse(sec,decay){const n=Math.floor(AC.sampleRate*sec),b=AC.createBuffer(2,n,AC.sampleRate);
@@ -591,17 +597,20 @@ function impulse(sec,decay){const n=Math.floor(AC.sampleRate*sec),b=AC.createBuf
 
 function applyStyleFX(st){const f=STYLE_FX[st||vstyle]||STYLE_FX.calm;if(!warmN)return;warmN.gain.value=f.warm;bodyN.gain.value=f.body;wetN.gain.value=f.wet}
 function audioInit(){
- if(AC){if(AC.state==='suspended')AC.resume();return}
- const C=window.AudioContext||window.webkitAudioContext;if(!C)return;AC=new C();
+ if(AC){if(AC.state==='suspended'||AC.state==='interrupted')AC.resume();return}
+ const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+ try{AC=new C({latencyHint:'playback'})}catch{AC=new C()}      // a larger buffer: no crackle on phones
+ AC.onstatechange=()=>{if(AC&&(AC.state==='suspended'||AC.state==='interrupted')&&!document.hidden)AC.resume().catch(()=>{})};
  const warm=AC.createBiquadFilter();warm.type='lowshelf';warm.frequency.value=240;warm.gain.value=5;       // chest and warmth
  const body=AC.createBiquadFilter();body.type='peaking';body.frequency.value=150;body.gain.value=3;body.Q.value=.9;
  const air=AC.createBiquadFilter();air.type='highshelf';air.frequency.value=6500;air.gain.value=-4;          // soften the digital edge
  const comp=AC.createDynamicsCompressor();comp.threshold.value=-24;comp.ratio.value=3;
- verb=AC.createConvolver();verb.buffer=impulse(3.2,2.4);                                                       // a stone temple hall
+ if(!MOBILE){verb=AC.createConvolver();verb.buffer=impulse(2.6,2.4)}                                         // a stone temple hall (desktop only; phones skip the heavy reverb)
  const wet=AC.createGain();wet.gain.value=.3;warmN=warm;bodyN=body;wetN=wet;applyStyleFX();
  bus=AC.createGain();ambBus=AC.createGain();ambBus.gain.value=0;
  bus.connect(warm);warm.connect(body);body.connect(air);air.connect(comp);comp.connect(AC.destination);
- air.connect(verb);ambBus.connect(verb);verb.connect(wet);wet.connect(comp);ambBus.connect(comp);
+ if(verb){air.connect(verb);ambBus.connect(verb);verb.connect(wet);wet.connect(comp)}
+ ambBus.connect(comp);
 }
 
 /* bansuri flute (Bhoopali scale) over a tanpura drone, synthesized live */
@@ -611,15 +620,14 @@ function fluteNote(f,at,dur){
  vib.frequency.value=5.2;vg.gain.value=f*.006;vib.connect(vg);vg.connect(o.frequency);vg.connect(o2.frequency);
  g2.gain.value=.12;o2.connect(g2);g2.connect(g);o.connect(g);
  g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(.5,at+.14);g.gain.setValueAtTime(.5,at+dur*.7);g.gain.linearRampToValueAtTime(0,at+dur);
- const len=Math.floor(AC.sampleRate*dur),nb=AC.createBuffer(1,len,AC.sampleRate),d=nb.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
- const ns=AC.createBufferSource();ns.buffer=nb;const bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f*2.5;bp.Q.value=2;
+ const ns=AC.createBufferSource();ns.buffer=noise();ns.loop=true;const bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f*2.5;bp.Q.value=2;
  const ng=AC.createGain();ng.gain.setValueAtTime(0,at);ng.gain.linearRampToValueAtTime(.05,at+.1);ng.gain.linearRampToValueAtTime(0,at+dur);
  ns.connect(bp);bp.connect(ng);ng.connect(g);g.connect(ambBus);
- [o,o2,vib].forEach(x=>{x.start(at);x.stop(at+dur+.1)});ns.start(at);
+ [o,o2,vib].forEach(x=>{x.start(at);x.stop(at+dur+.1)});ns.start(at,Math.random()*1.5);ns.stop(at+dur+.05);
 }
 function ambStart(){
  if(!AC||!ambOn||amb)return;const t=AC.currentTime,nodes=[];
- [[130.81,.55],[196,.4],[261.63,.35],[65.41,.45]].forEach(([f,a],i)=>{
+ [[130.81,.55],[196,.4],[261.63,.35],[65.41,.45]].slice(0,MOBILE?2:4).forEach(([f,a],i)=>{
   const o=AC.createOscillator(),g=AC.createGain(),l=AC.createOscillator(),lg=AC.createGain();
   o.type='triangle';o.frequency.value=f;g.gain.value=a*.5;l.frequency.value=.12+i*.05;lg.gain.value=a*.25;
   l.connect(lg);lg.connect(g.gain);o.connect(g);g.connect(ambBus);o.start(t);l.start(t);nodes.push(o,l)});
@@ -637,7 +645,10 @@ function ambStop(){
 
 const setFluteBtn=()=>$('#fluteBtn').textContent='🪈 '+SL().flute+': '+(ambOn?SL().on:SL().off);
 $('#fluteBtn').onclick=()=>{ambOn=!ambOn;store.set('amb',ambOn);setFluteBtn();if(!ambOn)ambStop();else if(AC&&document.body.dataset.state==='speaking')ambStart()};setFluteBtn();
-/* ---- speech: starts on the FIRST finished sentence while the rest is still being written ---- */
+
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&AC&&(AC.state==='suspended'||AC.state==='interrupted'))AC.resume().catch(()=>{})});
+/* ---- speech: starts on the FIRST finished sentence while the rest is still being written.
+        Audio is scheduled on the audio clock, so playback stays gapless even when the phone's main thread is busy. ---- */
 const TERM=/(?<=[.!?।॥])\s+/;
 function sentencesOf(t){return String(t).replace(/[#*_]/g,'').split(/(?<=[.!?।॥])\s+|[\r\n]+/).map(s=>s.trim()).filter(Boolean)}
 function speechParts(text){
@@ -650,7 +661,7 @@ function startSpeaker(langOv,styleOv){
  const L=langOv||lang,S=styleOv||vstyle;
  audioInit();stopSpeak();ambStart();applyStyleFX(S);
  const my=++vtoken,items=[],count={};
- let pro=!!(AC&&ttsCfg&&ttsCfg[L])&&S!=='device'&&Date.now()>=ttsCool,ended=false,running=false,cancelled=false;
+ let pro=!!(AC&&ttsCfg&&ttsCfg[L])&&S!=='device'&&Date.now()>=ttsCool,ended=false,running=false,cancelled=false,nextAt=0;
  const rate=(STYLE_FX[S]||STYLE_FX.calm).rate;
  const once=s=>{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),12000);
   return fetch('/api/speak',{signal:ac.signal,method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:sanskritSpeech(s),lang:L,style:S==='device'?'calm':S})})
@@ -665,20 +676,37 @@ function startSpeaker(langOv,styleOv){
   u.onend=()=>{done();if(!pro&&ended&&my===vtoken&&!speechSynthesis.pending)setTimeout(()=>{if(!speechSynthesis.speaking)finish()},200)};
   u.onerror=()=>done();setTimeout(done,Math.max(4000,t.length*130));   // never hang the queue
   speechSynthesis.speak(u)});
+ const idleWait=()=>sleep(Math.max(0,(nextAt-(AC?AC.currentTime:0))*1000)+60);   // let already-scheduled audio finish
+ function schedule(it,buf){
+  const now=AC.currentTime,at=Math.max(nextAt,now+.05);
+  const src=AC.createBufferSource();src.buffer=buf;src.playbackRate.value=rate;src.connect(bus);
+  liveSrcs.push(src);src.onended=()=>{const k=liveSrcs.indexOf(src);if(k>=0)liveSrcs.splice(k,1)};
+  src.start(at);nextAt=at+buf.duration/rate+.18;      // a natural breath between lines, set on the audio clock
+  setTimeout(()=>{if(my===vtoken&&!cancelled){setSubtitle(it.t);setState('speaking')}},Math.max(0,(at-now)*1000));
+ }
  async function loop(){
   if(running)return;running=true;let i=0;
   while(true){
    if(my!==vtoken||cancelled)return;
-   if(i>=items.length){if(ended){finish();return}await sleep(70);continue}
+   if(i>=items.length){if(ended){await idleWait();finish();return}await sleep(60);continue}
    const it=items[i++],buf=await it.p;
    if(my!==vtoken||cancelled)return;
-   if(!buf){setSubtitle(it.t);setState('speaking');await browserSay(it.t);if(my!==vtoken||cancelled)return;continue}   // this sentence only: the deep voice resumes on the next one
-   setSubtitle(it.t);setState('speaking');
-   await new Promise(res=>{const src=AC.createBufferSource();src.buffer=buf;src.playbackRate.value=rate;src.connect(bus);curSrc=src;src.onended=res;src.start()});
-   if(my!==vtoken||cancelled)return;await sleep(240);
+   if(!buf){   // this chunk only: wait for audio already queued, speak it with the device voice, then resume the deep voice
+    await idleWait();if(my!==vtoken||cancelled)return;
+    setSubtitle(it.t);setState('speaking');await browserSay(it.t);if(my!==vtoken||cancelled)return;nextAt=AC.currentTime;continue}
+   schedule(it,buf);
   }
  }
- const push=t=>{if(!pro){browserSay(t);return}items.push({t,p:load(t)});loop()};
+ // fewer, larger requests: the first sentence goes out at once for a fast start, the rest travel in groups
+ let acc='',first=true,accT=null;
+ const flush=()=>{clearTimeout(accT);if(!acc)return;const t=acc;acc='';items.push({t,p:load(t)});loop()};
+ const push=t=>{
+  if(!pro){browserSay(t);return}
+  if(first){first=false;items.push({t,p:load(t)});loop();return}
+  if(acc&&(acc+' '+t).length>460)flush();
+  acc=acc?acc+' '+t:t;
+  if(acc.length>=130)flush();else{clearTimeout(accT);accT=setTimeout(flush,1100)}
+ };
  return {
   feed(p,final){
    const order=ORDER[p.mode]||[];
@@ -689,8 +717,8 @@ function startSpeaker(langOv,styleOv){
     if(lim>from)count[k]=lim});
   },
   say(list){list.forEach(push)},
-  end(){ended=true;if(!pro&&!items.length&&!(window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending)))finish();if(pro&&!items.length)finish();else if(pro)loop()},
-  cancel(){cancelled=true;stopSpeak()}
+  end(){flush();ended=true;if(!pro&&!items.length&&!(window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending)))finish();if(pro&&!items.length)finish();else if(pro)loop()},
+  cancel(){cancelled=true;clearTimeout(accT);stopSpeak()}
  };
 }
 function speak(text){const sp=startSpeaker();sp.say(speechParts(text));sp.end()}   // used by the Listen button
