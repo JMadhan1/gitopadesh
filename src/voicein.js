@@ -23,11 +23,26 @@ function startListening(){
 }
 
 /* Browser speech recognition: live words, stops by itself after a pause */
+/* Phones re-send finished words (sometimes cumulatively, sometimes twice). Keep each result once, by its index,
+   drop a part that a later part simply extends or repeats, and collapse any phrase said back-to-back twice. */
+function assembleTranscript(fin,interim){
+ const norm=s=>s.trim().replace(/\s+/g,' ');
+ let parts=fin.filter(Boolean).map(norm).filter(Boolean);
+ if(interim&&norm(interim))parts.push(norm(interim));
+ parts=parts.filter((p,i)=>{const n=parts[i+1];if(!n)return true;const a=p.toLowerCase(),b=n.toLowerCase();return !(b===a||b.startsWith(a)||b.startsWith(a.replace(/[.,!?।]+$/,'')))});
+ const w=parts.join(' ').split(' ').filter(Boolean);
+ for(let n=Math.min(40,w.length>>1);n>=3;n--)for(let i=0;i+2*n<=w.length;i++){
+  let same=true;for(let k=0;k<n;k++)if(w[i+k].toLowerCase()!==w[i+n+k].toLowerCase()){same=false;break}
+  if(same){w.splice(i+n,n);i--}}
+ return w.join(' ');
+}
 function listenSR(){
- const r=new SR();r.lang=LOCALE[lang];r.interimResults=true;r.continuous=true;r.maxAlternatives=1;
+ const r=new SR();r.lang=LOCALE[lang];r.interimResults=true;r.continuous=!MOBILE;r.maxAlternatives=1;   // phones listen one phrase at a time: no repeated text
  let final='',got=false,errored=false;const base=$('#q').value.trim()?$('#q').value.trim()+' ':'';
  const arm=()=>{clearTimeout(silenceTimer);silenceTimer=setTimeout(()=>{if(got)r.stop()},2200)};
- r.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;got=!!t.trim();final=t;$('#q').value=base+t;autosize();arm()};
+ const fin=[];let interim='';
+ r.onresult=e=>{interim='';for(let i=e.resultIndex;i<e.results.length;i++){const res=e.results[i],tr=res[0].transcript;if(res.isFinal)fin[i]=tr;else interim=tr}
+  const t=assembleTranscript(fin,interim);got=!!t.trim();final=t;$('#q').value=base+t;autosize();arm()};
  r.onerror=e=>{errored=true;clearTimeout(silenceTimer);if(e.error!=='aborted'&&MIC_MSG[e.error])toast(MIC_MSG[e.error])};
  r.onend=()=>{clearTimeout(silenceTimer);rec=null;endListenUI();
   if(final.trim()&&!errored){convoMiss=0;scheduleSend()}
