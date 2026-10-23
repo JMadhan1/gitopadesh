@@ -58,14 +58,51 @@ function cardDownload(cv,v,L,suffix){const a=document.createElement('a');a.downl
 
 const _openVerse=openVerse;
 openVerse=function(i,focusCard){
- cardLang=lang;_openVerse(i,focusCard);
+ cardLang=openVerse.preset||lang;openVerse.preset=null;_openVerse(i,focusCard);
  const v=byId[i],cv=$('#cv');if(!v||!cv)return;
  const bar=document.createElement('div');bar.className='actions';bar.id='cardLangs';
  bar.innerHTML=Object.keys(LANG_LABEL).map(l=>`<button class="pill ${l===cardLang?'on':''}" type="button" data-cl="${l}">${LANG_LABEL[l]}</button>`).join('');
  cv.parentNode.insertBefore(bar,cv);
- bar.onclick=e=>{const b=e.target.closest('[data-cl]');if(!b)return;cardLang=b.dataset.cl;$$('#cardLangs .pill').forEach(x=>x.classList.toggle('on',x===b));drawCard(v)};
+ const share=document.createElement('div');share.className='actions';share.id='shareBar';
+ const dlRow=$('#dl')&&$('#dl').parentNode;if(dlRow)dlRow.after(share);
+ mountShare(share,()=>v,()=>cardLang||lang,()=>$('#cv'));
+ bar.onclick=e=>{const b=e.target.closest('[data-cl]');if(!b)return;cardLang=b.dataset.cl;$$('#cardLangs .pill').forEach(x=>x.classList.toggle('on',x===b));drawCard(v);share.render()};
  const dl=$('#dl');if(dl)dl.onclick=()=>cardDownload(cv,v,cardLang||lang);
 };
+
+
+/* ================= Share a shloka card: the picture itself on phones, links everywhere else ================= */
+const SHARE_CAP={
+ en:'A verse from the Bhagavad Gita for your heart today 🪷',
+ hi:'आज आपके हृदय के लिए भगवद्गीता का एक श्लोक 🪷',
+ te:'ఈ రోజు మీ హృదయం కోసం భగవద్గీత నుండి ఒక శ్లోకం 🪷'};
+const verseUrl=v=>`https://${SITE_HOST}/verse/${v.chapter}-${v.verse}`;
+function shareTargets(v,L){
+ const url=verseUrl(v),text=SHARE_CAP[L]||SHARE_CAP.en,both=encodeURIComponent(text+'\n'+url),u=encodeURIComponent(url),t=encodeURIComponent(text);
+ return [['WhatsApp','https://wa.me/?text='+both],['Telegram',`https://t.me/share/url?url=${u}&text=${t}`],['X',`https://twitter.com/intent/tweet?text=${t}&url=${u}`],['LinkedIn',`https://www.linkedin.com/sharing/share-offsite/?url=${u}`],['Facebook',`https://www.facebook.com/sharer/sharer.php?u=${u}`]];
+}
+async function shareNative(cv,v,L){
+ const url=verseUrl(v),text=(SHARE_CAP[L]||SHARE_CAP.en)+'\n'+url;
+ try{
+  const blob=await new Promise(r=>cv.toBlob(r,'image/png'));
+  const file=new File([blob],`gitopadesh-${id(v)}-${L}.png`,{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],text,title:'Gitopadesh'});
+  else await navigator.share({text:SHARE_CAP[L]||SHARE_CAP.en,url,title:'Gitopadesh'});
+ }catch(e){if(e&&e.name!=='AbortError'){window.open(shareTargets(v,L)[0][1],'_blank','noopener')}}
+}
+/* mounts a share row into `el`; call el.render() whenever the verse or language changes */
+function mountShare(el,getV,getL,getCv){
+ el.render=()=>{
+  const v=getV(),L=getL();if(!v){el.innerHTML='';return}
+  el.innerHTML=(navigator.share?`<button class="pill" type="button" data-sh="native">${esc(tx('📲 Share'))}</button>`:'')+
+   shareTargets(v,L).map(([n,h])=>`<a class="pill" target="_blank" rel="noopener noreferrer" href="${h}">${n}</a>`).join('')+
+   `<button class="pill" type="button" data-sh="copy">${esc(tx('Copy link'))}</button>`;
+ };
+ el.onclick=e=>{const b=e.target.closest('[data-sh]');if(!b)return;const v=getV(),L=getL();
+  if(b.dataset.sh==='native')shareNative(getCv(),v,L);
+  else navigator.clipboard?.writeText(verseUrl(v)).then(()=>toast('Link copied'),()=>toast(verseUrl(v)))};
+ el.render();return el;
+}
 
 /* ================= Daily shloka ================= */
 function dailyVerse(){
@@ -82,11 +119,13 @@ async function renderDaily(){
  $('#dailyCite').textContent=`${n.toLocaleDateString(dLang==='en'?'en-IN':dLang==='hi'?'hi-IN':'te-IN',{day:'numeric',month:'long',year:'numeric'})} · ${({en:'Bhagavad Gītā',hi:'भगवद्गीता',te:'భగవద్గీత'})[dLang]} ${id(v)}`;
  $('#dailyLangs').innerHTML=Object.keys(LANG_LABEL).map(l=>`<button class="pill ${l===dLang?'on':''}" type="button" data-dl="${l}">${LANG_LABEL[l]}</button>`).join('');
  $('#dailyDl').textContent=tx('⬇ Download card');$('#dailyOpen').textContent=tx('Open card');
+ if(!$('#dailyShare').render)mountShare($('#dailyShare'),dailyVerse,()=>dLang||lang,()=>$('#dailyCv'));
+ $('#dailyShare').render();
 }
 if($('#dailyCv')){
  $('#dailyLangs').onclick=e=>{const b=e.target.closest('[data-dl]');if(!b)return;dLang=b.dataset.dl;renderDaily()};
  $('#dailyDl').onclick=()=>cardDownload($('#dailyCv'),dailyVerse(),dLang||lang,'-daily');
- $('#dailyOpen').onclick=()=>{cardLang=dLang||lang;openVerse(id(dailyVerse()),true)};
+ $('#dailyOpen').onclick=()=>{openVerse.preset=dLang||lang;openVerse(id(dailyVerse()),true)};
 }
 
 /* ================= Gentle reveal as sections scroll into view (never hides anything without JS) ================= */

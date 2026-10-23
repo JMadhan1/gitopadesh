@@ -66,6 +66,7 @@ hi:{
  'The speech service is unreachable. Please type instead.':'वाक् सेवा उपलब्ध नहीं है। कृपया लिखिए।','No microphone was found.':'कोई माइक्रोफ़ोन नहीं मिला।',
  'Krishna will answer in हिंदी':'कृष्ण हिंदी में उत्तर देंगे','Krishna will answer in తెలుగు':'कृष्ण तेलुगु में उत्तर देंगे',
  'Close':'बंद करें','Home':'मुख्य पृष्ठ',
+ '📲 Share':'📲 साझा करें','Copy link':'लिंक कॉपी करें','Link copied':'लिंक कॉपी हो गया',
  'Listening… take your time. I keep listening through your pauses. Tap the mic when you are done, then press Ask Krishna.':'सुन रहा हूँ… आराम से बोलिए। आपके रुकने पर भी मैं सुनता रहूँगा। बात पूरी होने पर माइक दबाइए, फिर “कृष्ण से पूछें” दबाइए।','Tap the mic when you want to continue.':'आगे बोलना हो तो माइक दबाइए।',
  'Krishna is taking longer than usual. Showing the quick guide.':'कृष्ण को सामान्य से अधिक समय लग रहा है। त्वरित मार्गदर्शन दिखाया जा रहा है।','The lesson is taking longer than usual. Showing the meaning.':'पाठ में सामान्य से अधिक समय लग रहा है। अर्थ दिखाया जा रहा है।','Something went wrong. Please try again.':'कुछ गड़बड़ हो गई। कृपया फिर प्रयास कीजिए।',
  'visitors':'आगंतुक','online now':'अभी ऑनलाइन','Counted with an anonymous random ID: no account or personal details.':'एक गुमनाम यादृच्छिक ID से गिना जाता है: कोई खाता या व्यक्तिगत विवरण नहीं।',
@@ -138,6 +139,7 @@ te:{
  'The speech service is unreachable. Please type instead.':'స్పీచ్ సేవ అందుబాటులో లేదు. దయచేసి రాయండి.','No microphone was found.':'మైక్రోఫోన్ కనిపించలేదు.',
  'Krishna will answer in हिंदी':'కృష్ణుడు హిందీలో సమాధానం ఇస్తాడు','Krishna will answer in తెలుగు':'కృష్ణుడు తెలుగులో సమాధానం ఇస్తాడు',
  'Close':'మూసివేయి','Home':'హోమ్',
+ '📲 Share':'📲 పంచుకోండి','Copy link':'లింక్ కాపీ','Link copied':'లింక్ కాపీ అయింది',
  'Listening… take your time. I keep listening through your pauses. Tap the mic when you are done, then press Ask Krishna.':'వింటున్నాను… నిదానంగా చెప్పండి. మీరు ఆగినా నేను వింటూనే ఉంటాను. చెప్పడం పూర్తయ్యాక మైక్ నొక్కి, ఆపై “కృష్ణుడిని అడగండి” నొక్కండి.','Tap the mic when you want to continue.':'కొనసాగించాలనుకున్నప్పుడు మైక్ నొక్కండి.',
  'Krishna is taking longer than usual. Showing the quick guide.':'కృష్ణుడికి సాధారణం కంటే ఎక్కువ సమయం పడుతోంది. త్వరిత మార్గదర్శనం చూపిస్తున్నాం.','The lesson is taking longer than usual. Showing the meaning.':'పాఠానికి సాధారణం కంటే ఎక్కువ సమయం పడుతోంది. అర్థం చూపిస్తున్నాం.','Something went wrong. Please try again.':'ఏదో తప్పు జరిగింది. దయచేసి మళ్లీ ప్రయత్నించండి.',
  'visitors':'సందర్శకులు','online now':'ఇప్పుడు ఆన్‌లైన్','Counted with an anonymous random ID: no account or personal details.':'అజ్ఞాత యాదృచ్ఛిక IDతో లెక్కించబడుతుంది: ఖాతా లేదా వ్యక్తిగత వివరాలు లేవు.',
@@ -977,14 +979,51 @@ function cardDownload(cv,v,L,suffix){const a=document.createElement('a');a.downl
 
 const _openVerse=openVerse;
 openVerse=function(i,focusCard){
- cardLang=lang;_openVerse(i,focusCard);
+ cardLang=openVerse.preset||lang;openVerse.preset=null;_openVerse(i,focusCard);
  const v=byId[i],cv=$('#cv');if(!v||!cv)return;
  const bar=document.createElement('div');bar.className='actions';bar.id='cardLangs';
  bar.innerHTML=Object.keys(LANG_LABEL).map(l=>`<button class="pill ${l===cardLang?'on':''}" type="button" data-cl="${l}">${LANG_LABEL[l]}</button>`).join('');
  cv.parentNode.insertBefore(bar,cv);
- bar.onclick=e=>{const b=e.target.closest('[data-cl]');if(!b)return;cardLang=b.dataset.cl;$$('#cardLangs .pill').forEach(x=>x.classList.toggle('on',x===b));drawCard(v)};
+ const share=document.createElement('div');share.className='actions';share.id='shareBar';
+ const dlRow=$('#dl')&&$('#dl').parentNode;if(dlRow)dlRow.after(share);
+ mountShare(share,()=>v,()=>cardLang||lang,()=>$('#cv'));
+ bar.onclick=e=>{const b=e.target.closest('[data-cl]');if(!b)return;cardLang=b.dataset.cl;$$('#cardLangs .pill').forEach(x=>x.classList.toggle('on',x===b));drawCard(v);share.render()};
  const dl=$('#dl');if(dl)dl.onclick=()=>cardDownload(cv,v,cardLang||lang);
 };
+
+
+/* ================= Share a shloka card: the picture itself on phones, links everywhere else ================= */
+const SHARE_CAP={
+ en:'A verse from the Bhagavad Gita for your heart today 🪷',
+ hi:'आज आपके हृदय के लिए भगवद्गीता का एक श्लोक 🪷',
+ te:'ఈ రోజు మీ హృదయం కోసం భగవద్గీత నుండి ఒక శ్లోకం 🪷'};
+const verseUrl=v=>`https://${SITE_HOST}/verse/${v.chapter}-${v.verse}`;
+function shareTargets(v,L){
+ const url=verseUrl(v),text=SHARE_CAP[L]||SHARE_CAP.en,both=encodeURIComponent(text+'\n'+url),u=encodeURIComponent(url),t=encodeURIComponent(text);
+ return [['WhatsApp','https://wa.me/?text='+both],['Telegram',`https://t.me/share/url?url=${u}&text=${t}`],['X',`https://twitter.com/intent/tweet?text=${t}&url=${u}`],['LinkedIn',`https://www.linkedin.com/sharing/share-offsite/?url=${u}`],['Facebook',`https://www.facebook.com/sharer/sharer.php?u=${u}`]];
+}
+async function shareNative(cv,v,L){
+ const url=verseUrl(v),text=(SHARE_CAP[L]||SHARE_CAP.en)+'\n'+url;
+ try{
+  const blob=await new Promise(r=>cv.toBlob(r,'image/png'));
+  const file=new File([blob],`gitopadesh-${id(v)}-${L}.png`,{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],text,title:'Gitopadesh'});
+  else await navigator.share({text:SHARE_CAP[L]||SHARE_CAP.en,url,title:'Gitopadesh'});
+ }catch(e){if(e&&e.name!=='AbortError'){window.open(shareTargets(v,L)[0][1],'_blank','noopener')}}
+}
+/* mounts a share row into `el`; call el.render() whenever the verse or language changes */
+function mountShare(el,getV,getL,getCv){
+ el.render=()=>{
+  const v=getV(),L=getL();if(!v){el.innerHTML='';return}
+  el.innerHTML=(navigator.share?`<button class="pill" type="button" data-sh="native">${esc(tx('📲 Share'))}</button>`:'')+
+   shareTargets(v,L).map(([n,h])=>`<a class="pill" target="_blank" rel="noopener noreferrer" href="${h}">${n}</a>`).join('')+
+   `<button class="pill" type="button" data-sh="copy">${esc(tx('Copy link'))}</button>`;
+ };
+ el.onclick=e=>{const b=e.target.closest('[data-sh]');if(!b)return;const v=getV(),L=getL();
+  if(b.dataset.sh==='native')shareNative(getCv(),v,L);
+  else navigator.clipboard?.writeText(verseUrl(v)).then(()=>toast('Link copied'),()=>toast(verseUrl(v)))};
+ el.render();return el;
+}
 
 /* ================= Daily shloka ================= */
 function dailyVerse(){
@@ -1001,11 +1040,13 @@ async function renderDaily(){
  $('#dailyCite').textContent=`${n.toLocaleDateString(dLang==='en'?'en-IN':dLang==='hi'?'hi-IN':'te-IN',{day:'numeric',month:'long',year:'numeric'})} · ${({en:'Bhagavad Gītā',hi:'भगवद्गीता',te:'భగవద్గీత'})[dLang]} ${id(v)}`;
  $('#dailyLangs').innerHTML=Object.keys(LANG_LABEL).map(l=>`<button class="pill ${l===dLang?'on':''}" type="button" data-dl="${l}">${LANG_LABEL[l]}</button>`).join('');
  $('#dailyDl').textContent=tx('⬇ Download card');$('#dailyOpen').textContent=tx('Open card');
+ if(!$('#dailyShare').render)mountShare($('#dailyShare'),dailyVerse,()=>dLang||lang,()=>$('#dailyCv'));
+ $('#dailyShare').render();
 }
 if($('#dailyCv')){
  $('#dailyLangs').onclick=e=>{const b=e.target.closest('[data-dl]');if(!b)return;dLang=b.dataset.dl;renderDaily()};
  $('#dailyDl').onclick=()=>cardDownload($('#dailyCv'),dailyVerse(),dLang||lang,'-daily');
- $('#dailyOpen').onclick=()=>{cardLang=dLang||lang;openVerse(id(dailyVerse()),true)};
+ $('#dailyOpen').onclick=()=>{openVerse.preset=dLang||lang;openVerse(id(dailyVerse()),true)};
 }
 
 /* ================= Gentle reveal as sections scroll into view (never hides anything without JS) ================= */
