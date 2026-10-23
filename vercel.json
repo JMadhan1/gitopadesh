@@ -83,6 +83,15 @@
           "value": "public, max-age=86400"
         }
       ]
+    },
+    {
+      "source": "/audio/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
     }
   ],
   "framework": null,

@@ -127,6 +127,19 @@ for _l in ("hi", "te"):
     w(f"verses.{_l}.json", json.dumps(_out, ensure_ascii=False, separators=(",", ":")))
     print(f"i18n {_l}: {len(_out)} verses, skipped {len(_warn)} {_warn[:8]}")
 
+# ---- flute recordings: every audio file in public/audio/flute is played at low volume under the voice
+_fd = os.path.join(OUT, "audio", "flute")
+os.makedirs(_fd, exist_ok=True)
+_credits = {}
+if os.path.exists("data/music_credits.json"):
+    _credits = json.load(open("data/music_credits.json", encoding="utf8"))
+_tracks = []
+for _f in sorted(os.listdir(_fd)):
+    if _f.lower().endswith((".mp3", ".m4a", ".ogg", ".wav")):
+        _tracks.append({"file": _f, "title": os.path.splitext(_f)[0].replace("_", " ").replace("-", " "), "credit": _credits.get(_f, "")})
+w("audio/flute/tracks.json", json.dumps({"tracks": _tracks}, ensure_ascii=False))
+print(f"flute tracks: {len(_tracks)}")
+
 # ---- data + app bundle --------------------------------------------------------
 w("verses.json", json.dumps(verses, ensure_ascii=False, separators=(",", ":")))
 os.makedirs("lib", exist_ok=True)
