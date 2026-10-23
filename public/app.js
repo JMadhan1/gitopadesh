@@ -808,6 +808,9 @@ function listenSR(){
   const t=assembleTranscript(fin,interim);got=!!t.trim();final=t;$('#q').value=base+t;autosize()};
  r.onerror=e=>{if(e.error==='no-speech'||e.error==='aborted')return;errored=true;micWanted=false;if(MIC_MSG[e.error])toast(MIC_MSG[e.error])};
  r.onend=()=>{rec=null;
+  if(MOBILE&&!errored&&!(convo&&final.trim())){   // phones beep every time listening restarts, so listen once per tap and keep the words
+   micWanted=false;endListenUI();
+   toast(got?'Got it. Tap the mic to add more, or press Ask Krishna.':MIC_MSG['no-speech']);return}
   if(micWanted&&!errored){
    emptyRuns=got?0:emptyRuns+1;
    if(convo&&final.trim()){micWanted=false;endListenUI();convoMiss=0;scheduleSend();return}      // hands-free mode answers after a pause
@@ -817,8 +820,8 @@ function listenSR(){
   if(convo&&final.trim()&&!errored){convoMiss=0;scheduleSend()}};
  rec=r;$('#mic').classList.add('rec');setState('listening');
  try{r.start()}catch{rec=null;endListenUI();return}
- toast('Listening… take your time. I keep listening through your pauses. Tap the mic when you are done, then press Ask Krishna.');
- setTimeout(()=>{if(rec===r&&!got)r.stop()},9000);
+ toast(MOBILE?'Listening… speak now.':'Listening… take your time. I keep listening through your pauses. Tap the mic when you are done, then press Ask Krishna.');
+ setTimeout(()=>{if(rec===r&&!got)r.stop()},MOBILE?12000:9000);
 }
 
 /* Fallback for browsers without speech recognition: record, then Krishna's server transcribes (Azure) */
