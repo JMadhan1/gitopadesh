@@ -2,7 +2,8 @@
 /* ================= Voice in: hear everything, in any language, hands-free ================= */
 const RE_DEV=/[ऀ-ॿ]/g,RE_TEL=/[ఀ-౿]/g;
 function detectLang(t){const n=String(t).replace(/\s/g,'').length||1,d=(String(t).match(RE_DEV)||[]).length/n,e=(String(t).match(RE_TEL)||[]).length/n;return d>.3?'hi':e>.3?'te':null}
-let convo=store.get('convo',false),sendTimer=null,silenceTimer=null,sttCfg=false,convoMiss=0;
+let convo=store.get('convo',false),sendTimer=null,silenceTimer=null,sttCfg=false,convoMiss=0,micWanted=false,emptyRuns=0;   // micWanted: the visitor has the mic open and decides when to stop
+function stopMic(){micWanted=false;if(rec){try{rec.stop()}catch{}}else endListenUI()}
 const setConvoBtn=()=>$('#convoBtn').textContent='🎧 '+SL().convo+': '+(convo?SL().on:SL().off);
 $('#convoBtn').onclick=()=>{convo=!convo;convoMiss=0;store.set('convo',convo);setConvoBtn();
  toast(convo?'Hands-free on: Krishna will listen again after he speaks':'Hands-free off');
@@ -16,7 +17,7 @@ function endListenUI(){$('#mic').classList.remove('rec');if(!busy&&document.body
 const MIC_MSG={'not-allowed':'Allow the microphone so Krishna can hear you.','service-not-allowed':'Allow the microphone so Krishna can hear you.','no-speech':'I heard nothing. Tap the mic and speak again.','network':'The speech service is unreachable. Please type instead.','audio-capture':'No microphone was found.'};
 
 function startListening(){
- audioInit();stopSpeak();clearTimeout(sendTimer);
+ audioInit();stopSpeak();clearTimeout(sendTimer);micWanted=true;emptyRuns=0;
  if(SR)return listenSR();
  if(sttCfg)return listenRec();
  toast('Voice input needs Chrome, Edge or Safari. You can still type.');
@@ -39,17 +40,21 @@ function assembleTranscript(fin,interim){
 function listenSR(){
  const r=new SR();r.lang=LOCALE[lang];r.interimResults=true;r.continuous=!MOBILE;r.maxAlternatives=1;   // phones listen one phrase at a time: no repeated text
  let final='',got=false,errored=false;const base=$('#q').value.trim()?$('#q').value.trim()+' ':'';
- const arm=()=>{clearTimeout(silenceTimer);silenceTimer=setTimeout(()=>{if(got)r.stop()},2200)};
  const fin=[];let interim='';
  r.onresult=e=>{interim='';for(let i=e.resultIndex;i<e.results.length;i++){const res=e.results[i],tr=res[0].transcript;if(res.isFinal)fin[i]=tr;else interim=tr}
-  const t=assembleTranscript(fin,interim);got=!!t.trim();final=t;$('#q').value=base+t;autosize();arm()};
- r.onerror=e=>{errored=true;clearTimeout(silenceTimer);if(e.error!=='aborted'&&MIC_MSG[e.error])toast(MIC_MSG[e.error])};
- r.onend=()=>{clearTimeout(silenceTimer);rec=null;endListenUI();
-  if(final.trim()&&!errored){convoMiss=0;scheduleSend()}
-  else if(convo&&!errored&&!busy){if(++convoMiss>=2){convo=false;store.set('convo',false);setConvoBtn();toast('Hands-free paused. Tap the mic when ready.')}else setTimeout(startListening,600)}};
+  const t=assembleTranscript(fin,interim);got=!!t.trim();final=t;$('#q').value=base+t;autosize()};
+ r.onerror=e=>{if(e.error==='no-speech'||e.error==='aborted')return;errored=true;micWanted=false;if(MIC_MSG[e.error])toast(MIC_MSG[e.error])};
+ r.onend=()=>{rec=null;
+  if(micWanted&&!errored){
+   emptyRuns=got?0:emptyRuns+1;
+   if(convo&&final.trim()){micWanted=false;endListenUI();convoMiss=0;scheduleSend();return}      // hands-free mode answers after a pause
+   if(emptyRuns>=3){micWanted=false;endListenUI();toast('Tap the mic when you want to continue.');return}
+   setTimeout(()=>{if(micWanted&&!rec)listenSR()},200);return}                                     // otherwise keep listening: your words stay in the box
+  endListenUI();
+  if(convo&&final.trim()&&!errored){convoMiss=0;scheduleSend()}};
  rec=r;$('#mic').classList.add('rec');setState('listening');
  try{r.start()}catch{rec=null;endListenUI();return}
- toast('Listening… speak freely. I wait while you pause.');
+ toast('Listening… take your time. I keep listening through your pauses. Tap the mic when you are done, then press Ask Krishna.');
  setTimeout(()=>{if(rec===r&&!got)r.stop()},9000);
 }
 
@@ -68,7 +73,7 @@ async function listenRec(){
  const C=window.AudioContext||window.webkitAudioContext,ctx=new C(),src=ctx.createMediaStreamSource(stream),proc=ctx.createScriptProcessor(4096,1,1),chunks=[];
  let voiced=false,lastVoice=performance.now(),t0=lastVoice,done=false;
  const finish=async()=>{
-  if(done)return;done=true;rec=null;proc.disconnect();src.disconnect();stream.getTracks().forEach(t=>t.stop());endListenUI();
+  if(done)return;done=true;micWanted=false;rec=null;proc.disconnect();src.disconnect();stream.getTracks().forEach(t=>t.stop());endListenUI();
   if(!voiced){ctx.close();toast(MIC_MSG['no-speech']);return}
   setState('thinking');toast('Krishna is listening to what you said…');
   try{
@@ -76,16 +81,16 @@ async function listenRec(){
    const r=await fetch('/api/transcribe?lang='+lang,{method:'POST',headers:{'Content-Type':'audio/wav'},body:blob});
    if(!r.ok)throw new Error('stt '+r.status);
    const j=await r.json();
-   if(j.text){$('#q').value=($('#q').value.trim()+' '+j.text).trim();autosize();convoMiss=0;scheduleSend()}else{toast(MIC_MSG['no-speech'])}
+   if(j.text){$('#q').value=($('#q').value.trim()+' '+j.text).trim();autosize();convoMiss=0;if(convo)scheduleSend()}else{toast(MIC_MSG['no-speech'])}
   }catch(e){toast('I could not hear that clearly. Please try again or type.')}
   if(!busy)setState('idle');
  };
  proc.onaudioprocess=e=>{const d=e.inputBuffer.getChannelData(0);chunks.push(new Float32Array(d));
   let s=0;for(let i=0;i<d.length;i+=8)s+=d[i]*d[i];const rms=Math.sqrt(s/(d.length/8)),now=performance.now();
   if(rms>.015){voiced=true;lastVoice=now}
-  if((voiced&&now-lastVoice>1800)||now-t0>45000||(!voiced&&now-t0>9000))finish()};
+  if((convo&&voiced&&now-lastVoice>1800)||now-t0>45000||(!voiced&&now-t0>9000))finish()};
  src.connect(proc);proc.connect(ctx.destination);   // the processor writes no output, so nothing is played back
- rec={stop:finish};$('#mic').classList.add('rec');setState('listening');toast('Listening… speak freely. I wait while you pause.');
+ rec={stop:finish};$('#mic').classList.add('rec');setState('listening');toast('Listening… take your time. I keep listening through your pauses. Tap the mic when you are done, then press Ask Krishna.');
 }
 
-$('#mic').onclick=()=>{if(rec){rec.stop();return}startListening()};
+$('#mic').onclick=()=>{if(micWanted||rec){stopMic();return}startListening()};

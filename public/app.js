@@ -66,6 +66,7 @@ hi:{
  'The speech service is unreachable. Please type instead.':'वाक् सेवा उपलब्ध नहीं है। कृपया लिखिए।','No microphone was found.':'कोई माइक्रोफ़ोन नहीं मिला।',
  'Krishna will answer in हिंदी':'कृष्ण हिंदी में उत्तर देंगे','Krishna will answer in తెలుగు':'कृष्ण तेलुगु में उत्तर देंगे',
  'Close':'बंद करें','Home':'मुख्य पृष्ठ',
+ 'Listening… take your time. I keep listening through your pauses. Tap the mic when you are done, then press Ask Krishna.':'सुन रहा हूँ… आराम से बोलिए। आपके रुकने पर भी मैं सुनता रहूँगा। बात पूरी होने पर माइक दबाइए, फिर “कृष्ण से पूछें” दबाइए।','Tap the mic when you want to continue.':'आगे बोलना हो तो माइक दबाइए।',
  'Krishna is taking longer than usual. Showing the quick guide.':'कृष्ण को सामान्य से अधिक समय लग रहा है। त्वरित मार्गदर्शन दिखाया जा रहा है।','The lesson is taking longer than usual. Showing the meaning.':'पाठ में सामान्य से अधिक समय लग रहा है। अर्थ दिखाया जा रहा है।','Something went wrong. Please try again.':'कुछ गड़बड़ हो गई। कृपया फिर प्रयास कीजिए।',
  'visitors':'आगंतुक','online now':'अभी ऑनलाइन','Counted with an anonymous random ID: no account or personal details.':'एक गुमनाम यादृच्छिक ID से गिना जाता है: कोई खाता या व्यक्तिगत विवरण नहीं।',
  'Daily shloka':'आज का श्लोक','A new shloka card every day, with its short meaning, ready to save and share in English, Hindi or Telugu.':'हर दिन एक नया श्लोक कार्ड, संक्षिप्त अर्थ सहित, अंग्रेज़ी, हिंदी या तेलुगु में सहेजने और साझा करने के लिए तैयार।','⬇ Download card':'⬇ कार्ड डाउनलोड करें','Open card':'कार्ड खोलें',
@@ -137,6 +138,7 @@ te:{
  'The speech service is unreachable. Please type instead.':'స్పీచ్ సేవ అందుబాటులో లేదు. దయచేసి రాయండి.','No microphone was found.':'మైక్రోఫోన్ కనిపించలేదు.',
  'Krishna will answer in हिंदी':'కృష్ణుడు హిందీలో సమాధానం ఇస్తాడు','Krishna will answer in తెలుగు':'కృష్ణుడు తెలుగులో సమాధానం ఇస్తాడు',
  'Close':'మూసివేయి','Home':'హోమ్',
+ 'Listening… take your time. I keep listening through your pauses. Tap the mic when you are done, then press Ask Krishna.':'వింటున్నాను… నిదానంగా చెప్పండి. మీరు ఆగినా నేను వింటూనే ఉంటాను. చెప్పడం పూర్తయ్యాక మైక్ నొక్కి, ఆపై “కృష్ణుడిని అడగండి” నొక్కండి.','Tap the mic when you want to continue.':'కొనసాగించాలనుకున్నప్పుడు మైక్ నొక్కండి.',
  'Krishna is taking longer than usual. Showing the quick guide.':'కృష్ణుడికి సాధారణం కంటే ఎక్కువ సమయం పడుతోంది. త్వరిత మార్గదర్శనం చూపిస్తున్నాం.','The lesson is taking longer than usual. Showing the meaning.':'పాఠానికి సాధారణం కంటే ఎక్కువ సమయం పడుతోంది. అర్థం చూపిస్తున్నాం.','Something went wrong. Please try again.':'ఏదో తప్పు జరిగింది. దయచేసి మళ్లీ ప్రయత్నించండి.',
  'visitors':'సందర్శకులు','online now':'ఇప్పుడు ఆన్‌లైన్','Counted with an anonymous random ID: no account or personal details.':'అజ్ఞాత యాదృచ్ఛిక IDతో లెక్కించబడుతుంది: ఖాతా లేదా వ్యక్తిగత వివరాలు లేవు.',
  'Daily shloka':'నేటి శ్లోకం','A new shloka card every day, with its short meaning, ready to save and share in English, Hindi or Telugu.':'ప్రతిరోజూ ఒక కొత్త శ్లోక కార్డు, దాని సంక్షిప్త అర్థంతో, ఆంగ్లం, హిందీ లేదా తెలుగులో సేవ్ చేసి పంచుకోవడానికి సిద్ధం.','⬇ Download card':'⬇ కార్డు డౌన్‌లోడ్','Open card':'కార్డు తెరవండి',
@@ -328,7 +330,7 @@ async function ask(text){
 }
 async function askInner(text){
  text=(text||'').trim();if(!text){toast('Speak or type what is on your heart 🙏');return}
- audioInit();if(busy)return;{const dl=detectLang(text);if(dl&&dl!==lang){setLang(dl);toast(dl==='hi'?'Krishna will answer in हिंदी':'Krishna will answer in తెలుగు')}}busy=true;$('#goBtn').disabled=true;stopSpeak();
+ audioInit();if(busy)return;{const dl=detectLang(text);if(dl&&dl!==lang){setLang(dl);toast(dl==='hi'?'Krishna will answer in हिंदी':'Krishna will answer in తెలుగు')}}busy=true;$('#goBtn').disabled=true;stopSpeak();micWanted=false;if(rec){try{rec.stop()}catch{}}
  $('#thread').innerHTML='';
  const me=document.createElement('div');me.className='me';const mk=document.createElement('small');mk.textContent=tx('You');const mt=document.createElement('span');mt.textContent=text;me.append(mk,mt);$('#thread').appendChild(me);
  $('#chariot').classList.add('show');$('#readMore').classList.remove('show');
@@ -726,7 +728,8 @@ function speak(text){const sp=startSpeaker();sp.say(speechParts(text));sp.end()}
 /* ================= Voice in: hear everything, in any language, hands-free ================= */
 const RE_DEV=/[ऀ-ॿ]/g,RE_TEL=/[ఀ-౿]/g;
 function detectLang(t){const n=String(t).replace(/\s/g,'').length||1,d=(String(t).match(RE_DEV)||[]).length/n,e=(String(t).match(RE_TEL)||[]).length/n;return d>.3?'hi':e>.3?'te':null}
-let convo=store.get('convo',false),sendTimer=null,silenceTimer=null,sttCfg=false,convoMiss=0;
+let convo=store.get('convo',false),sendTimer=null,silenceTimer=null,sttCfg=false,convoMiss=0,micWanted=false,emptyRuns=0;   // micWanted: the visitor has the mic open and decides when to stop
+function stopMic(){micWanted=false;if(rec){try{rec.stop()}catch{}}else endListenUI()}
 const setConvoBtn=()=>$('#convoBtn').textContent='🎧 '+SL().convo+': '+(convo?SL().on:SL().off);
 $('#convoBtn').onclick=()=>{convo=!convo;convoMiss=0;store.set('convo',convo);setConvoBtn();
  toast(convo?'Hands-free on: Krishna will listen again after he speaks':'Hands-free off');
@@ -740,7 +743,7 @@ function endListenUI(){$('#mic').classList.remove('rec');if(!busy&&document.body
 const MIC_MSG={'not-allowed':'Allow the microphone so Krishna can hear you.','service-not-allowed':'Allow the microphone so Krishna can hear you.','no-speech':'I heard nothing. Tap the mic and speak again.','network':'The speech service is unreachable. Please type instead.','audio-capture':'No microphone was found.'};
 
 function startListening(){
- audioInit();stopSpeak();clearTimeout(sendTimer);
+ audioInit();stopSpeak();clearTimeout(sendTimer);micWanted=true;emptyRuns=0;
  if(SR)return listenSR();
  if(sttCfg)return listenRec();
  toast('Voice input needs Chrome, Edge or Safari. You can still type.');
@@ -763,17 +766,21 @@ function assembleTranscript(fin,interim){
 function listenSR(){
  const r=new SR();r.lang=LOCALE[lang];r.interimResults=true;r.continuous=!MOBILE;r.maxAlternatives=1;   // phones listen one phrase at a time: no repeated text
  let final='',got=false,errored=false;const base=$('#q').value.trim()?$('#q').value.trim()+' ':'';
- const arm=()=>{clearTimeout(silenceTimer);silenceTimer=setTimeout(()=>{if(got)r.stop()},2200)};
  const fin=[];let interim='';
  r.onresult=e=>{interim='';for(let i=e.resultIndex;i<e.results.length;i++){const res=e.results[i],tr=res[0].transcript;if(res.isFinal)fin[i]=tr;else interim=tr}
-  const t=assembleTranscript(fin,interim);got=!!t.trim();final=t;$('#q').value=base+t;autosize();arm()};
- r.onerror=e=>{errored=true;clearTimeout(silenceTimer);if(e.error!=='aborted'&&MIC_MSG[e.error])toast(MIC_MSG[e.error])};
- r.onend=()=>{clearTimeout(silenceTimer);rec=null;endListenUI();
-  if(final.trim()&&!errored){convoMiss=0;scheduleSend()}
-  else if(convo&&!errored&&!busy){if(++convoMiss>=2){convo=false;store.set('convo',false);setConvoBtn();toast('Hands-free paused. Tap the mic when ready.')}else setTimeout(startListening,600)}};
+  const t=assembleTranscript(fin,interim);got=!!t.trim();final=t;$('#q').value=base+t;autosize()};
+ r.onerror=e=>{if(e.error==='no-speech'||e.error==='aborted')return;errored=true;micWanted=false;if(MIC_MSG[e.error])toast(MIC_MSG[e.error])};
+ r.onend=()=>{rec=null;
+  if(micWanted&&!errored){
+   emptyRuns=got?0:emptyRuns+1;
+   if(convo&&final.trim()){micWanted=false;endListenUI();convoMiss=0;scheduleSend();return}      // hands-free mode answers after a pause
+   if(emptyRuns>=3){micWanted=false;endListenUI();toast('Tap the mic when you want to continue.');return}
+   setTimeout(()=>{if(micWanted&&!rec)listenSR()},200);return}                                     // otherwise keep listening: your words stay in the box
+  endListenUI();
+  if(convo&&final.trim()&&!errored){convoMiss=0;scheduleSend()}};
  rec=r;$('#mic').classList.add('rec');setState('listening');
  try{r.start()}catch{rec=null;endListenUI();return}
- toast('Listening… speak freely. I wait while you pause.');
+ toast('Listening… take your time. I keep listening through your pauses. Tap the mic when you are done, then press Ask Krishna.');
  setTimeout(()=>{if(rec===r&&!got)r.stop()},9000);
 }
 
@@ -792,7 +799,7 @@ async function listenRec(){
  const C=window.AudioContext||window.webkitAudioContext,ctx=new C(),src=ctx.createMediaStreamSource(stream),proc=ctx.createScriptProcessor(4096,1,1),chunks=[];
  let voiced=false,lastVoice=performance.now(),t0=lastVoice,done=false;
  const finish=async()=>{
-  if(done)return;done=true;rec=null;proc.disconnect();src.disconnect();stream.getTracks().forEach(t=>t.stop());endListenUI();
+  if(done)return;done=true;micWanted=false;rec=null;proc.disconnect();src.disconnect();stream.getTracks().forEach(t=>t.stop());endListenUI();
   if(!voiced){ctx.close();toast(MIC_MSG['no-speech']);return}
   setState('thinking');toast('Krishna is listening to what you said…');
   try{
@@ -800,19 +807,19 @@ async function listenRec(){
    const r=await fetch('/api/transcribe?lang='+lang,{method:'POST',headers:{'Content-Type':'audio/wav'},body:blob});
    if(!r.ok)throw new Error('stt '+r.status);
    const j=await r.json();
-   if(j.text){$('#q').value=($('#q').value.trim()+' '+j.text).trim();autosize();convoMiss=0;scheduleSend()}else{toast(MIC_MSG['no-speech'])}
+   if(j.text){$('#q').value=($('#q').value.trim()+' '+j.text).trim();autosize();convoMiss=0;if(convo)scheduleSend()}else{toast(MIC_MSG['no-speech'])}
   }catch(e){toast('I could not hear that clearly. Please try again or type.')}
   if(!busy)setState('idle');
  };
  proc.onaudioprocess=e=>{const d=e.inputBuffer.getChannelData(0);chunks.push(new Float32Array(d));
   let s=0;for(let i=0;i<d.length;i+=8)s+=d[i]*d[i];const rms=Math.sqrt(s/(d.length/8)),now=performance.now();
   if(rms>.015){voiced=true;lastVoice=now}
-  if((voiced&&now-lastVoice>1800)||now-t0>45000||(!voiced&&now-t0>9000))finish()};
+  if((convo&&voiced&&now-lastVoice>1800)||now-t0>45000||(!voiced&&now-t0>9000))finish()};
  src.connect(proc);proc.connect(ctx.destination);   // the processor writes no output, so nothing is played back
- rec={stop:finish};$('#mic').classList.add('rec');setState('listening');toast('Listening… speak freely. I wait while you pause.');
+ rec={stop:finish};$('#mic').classList.add('rec');setState('listening');toast('Listening… take your time. I keep listening through your pauses. Tap the mic when you are done, then press Ask Krishna.');
 }
 
-$('#mic').onclick=()=>{if(rec){rec.stop();return}startListening()};
+$('#mic').onclick=()=>{if(micWanted||rec){stopMic();return}startListening()};
 
 /* ================= Voice style: Calm / Natural / Deep / Device ================= */
 const VSTYLES=[['calm','Calm'],['natural','Natural'],['deep','Deep'],['device','Device']];
