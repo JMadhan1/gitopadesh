@@ -19,10 +19,10 @@ let edgeFails = [];
 let edgeOpenUntil = 0;
 // Delivery presets (the client sends only the preset name).
 const STYLES = {
-  natural: { rate: '0%', pitch: '0%', volume: '+0%' },
-  calm: { rate: '-12%', pitch: '-10%', volume: '+8%' },
-  deep: { rate: '-10%', pitch: '-16%', volume: '+10%' },
-  chant: { rate: '-30%', pitch: '-12%', volume: '+10%' },   // slow recitation of a shloka
+  natural: { rate: '0%', pitch: '0%', volume: '+0%', polly: '92%' },
+  calm: { rate: '-12%', pitch: '-10%', volume: '+8%', polly: '84%' },
+  deep: { rate: '-10%', pitch: '-16%', volume: '+10%', polly: '84%' },
+  chant: { rate: '-30%', pitch: '-12%', volume: '+10%', polly: '68%' },   // slow recitation of a shloka
 };
 
 const json = (status, code, extra = {}) =>
@@ -31,8 +31,8 @@ const json = (status, code, extra = {}) =>
 export const provider = () =>
   process.env.ELEVENLABS_API_KEY ? 'elevenlabs'
   : process.env.AZURE_SPEECH_KEY ? 'azure'
-  : process.env.EDGE_TTS !== '0' ? 'edge'
-  : process.env.AWS_ACCESS_KEY_ID && process.env.POLLY_ENABLED === '1' ? 'polly'
+  : process.env.AWS_ACCESS_KEY_ID && process.env.POLLY_ENABLED !== '0' ? 'polly'   // official AWS voice: Indian English and Hindi (no Telugu)
+  : process.env.EDGE_TTS === '1' ? 'edge'                                            // unofficial free service: Microsoft now blocks it, so it is opt-in
   : null;
 
 const xml = (t) => t.replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
@@ -87,13 +87,13 @@ async function edge(text, lang, st) {
 }
 
 let polly;
-async function pollyTts(text, lang) {
-  if (lang !== 'en') return null; // Polly has no male Indian voice for Hindi or Telugu
+async function pollyTts(text, lang, st) {
+  if (lang === 'te') return null; // Polly has no Telugu voice: the page speaks Telugu with the device voice
   const { PollyClient, SynthesizeSpeechCommand } = await import('@aws-sdk/client-polly');
   polly ??= new PollyClient({ region: env('POLLY_REGION', env('AWS_REGION', 'ap-south-1')) });
   const r = await polly.send(new SynthesizeSpeechCommand({
-    Engine: 'neural', VoiceId: env('POLLY_VOICE', 'Matthew'), OutputFormat: 'mp3', TextType: 'ssml',
-    Text: `<speak><prosody rate="82%">${xml(text)}</prosody></speak>`,
+    Engine: 'neural', VoiceId: env('POLLY_VOICE', 'Kajal'), LanguageCode: lang === 'hi' ? 'hi-IN' : 'en-IN', OutputFormat: 'mp3', TextType: 'ssml',
+    Text: `<speak><prosody rate="${st.polly}">${xml(text)}</prosody></speak>`,
   }));
   const bytes = await r.AudioStream.transformToByteArray();
   return audio(bytes);
@@ -119,7 +119,7 @@ export async function POST(req) {
   const st = STYLES[body?.style] || STYLES.calm;
 
   try {
-    const run = () => which === 'elevenlabs' ? elevenlabs(text, lang) : which === 'azure' ? azure(text, lang, st) : which === 'edge' ? edge(text, lang, st) : pollyTts(text, lang);
+    const run = () => which === 'elevenlabs' ? elevenlabs(text, lang) : which === 'azure' ? azure(text, lang, st) : which === 'edge' ? edge(text, lang, st) : pollyTts(text, lang, st);
     let res, err;
     for (let i = 0; i < (which === 'edge' ? 2 : 1); i++) {   // the free Edge service sometimes answers 429; a short retry clears it
       try { res = await run(); err = null; break; } catch (e) { err = e; await new Promise((r) => setTimeout(r, 250 + Math.random() * 350)); }

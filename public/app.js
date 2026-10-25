@@ -696,7 +696,7 @@ function speechParts(text){
  for(const s of raw){if(out.length&&out[out.length-1].length<26)out[out.length-1]+=' '+s;else out.push(s)}
  return out.flatMap(s=>s.length<=500?[s]:s.match(/.{1,480}(?:\s|$)/g).map(x=>x.trim()));
 }
-let ttsFails=0,ttsCool=0;   // after 3 failures in a row the device voice is used for 5 minutes
+let ttsFails=0,ttsCool=0;   // one failure: device voice for 20 seconds; two in a row: for 5 minutes
 function startSpeaker(langOv,styleOv){
  const L=langOv||lang,S=styleOv||vstyle;
  audioInit();stopSpeak();ambStart();applyStyleFX(S);
@@ -706,7 +706,8 @@ function startSpeaker(langOv,styleOv){
  const once=s=>{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),12000);
   return fetch('/api/speak',{signal:ac.signal,method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:sanskritSpeech(s),lang:L,style:S==='device'?'calm':S})})
    .then(r=>r.ok?r.arrayBuffer():Promise.reject(new Error('tts '+r.status))).then(b=>AC.decodeAudioData(b)).finally(()=>clearTimeout(t))};
- const load=s=>once(s).catch(()=>sleep(400).then(()=>once(s))).then(b=>{ttsFails=0;return b},()=>{if(++ttsFails>=3)ttsCool=Date.now()+300000;return null});
+ const load=s=>Date.now()<ttsCool?Promise.resolve(null)    // the voice service is down: speak at once with the device voice instead of waiting on it for every line
+  :once(s).catch(e=>/^tts 5/.test(e.message)?Promise.reject(e):sleep(400).then(()=>once(s))).then(b=>{ttsFails=0;return b},()=>{ttsCool=Date.now()+(++ttsFails>=2?300000:20000);return null});
  const finish=()=>{if(my===vtoken){setState('idle');ambStop();if(convo&&speakOn)setTimeout(()=>{if(!busy&&!rec&&my===vtoken&&document.body.dataset.state==='idle')startListening()},700)}};
  // browser voice path (also the graceful fallback)
  const vo=pickVoice(L);
