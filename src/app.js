@@ -160,11 +160,21 @@ async function ask(text){
  try{await askInner(text)}catch(e){console.error('ask failed',e);toast('Something went wrong. Please try again.')}
  finally{clearTimeout(wd);busy=false;$('#goBtn').disabled=false;if(!(window.speechSynthesis&&speechSynthesis.speaking)&&document.body.dataset.state==='thinking')setState('idle')}
 }
+/* ---------- Crisis help: when words suggest self-harm, real helplines appear beside Krishna's reply ---------- */
+const CRISIS=/suicid|kill(ing)? my ?self|end(ing)? (my|it) (life|all)|take my (own )?life|(want|wish|going) to die|don'?t want to (live|be alive|wake up)|no (reason|point) (to|in) (live|living)|better off dead|harm(ing)? my ?self|hurt(ing)? my ?self|cut(ting)? my ?self|self[- ]?harm|आत्महत्या|ख़ुदकुशी|खुदकुशी|मरना चाहत|मर जाना चाहत|जीना नहीं चाहत|जान दे दू|खुद को (मार|खत्म|ख़त्म)|khudkushi|aatmahatya|atmahatya|marna chah|mar jana chah|jeena nahi chah|jina nahi chah|ఆత్మహత్య|చనిపోవాల|చావాల|బతకాలని లేదు|బ్రతకాలని లేదు|నన్ను నేను చంపు|chanipovala|chaavala|chavala|bathakalani ledu|bratakalani ledu/i;
+const inCrisis=t=>CRISIS.test(String(t||''));
+const HELP={
+ en:{h:'You do not have to carry this alone',p:'If you are thinking of ending your life or hurting yourself, please talk to someone now. These lines are free, confidential and open day and night.',tm:'Tele-MANAS (India, 24×7)',em:'Emergency (India)',out:'Outside India, call your local emergency number.'},
+ hi:{h:'यह बोझ आपको अकेले नहीं उठाना है',p:'यदि आप अपना जीवन समाप्त करने या स्वयं को चोट पहुँचाने के बारे में सोच रहे हैं, तो कृपया अभी किसी से बात कीजिए। ये नंबर निःशुल्क, गोपनीय और दिन-रात खुले हैं।',tm:'टेली-मानस (भारत, 24×7)',em:'आपातकाल (भारत)',out:'भारत के बाहर, अपने स्थानीय आपातकालीन नंबर पर कॉल कीजिए।'},
+ te:{h:'ఈ భారాన్ని మీరు ఒంటరిగా మోయనక్కర్లేదు',p:'మీ ప్రాణం తీసుకోవాలని లేదా మిమ్మల్ని మీరు గాయపరచుకోవాలని ఆలోచిస్తుంటే, దయచేసి ఇప్పుడే ఎవరితోనైనా మాట్లాడండి. ఈ నంబర్లు ఉచితం, గోప్యం, పగలూ రాత్రీ అందుబాటులో ఉంటాయి.',tm:'టెలి-మానస్ (భారత్, 24×7)',em:'అత్యవసరం (భారత్)',out:'భారత్ బయట ఉంటే, మీ స్థానిక అత్యవసర నంబర్‌కు కాల్ చేయండి.'}};
+function helpCard(){const L=HELP[lang]||HELP.en,d=document.createElement('aside');d.className='help';d.setAttribute('role','note');
+ d.innerHTML=`<b>${esc(L.h)}</b><p>${esc(L.p)}</p><div class="help-row"><a class="help-call" href="tel:14416">📞 ${esc(L.tm)} · 14416</a><a class="help-call" href="tel:112">🚨 ${esc(L.em)} · 112</a></div><small>${esc(L.out)}</small>`;return d}
 async function askInner(text){
  text=(text||'').trim();if(!text){toast('Speak or type what is on your heart 🙏');return}
  audioInit();if(busy)return;{const dl=detectLang(text);if(dl&&dl!==lang){setLang(dl);toast(dl==='hi'?'Krishna will answer in हिंदी':'Krishna will answer in తెలుగు')}}busy=true;$('#goBtn').disabled=true;stopSpeak();micWanted=false;if(rec){try{rec.stop()}catch{}}
  $('#thread').innerHTML='';
  const me=document.createElement('div');me.className='me';const mk=document.createElement('small');mk.textContent=tx('You');const mt=document.createElement('span');mt.textContent=text;me.append(mk,mt);$('#thread').appendChild(me);
+ if(inCrisis(text))$('#thread').appendChild(helpCard());
  $('#chariot').classList.add('show');$('#readMore').classList.remove('show');
  if(speakOn)$('#readMore').classList.add('show');else setTimeout(()=>me.scrollIntoView({behavior:'smooth',block:'start'}),60);
  $('#q').value='';autosize();

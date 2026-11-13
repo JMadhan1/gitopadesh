@@ -103,6 +103,10 @@ body[data-stage="1"] .journey li:nth-child(-n+1),body[data-stage="2"] .journey l
 #chariot.show{display:block}
 .thread{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
 .me{align-self:flex-end;max-width:86%;background:linear-gradient(135deg,rgba(45,91,201,.55),rgba(45,91,201,.28));border:1px solid rgba(120,160,255,.4);padding:12px 16px;border-radius:18px 18px 4px 18px;line-height:1.5}
+.help{align-self:stretch;border:1px solid rgba(242,194,107,.55);background:rgba(242,194,107,.09);border-radius:16px;padding:14px 16px;line-height:1.5}
+.help b{display:block;color:var(--gold);font:600 16px var(--sans);margin-bottom:4px}.help p{margin:0 0 10px}
+.help-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}.help-call{display:inline-block;background:var(--gold);color:#241500;border-radius:99px;padding:9px 14px;font:700 14px var(--sans);text-decoration:none}
+.help small{opacity:.75}
 .me small{display:block;font:600 10px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:#a9c0ff;margin-bottom:3px}
 .kr{position:relative;background:var(--leaf);color:var(--leaf-ink);padding:26px 26px 10px;clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px),0 14px);animation:rise .7s;box-shadow:0 30px 80px rgba(0,0,0,.5)}
 .kr::before{content:"";position:absolute;inset:8px;border:1px solid rgba(168,46,26,.5);clip-path:inherit;pointer-events:none}
@@ -363,7 +367,7 @@ footer a{color:var(--gold)}
  <div class="stats" id="stats" hidden><span id="stTotal"></span><span id="stLive"></span></div>
  <p class="statsnote" id="stNote" hidden></p>
  <p id="ftDisc">Gitopadesh offers reflections drawn from the Bhagavad Gītā. It is not medical, legal or mental-health advice. If you are in crisis, contact a local helpline or someone you trust now.</p>
- <p id="ftPriv">Your words are sent to Amazon Bedrock to write Krishna’s reply, and each sentence he speaks is sent to Microsoft’s speech service. Gitopadesh does not store them; your conversation history stays only in your browser. · <a href="/support">Support</a> · <a href="mailto:hello@jmadhan.me">hello@jmadhan.me</a> · <a href="https://jmadhan.me" rel="noopener author" target="_blank">jmadhan.me</a></p>
+ <p id="ftPriv">Your words are sent to Amazon Bedrock to write Krishna’s reply, and each sentence he speaks is sent to a cloud speech service (Microsoft Azure or Amazon Polly) to be voiced. Gitopadesh does not store them; your conversation history stays only in your browser. · <a href="/support">Support</a> · <a href="mailto:hello@jmadhan.me">hello@jmadhan.me</a> · <a href="https://jmadhan.me" rel="noopener author" target="_blank">jmadhan.me</a></p>
 </footer>
 
 <button class="fab" id="fab" type="button" aria-label="Back to Krishna">🎙</button>

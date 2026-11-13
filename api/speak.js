@@ -2,9 +2,10 @@
 // Provider order (first one configured wins):
 //   1. ElevenLabs   ELEVENLABS_API_KEY (+ ELEVENLABS_VOICE_ID)   most lifelike; supports a custom-designed voice
 //   2. Azure Speech AZURE_SPEECH_KEY + AZURE_SPEECH_REGION        en-IN-PrabhatNeural / hi-IN-MadhurNeural / te-IN-MohanNeural
-//   3. Edge neural (free, no key)  en-IN-PrabhatNeural / hi-IN-MadhurNeural / te-IN-MohanNeural via the Edge read-aloud service.
-//      Unofficial endpoint: set EDGE_TTS=0 to turn it off. The page falls back to the browser voice if it ever fails.
-//   4. Amazon Polly (the AWS keys already in use)                  English only (no Indian male voice exists for hi/te)
+//   3. Amazon Polly (the AWS keys already in use)                  Arjun (male, generative) for en-IN and hi-IN; no Telugu
+//   4. Edge neural (no key)  en-IN-PrabhatNeural / hi-IN-MadhurNeural / te-IN-MohanNeural via the Edge read-aloud service.
+//      Unofficial endpoint that Microsoft now blocks: opt in with EDGE_TTS=1. The page falls back to the browser voice.
+// Free option: an Azure Speech resource on the F0 tier gives 0.5 million neural characters a month at no cost.
 // With none available the page falls back to the browser's own speech.
 import { MsEdgeTTS, OUTPUT_FORMAT } from 'msedge-tts';
 import { SECURITY_HEADERS, clientIp, rateLimit, sameOrigin } from '../lib/guard.js';
@@ -87,16 +88,37 @@ async function edge(text, lang, st) {
 }
 
 let polly;
+// Polly modes, best first. Arjun is a male generative voice (Indian English and Hindi); Kajal (neural, female) is
+// the last resort for regions without the generative engine. A mode that fails is skipped by this instance afterwards.
+const POLLY_MODES = [
+  { engine: 'generative', voice: env('POLLY_VOICE', 'Arjun'), ssml: true },
+  { engine: 'generative', voice: env('POLLY_VOICE', 'Arjun'), ssml: false },   // in case the engine rejects a tag
+  { engine: 'neural', voice: env('POLLY_FALLBACK_VOICE', 'Kajal'), ssml: true },
+];
+let pollyMode = process.env.POLLY_ENGINE === 'neural' ? 2 : 0;
 async function pollyTts(text, lang, st) {
   if (lang === 'te') return null; // Polly has no Telugu voice: the page speaks Telugu with the device voice
   const { PollyClient, SynthesizeSpeechCommand } = await import('@aws-sdk/client-polly');
   polly ??= new PollyClient({ region: env('POLLY_REGION', env('AWS_REGION', 'ap-south-1')) });
-  const r = await polly.send(new SynthesizeSpeechCommand({
-    Engine: 'neural', VoiceId: env('POLLY_VOICE', 'Kajal'), LanguageCode: lang === 'hi' ? 'hi-IN' : 'en-IN', OutputFormat: 'mp3', TextType: 'ssml',
-    Text: `<speak><prosody rate="${st.polly}">${xml(text)}</prosody></speak>`,
-  }));
-  const bytes = await r.AudioStream.transformToByteArray();
-  return audio(bytes);
+  let err;
+  for (let i = pollyMode; i < POLLY_MODES.length; i++) {
+    const m = POLLY_MODES[i];
+    try {
+      const r = await polly.send(new SynthesizeSpeechCommand({
+        Engine: m.engine, VoiceId: m.voice, LanguageCode: lang === 'hi' ? 'hi-IN' : 'en-IN', OutputFormat: 'mp3',
+        TextType: m.ssml ? 'ssml' : 'text',
+        Text: m.ssml ? `<speak><prosody rate="${st.polly}">${xml(text)}</prosody></speak>` : text,
+      }));
+      const bytes = await r.AudioStream.transformToByteArray();
+      if (i !== pollyMode) { console.warn('polly_mode', m.engine, m.voice, m.ssml ? 'ssml' : 'text'); pollyMode = i; }
+      return audio(bytes);
+    } catch (e) {
+      err = e;
+      // throttling or a network fault is not the voice's fault: do not give up on the better mode for it
+      if (/Throttl|TooManyRequests|ServiceFailure|Timeout|ECONN|socket/i.test(e.name + ' ' + e.message)) throw e;
+    }
+  }
+  throw err;
 }
 
 export async function POST(req) {
